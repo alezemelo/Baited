@@ -10,11 +10,11 @@ Costruire un MVP desktop-first per comporre, validare e salvare workflow di camp
 
 ## Stato sintetico
 
-Il modello applicativo è operativo: sette kind discriminati, catalogo/factory centralizzato, draft iniziale tipizzato e `WorkflowProvider` condiviso alimentano pagina, libreria e canvas. La fase successiva è il wizard a tre step.
+TASK-004 è in corso. Il wizard a tre step resta operativo sopra il modello condiviso; baseline build/lint iniziale verde. La sessione sta collegando libreria e operazioni canvas al provider per rendere operativo l'editor.
 
 ## Task attiva
 
-Nessuna. `TASK-002` è stata completata e archiviata.
+`TASK-004 — Editor canvas` (`in_progress`).
 
 ## Ultima sessione
 
@@ -26,6 +26,7 @@ Nessuna. `TASK-002` è stata completata e archiviata.
 - Applicata la convenzione React pages/components e archiviata `TASK-009`.
 - Applicato il design system Lumina/Baited e archiviata `TASK-010`.
 - Implementato il modello workflow e archiviata `TASK-002`.
+- Implementato il wizard a tre step e archiviata `TASK-003`.
 
 ## Verifiche effettuate
 
@@ -36,11 +37,12 @@ Nessuna. `TASK-002` è stata completata e archiviata.
 - Browser 1280×720 e 1440×900 — layout senza overflow, sette nodi e sei archi iniziali verificati.
 - Drag/selezione, nuova connessione, zoom, fit view e pan — superati; console senza warning o errori.
 - Modello/provider — build e lint senza warning; browser con drag, selezione e connessione superato.
+- Wizard — validazione/focus, navigazione, persistenza, revisione e pannello proprietà verificati a 1024 e 1280 px.
 
 ## Problemi aperti
 
-Nessun blocco noto. I vincoli del catalogo sono dichiarativi: la loro applicazione e la validazione DAG appartengono alle task successive.
+Nessun blocco noto. La libreria è ancora visuale: aggiunta tramite drag-and-drop, duplicazione, eliminazione e conferme appartengono a TASK-004.
 
 ## Prossimo passo
 
-Aprire [`tasks/TASK-003-wizard-shell.md`](tasks/TASK-003-wizard-shell.md), impostarla `in_progress` e costruire gli step Dettagli, Workflow e Revisione sopra il provider esistente.
+Implementare drag-and-drop dalla libreria al canvas, poi collegare duplicazione/eliminazione alla selezione mantenendo controlli, minimappa, zoom, pan e fit view.

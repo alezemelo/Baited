@@ -37,6 +37,10 @@ Le pagine usano il suffisso `Page`; i componenti sono raggruppati per area sotto
 
 I tipi discriminati, il catalogo dei blocchi e il draft iniziale risiedono in `src/features/workflow/`. `WorkflowProvider` espone metadati, nodi, archi, selezione e operazioni di modifica ai componenti dell'editor.
 
+## Wizard
+
+La creazione usa tre step senza routing: `Dettagli`, `Workflow` e `Revisione`. I metadati e il grafo restano nel provider durante la navigazione; il passaggio all'editor richiede un nome valido.
+
 ## Lavorare sul progetto
 
 Prima di iniziare una sessione leggere [`agentic/START-SESSION.md`](agentic/START-SESSION.md). Prima di terminarla seguire [`agentic/END-SESSION.md`](agentic/END-SESSION.md).

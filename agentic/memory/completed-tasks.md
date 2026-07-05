@@ -37,3 +37,12 @@ Registro append-only. Non modificare o rimuovere le voci esistenti; eventuali co
 - Verifiche: `npm run build` — superato; `npm run lint` — superato senza warning; browser — sette nodi, sei archi e sei template verificati; drag/selezione e nuova connessione — superati; console — nessun warning o errore.
 - Decisioni: D-008.
 - Follow-up: TASK-003 deve costruire il wizard sui metadati e sulle operazioni già esposte dal provider.
+
+## TASK-003 — Shell del wizard
+
+- Completata: 2026-07-05
+- Risultato: implementati gli step Dettagli, Workflow e Revisione con progress accessibile, navigazione avanti/indietro, form collegato al provider e area proprietà del nodo.
+- File principali: `src/components/wizard/`, `src/components/workflow/WorkflowPropertiesPanel.tsx`, `src/pages/WorkflowStudioPage.tsx`.
+- Verifiche: `npm run build` — superato; `npm run lint` — superato; browser 1024 px — validazione nome, focus, navigazione e persistenza superati; browser 1280 px — area proprietà e selezione nodo superate; console — nessun warning o errore.
+- Decisioni: D-009.
+- Follow-up: TASK-004 deve rendere operativa la libreria con drag-and-drop, duplicazione ed eliminazione usando le operazioni già esposte dal provider.

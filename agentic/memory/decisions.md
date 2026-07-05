@@ -54,3 +54,11 @@
 - Decisione: rappresentare ogni blocco con una union discriminata sul campo `kind` e configurazioni specifiche per le sette azioni di dominio.
 - Catalogo: template, valori iniziali e vincoli di connessione sono centralizzati in `src/features/workflow/catalog.ts`; il draft iniziale viene creato dalle stesse factory.
 - Stato: `WorkflowProvider` possiede metadati, nodi, archi e selezione ed espone operazioni esplicite; canvas e pagina consumano il context senza stato React Flow locale.
+
+## D-009 — Wizard locale sopra il draft condiviso
+
+- Data: 2026-07-05
+- Stato: accettata
+- Decisione: gestire localmente lo step corrente e la massima tappa visitata, mantenendo metadati e grafo nel `WorkflowProvider`.
+- Navigazione: gli step futuri restano disabilitati finché non vengono raggiunti; quelli visitati sono navigabili da tastiera tramite label univoche.
+- Validazione: il passaggio Dettagli → Workflow richiede un nome non vuoto, mostra errore inline e riporta il focus al campo.

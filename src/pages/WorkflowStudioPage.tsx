@@ -1,9 +1,7 @@
 import { AppHeader } from '../components/layout/AppHeader'
 import { SideNavigation } from '../components/layout/SideNavigation'
-import { NodeLibrary } from '../components/workflow/NodeLibrary'
-import { WorkflowCanvas } from '../components/workflow/WorkflowCanvas'
 import { WorkflowProvider } from '../components/workflow/WorkflowProvider'
-import { nodeLibraryBlocks } from '../features/workflow/catalog'
+import { WorkflowWizard } from '../components/wizard/WorkflowWizard'
 import { useWorkflow } from '../features/workflow/WorkflowContext'
 
 export function WorkflowStudioPage() {
@@ -16,6 +14,7 @@ export function WorkflowStudioPage() {
 
 function WorkflowStudioContent() {
   const { draft } = useWorkflow()
+  const workflowTitle = draft.metadata.name.trim() || 'Nuovo workflow'
 
   return (
     <main className="flex h-dvh min-h-[640px] flex-col overflow-hidden bg-surface text-on-surface">
@@ -23,13 +22,12 @@ function WorkflowStudioContent() {
         activeTab="Editor"
         category={draft.metadata.category}
         status="Attivo"
-        title={draft.metadata.name}
+        title={workflowTitle}
       />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <SideNavigation />
-        <NodeLibrary blocks={nodeLibraryBlocks} />
-        <WorkflowCanvas />
+        <WorkflowWizard />
       </div>
     </main>
   )
