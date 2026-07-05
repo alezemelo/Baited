@@ -10,7 +10,7 @@ Costruire un MVP desktop-first per comporre, validare e salvare workflow di camp
 
 ## Stato sintetico
 
-TASK-011 è completata. Ogni nodo raggiungibile deve ora poter arrivare a un end; il workflow iniziale include `training → end` e la suite completa è verde.
+Il piano esteso è completato. Terminazione dei percorsi, timeout condition esplicito e generazione scenario da OSINT sono implementati e coperti dalla suite completa.
 
 ## Task attiva
 
@@ -33,9 +33,13 @@ Nessuna task in corso.
 - Implementati revisione, salvataggio mock e ripristino locale e archiviata `TASK-007`.
 - Consolidati test, accessibilità, dirty state e documentazione e archiviata `TASK-008`.
 - Aggiunta la terminazione obbligatoria dei percorsi e archiviata `TASK-011`.
+- Reso esplicito il timeout delle condition e archiviata `TASK-012`.
+- Aggiunta la generazione scenario da OSINT e archiviata `TASK-013`.
 
 ## Verifiche effettuate
 
+- TASK-013 — 15 test dominio, 7 componenti e 3 E2E Chromium superati; build, lint e diff check superati.
+- TASK-012 — `npm run test` superato: 12 test dominio e 6 componenti; `npm run test:e2e` superato: 3 test Chromium; build, lint e diff check superati.
 - TASK-011 — `npm run test` superato: 11 test dominio e 5 test componenti; `npm run test:e2e` superato: 3 test Chromium; build, lint e diff check superati.
 - TASK-008 — `npm run test` superato: 9 test dominio e 5 test componenti.
 - TASK-008 — `npm run test:e2e` superato: 3 test Chromium per errore/retry/refresh, aggiunta tastiera/dirty state e audit axe su Dettagli/Revisione.
@@ -70,6 +74,13 @@ Nessun blocco noto. Eccezione di accessibilità documentata: pan, zoom e creazio
 - Persistenza: chiave `localStorage` `baited:last-saved-workflow`, contenente request e response.
 - Errore simulato: checkbox in Revisione, implementata con header one-shot `x-baited-simulate-error: true` e risposta `503`.
 
+## Contratto scenario OSINT
+
+- Kind: `generate_scenario_from_osint`.
+- Config: `scenarioTemplate`, `channel`, `evidenceStrategy`.
+- Vincolo: deve trovarsi downstream da `start_osint_on_targets`; errore `missing_osint_source` in caso contrario.
+- Demo: `workflow_start → OSINT → generazione scenario → create_campaign`.
+
 ## Prossimo passo
 
-Avviare TASK-012 — Timeout esplicito delle condizioni: aggiungere `waitForMinutes` al modello condition, all'inspector, alla validazione e al payload.
+Non esistono task pianificate eseguibili: richiedere una decisione prima di ampliare ulteriormente lo scope.

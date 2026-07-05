@@ -107,6 +107,7 @@ export const workflowNodeCatalog = [
       icon: 'branch',
       status: 'pronto',
       config: {
+        waitForMinutes: 2880,
         rules: [
           {
             id: 'yes',
@@ -177,8 +178,31 @@ export const workflowNodeCatalog = [
       subtitle: 'Fonti social e professionali',
       category: 'Intelligence',
       icon: 'search',
-      status: 'bozza',
-      config: { targets: [], type: 'social' },
+      status: 'pronto',
+      config: { targets: ['target-group-q3'], type: 'social' },
+    },
+  },
+  {
+    id: 'generate-scenario-osint',
+    kind: 'generate_scenario_from_osint',
+    label: 'Genera scenario OSINT',
+    description: 'Crea uno scenario dalle evidenze',
+    category: 'Intelligence',
+    icon: 'sparkles',
+    availableInLibrary: true,
+    connectionRules: singleInputSingleOutput,
+    defaultData: {
+      kind: 'generate_scenario_from_osint',
+      label: 'Scenario OSINT mirato',
+      subtitle: 'Credential harvest · Email',
+      category: 'Intelligence',
+      icon: 'sparkles',
+      status: 'pronto',
+      config: {
+        scenarioTemplate: 'credential_harvest',
+        channel: 'email',
+        evidenceStrategy: 'most_relevant',
+      },
     },
   },
   {

@@ -23,8 +23,10 @@ test('completes save error, retry and refresh recovery', async ({ page }) => {
 
   await page.getByText('Training di base', { exact: true }).click()
   await page.getByLabel('Target campagna Q3').check()
+  await page.getByText('Email aperta?', { exact: true }).click({ force: true })
+  await page.getByLabel('Timeout valutazione (minuti)').fill('60')
   await page.getByRole('button', { name: 'Vai alla revisione' }).press('Enter')
-  await expect(page.getByText('7 connessioni')).toBeVisible()
+  await expect(page.getByText('9 connessioni')).toBeVisible()
 
   const saveButton = page.getByRole('button', { name: 'Salva workflow' })
   await expect(saveButton).toBeEnabled()
@@ -45,6 +47,16 @@ test('completes save error, retry and refresh recovery', async ({ page }) => {
       window.localStorage.getItem('baited:last-saved-workflow'),
     ),
   ).toContain(savedId!.replace('ID: ', ''))
+  expect(
+    await page.evaluate(() =>
+      window.localStorage.getItem('baited:last-saved-workflow'),
+    ),
+  ).toContain('"waitForMinutes":60')
+  expect(
+    await page.evaluate(() =>
+      window.localStorage.getItem('baited:last-saved-workflow'),
+    ),
+  ).toContain('"kind":"generate_scenario_from_osint"')
 
   await page.reload()
   await page.getByRole('button', { name: 'Apri workflow' }).click()
@@ -64,6 +76,12 @@ test('supports keyboard block creation and warns about unsaved changes', async (
   await addOsint.press('Enter')
 
   await expect(page.getByLabel('Tipo OSINT')).toBeVisible()
+  const addScenario = page.getByRole('button', {
+    name: 'Aggiungi Genera scenario OSINT al canvas',
+  })
+  await addScenario.focus()
+  await addScenario.press('Enter')
+  await expect(page.getByLabel('Scenario predefinito')).toBeVisible()
   expect(
     await page.evaluate(() => {
       const event = new Event('beforeunload', { cancelable: true })

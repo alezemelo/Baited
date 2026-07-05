@@ -40,8 +40,8 @@ Realizzare una demo desktop-first in cui l'utente definisce i dati generali, com
 | TASK-009 | Convenzione React pages/components | TASK-001 | Completata |
 | TASK-010 | Design system Lumina/Baited | TASK-009 | Completata |
 | TASK-011 | Terminazione di tutti i percorsi | TASK-008 | Completata |
-| TASK-012 | Timeout esplicito delle condizioni | TASK-011 | Pianificata |
-| TASK-013 | Generazione scenario da risultati OSINT | TASK-012 | Pianificata |
+| TASK-012 | Timeout esplicito delle condizioni | TASK-011 | Completata |
+| TASK-013 | Generazione scenario da risultati OSINT | TASK-012 | Completata |
 
 ## Definizione di completamento
 

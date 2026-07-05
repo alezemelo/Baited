@@ -7,7 +7,10 @@ import type {
   ConditionOperator,
   ConditionRule,
   CreateCampaignNodeData,
+  GenerateScenarioFromOsintNodeData,
+  OsintEvidenceStrategy,
   OsintType,
+  ScenarioTemplate,
   StartAwarenessCampaignNodeData,
   StartOsintOnTargetsNodeData,
   WorkflowEndNodeData,
@@ -64,6 +67,24 @@ const osintOptions: readonly {
   { label: 'Social', value: 'social' },
   { label: 'Azienda', value: 'company' },
   { label: 'Dominio', value: 'domain' },
+]
+
+const scenarioTemplateOptions: readonly {
+  label: string
+  value: ScenarioTemplate
+}[] = [
+  { label: 'Raccolta credenziali', value: 'credential_harvest' },
+  { label: 'Impersonificazione executive', value: 'executive_impersonation' },
+  { label: 'Frode fornitore', value: 'supplier_fraud' },
+]
+
+const evidenceStrategyOptions: readonly {
+  label: string
+  value: OsintEvidenceStrategy
+}[] = [
+  { label: 'Evidenze più rilevanti', value: 'most_relevant' },
+  { label: 'Copertura ampia', value: 'broad' },
+  { label: 'Evidenze recenti', value: 'recent' },
 ]
 
 const outcomeOptions: readonly {
@@ -221,6 +242,21 @@ export function NodeInspector({ node, onUpdate }: NodeInspectorProps) {
             onUpdate={(updater) =>
               updateData((currentData) =>
                 currentData.kind === 'start_osint_on_targets'
+                  ? updater(currentData)
+                  : currentData,
+              )
+            }
+            validation={validation}
+          />
+        ) : null}
+
+        {data.kind === 'generate_scenario_from_osint' ? (
+          <GenerateScenarioFromOsintFields
+            data={data}
+            fieldPrefix={fieldPrefix}
+            onUpdate={(updater) =>
+              updateData((currentData) =>
+                currentData.kind === 'generate_scenario_from_osint'
                   ? updater(currentData)
                   : currentData,
               )
@@ -514,6 +550,67 @@ function OsintFields({
   )
 }
 
+function GenerateScenarioFromOsintFields({
+  data,
+  fieldPrefix,
+  onUpdate,
+  validation,
+}: {
+  data: GenerateScenarioFromOsintNodeData
+  fieldPrefix: string
+  onUpdate: (
+    updater: (currentData: GenerateScenarioFromOsintNodeData) => WorkflowNodeData,
+  ) => void
+  validation: NodeValidation
+}) {
+  return (
+    <>
+      <SelectField
+        error={validation.errors.scenarioTemplate}
+        id={`${fieldPrefix}-scenario-template`}
+        label="Scenario predefinito"
+        onChange={(scenarioTemplate) =>
+          onUpdate((currentData) => ({
+            ...currentData,
+            config: { ...currentData.config, scenarioTemplate },
+          }))
+        }
+        options={scenarioTemplateOptions}
+        required
+        value={data.config.scenarioTemplate}
+      />
+      <SelectField
+        error={validation.errors.channel}
+        id={`${fieldPrefix}-channel`}
+        label="Canale risultante"
+        onChange={(channel) =>
+          onUpdate((currentData) => ({
+            ...currentData,
+            config: { ...currentData.config, channel },
+          }))
+        }
+        options={channelOptions}
+        required
+        value={data.config.channel}
+      />
+      <SelectField
+        error={validation.errors.evidenceStrategy}
+        id={`${fieldPrefix}-evidence-strategy`}
+        label="Strategia evidenze OSINT"
+        onChange={(evidenceStrategy) =>
+          onUpdate((currentData) => ({
+            ...currentData,
+            config: { ...currentData.config, evidenceStrategy },
+          }))
+        }
+        options={evidenceStrategyOptions}
+        required
+        value={data.config.evidenceStrategy}
+      />
+    </>
+  )
+}
+
 function ConditionFields({
   data,
   fieldPrefix,
@@ -600,6 +697,21 @@ function ConditionFields({
 
   return (
     <div className="space-y-3">
+      <NumberField
+        error={validation.errors.waitForMinutes}
+        hint="Tempo massimo prima di valutare i branch, separato dall'attesa delle azioni."
+        id={`${fieldPrefix}-wait-for`}
+        label="Timeout valutazione (minuti)"
+        min={0}
+        onChange={(waitForMinutes) =>
+          onUpdate((currentData) => ({
+            ...currentData,
+            config: { ...currentData.config, waitForMinutes },
+          }))
+        }
+        required
+        value={data.config.waitForMinutes}
+      />
       <div>
         <div className="mb-2 flex items-center justify-between gap-2">
           <p className="font-label text-[10px] font-semibold uppercase tracking-[0.1em] text-on-surface-muted">
@@ -796,7 +908,28 @@ function validateNodeData(data: WorkflowNodeData): NodeValidation {
     errors.targets = 'Seleziona almeno un target da analizzare.'
   }
 
+  if (data.kind === 'generate_scenario_from_osint') {
+    if (!data.config.scenarioTemplate) {
+      errors.scenarioTemplate = 'Seleziona uno scenario predefinito.'
+    }
+
+    if (!data.config.channel) {
+      errors.channel = 'Seleziona un canale risultante.'
+    }
+
+    if (!data.config.evidenceStrategy) {
+      errors.evidenceStrategy = 'Seleziona una strategia per le evidenze.'
+    }
+  }
+
   if (data.kind === 'condition') {
+    if (
+      !Number.isFinite(data.config.waitForMinutes) ||
+      data.config.waitForMinutes < 0
+    ) {
+      errors.waitForMinutes = 'Inserisci un timeout uguale o maggiore di zero.'
+    }
+
     if (data.config.rules.length === 0) {
       errors.rules = 'Serve almeno una regola if.'
     }
@@ -856,8 +989,10 @@ function completedSubtitle(data: WorkflowNodeData) {
       return `Gruppo: ${optionLabel(targetGroupOptions, data.config.groupId)}`
     case 'start_osint_on_targets':
       return `OSINT ${optionLabel(osintOptions, data.config.type)}`
+    case 'generate_scenario_from_osint':
+      return `${optionLabel(scenarioTemplateOptions, data.config.scenarioTemplate)} · ${channelLabel(data.config.channel)}`
     case 'condition':
-      return `${data.config.rules.length} regole + else`
+      return `Attesa ${formatDelay(data.config.waitForMinutes)} · ${data.config.rules.length} regole + else`
     case 'workflow_end':
       return `Esito: ${optionLabel(outcomeOptions, data.config.outcome)}`
   }
@@ -876,11 +1011,13 @@ function formatDelay(minutes: number) {
   }
 
   if (minutes % 1440 === 0) {
-    return `${minutes / 1440} giorni`
+    const days = minutes / 1440
+    return `${days} ${days === 1 ? 'giorno' : 'giorni'}`
   }
 
   if (minutes % 60 === 0) {
-    return `${minutes / 60} ore`
+    const hours = minutes / 60
+    return `${hours} ${hours === 1 ? 'ora' : 'ore'}`
   }
 
   return `${minutes} min`

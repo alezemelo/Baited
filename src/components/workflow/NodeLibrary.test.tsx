@@ -26,5 +26,13 @@ describe('NodeLibrary', () => {
     await user.keyboard('{Enter}')
 
     expect(onBlockAdd).toHaveBeenCalledWith('start-osint-social')
+
+    const addScenario = screen.getByRole('button', {
+      name: 'Aggiungi Genera scenario OSINT al canvas',
+    })
+    addScenario.focus()
+    await user.keyboard('{Enter}')
+
+    expect(onBlockAdd).toHaveBeenCalledWith('generate-scenario-osint')
   })
 })

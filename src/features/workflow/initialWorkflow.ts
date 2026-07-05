@@ -20,21 +20,35 @@ const markerEnd = { type: MarkerType.ArrowClosed, color: '#4de082' }
 
 const initialNodes: WorkflowNode[] = [
   requireInitialNode('workflow-start', 'targets', { x: 20, y: 230 }),
-  requireInitialNode('create-campaign-email', 'email', { x: 270, y: 230 }),
-  requireInitialNode('condition-email-opened', 'opened', { x: 530, y: 230 }),
-  requireInitialNode('create-campaign-sms', 'sms', { x: 800, y: 80 }),
-  requireInitialNode('add-target-high-risk', 'risk', { x: 800, y: 380 }),
+  requireInitialNode('start-osint-social', 'osint', { x: 270, y: 230 }),
+  requireInitialNode('generate-scenario-osint', 'scenario', { x: 520, y: 230 }),
+  requireInitialNode('create-campaign-email', 'email', { x: 770, y: 230 }),
+  requireInitialNode('condition-email-opened', 'opened', { x: 1030, y: 230 }),
+  requireInitialNode('create-campaign-sms', 'sms', { x: 1300, y: 80 }),
+  requireInitialNode('add-target-high-risk', 'risk', { x: 1300, y: 380 }),
   requireInitialNode('start-awareness-basic', 'training', {
-    x: 1060,
+    x: 1560,
     y: 380,
   }),
-  requireInitialNode('workflow-end', 'end', { x: 1320, y: 230 }),
+  requireInitialNode('workflow-end', 'end', { x: 1820, y: 230 }),
 ]
 
 const initialEdges: WorkflowEdge[] = [
   {
-    id: 'targets-email',
+    id: 'targets-osint',
     source: 'targets',
+    target: 'osint',
+    markerEnd,
+  },
+  {
+    id: 'osint-scenario',
+    source: 'osint',
+    target: 'scenario',
+    markerEnd,
+  },
+  {
+    id: 'scenario-email',
+    source: 'scenario',
     target: 'email',
     markerEnd,
   },

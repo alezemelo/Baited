@@ -34,12 +34,16 @@ npx playwright install chromium
 ## Percorso utente
 
 1. **Dettagli:** nome, descrizione e gruppo target.
-2. **Workflow:** composizione del grafo, collegamenti e configurazione dei sette tipi di nodo.
+2. **Workflow:** composizione del grafo, collegamenti e configurazione degli otto kind di nodo.
 3. **Revisione:** riepilogo di nodi, archi e branch, errori strutturati e salvataggio mock.
 
 Il salvataggio è disabilitato finché `validation.isValid` è falso. Lo stato del draft segnala le modifiche non salvate e attiva la conferma nativa quando si tenta di chiudere o ricaricare la pagina.
 
 La validazione richiede uno start unico, almeno un end, assenza di cicli e che ogni nodo raggiungibile possa condurre a un end. Un ramo operativo lasciato senza terminazione viene segnalato con `unterminated_path` e blocca il salvataggio.
+
+Le condizioni espongono `waitForMinutes`, il tempo massimo prima della valutazione dei branch. È distinto da `elapsedTimeMinutes`, che descrive l'attesa propria delle azioni campagna e awareness; il template iniziale usa 2880 minuti, equivalenti a 48 ore.
+
+Il kind `generate_scenario_from_osint` configura `scenarioTemplate`, `channel` ed `evidenceStrategy`. Deve trovarsi a valle di `start_osint_on_targets`; in caso contrario il validator produce `missing_osint_source`. La demo iniziale include la catena OSINT → generazione scenario → campagna email.
 
 ## Canvas e accessibilità
 

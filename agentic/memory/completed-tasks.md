@@ -101,3 +101,21 @@ Registro append-only. Non modificare o rimuovere le voci esistenti; eventuali co
 - Verifiche: `npm run test` — superato con 11 test dominio e 5 componenti; `npm run test:e2e` — superato con 3 test Chromium; `npm run build`, `npm run lint` e `git diff --check` — superati.
 - Decisioni: D-013.
 - Follow-up: TASK-012 deve rendere esplicito il timeout di valutazione delle condizioni.
+
+## TASK-012 — Timeout esplicito delle condizioni
+
+- Completata: 2026-07-06
+- Risultato: aggiunto `waitForMinutes` alla config condition con default 2880, input numerico accessibile, validazione, subtitle derivato e serializzazione automatica nel payload v1.
+- File principali: `src/features/workflow/types.ts`, `src/features/workflow/catalog.ts`, `src/features/workflow/validation/validateWorkflow.ts`, `src/components/workflow/NodeInspector.tsx`, `tests/workflow-validation.test.ts`, `tests/workflow-api.test.ts`, `src/components/workflow/NodeInspector.test.tsx`, `e2e/workflow.spec.ts`, `README.md`.
+- Verifiche: `npm run test` — superato con 12 test dominio e 6 componenti; `npm run test:e2e` — superato con 3 test Chromium; `npm run build`, `npm run lint` e `git diff --check` — superati.
+- Decisioni: D-014.
+- Follow-up: TASK-013 deve introdurre il nodo tipizzato di generazione scenario da risultati OSINT.
+
+## TASK-013 — Generazione scenario da risultati OSINT
+
+- Completata: 2026-07-06
+- Risultato: aggiunto l'ottavo kind `generate_scenario_from_osint` con icona, catalogo, inspector, campi tipizzati, validazione di configurazione e provenienza OSINT; la demo include OSINT → scenario → email e il payload conserva la config senza casi speciali.
+- File principali: `src/features/workflow/types.ts`, `src/features/workflow/catalog.ts`, `src/features/workflow/initialWorkflow.ts`, `src/features/workflow/validation/validateWorkflow.ts`, `src/components/workflow/NodeInspector.tsx`, `src/components/workflow/WorkflowIcon.tsx`, `src/components/workflow/WorkflowNodeCard.tsx`, `tests/workflow-validation.test.ts`, `tests/workflow-api.test.ts`, `e2e/workflow.spec.ts`, `README.md`.
+- Verifiche: `npm run test:domain` — superato con 15 test; `npm run test:unit` — superato con 7 test; `npm run test:e2e` — superato con 3 test Chromium; `npm run build`, `npm run lint` e `git diff --check` — superati.
+- Decisioni: D-015.
+- Follow-up: Nessuno; le tre rifiniture finali richieste sono completate.

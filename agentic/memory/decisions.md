@@ -94,3 +94,20 @@
 - Decisione: un workflow è salvabile solo se ogni nodo raggiungibile dallo start può raggiungere almeno un `workflow_end`.
 - Algoritmo: costruire l'adiacenza inversa e visitare il grafo a partire da tutti gli end; l'intersezione negativa con i nodi raggiungibili dallo start produce gli errori `unterminated_path` in O(V+E).
 - Feedback: associare l'errore a ciascun nodo del percorso non terminato con il messaggio `<label> non conduce ad alcun nodo end.`.
+
+## D-014 — Timeout condition distinto dall'attesa delle azioni
+
+- Data: 2026-07-06
+- Stato: accettata
+- Decisione: rappresentare il tempo massimo prima della valutazione dei branch con `ConditionConfig.waitForMinutes`, espresso in minuti e valido se finito e non negativo.
+- Default: 2880 minuti, equivalenti alle 48 ore già descritte dal template iniziale.
+- Semantica: `waitForMinutes` appartiene alla condition; `elapsedTimeMinutes` resta l'attesa propria delle azioni campagna e awareness.
+
+## D-015 — Generazione scenario come azione downstream da OSINT
+
+- Data: 2026-07-06
+- Stato: accettata
+- Decisione: modellare la generazione con il kind `generate_scenario_from_osint` e config `scenarioTemplate`, `channel`, `evidenceStrategy`.
+- Vincolo: il nodo deve essere raggiungibile da almeno un `start_osint_on_targets`; in caso contrario esporre `missing_osint_source` con `nodeId`.
+- Algoritmo: visita forward multi-source da tutti i nodi OSINT, complessità O(V+E).
+- Demo: inserire OSINT → generazione scenario → campagna email nel workflow iniziale.

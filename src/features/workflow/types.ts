@@ -9,6 +9,7 @@ export type WorkflowIconName =
   | 'training'
   | 'flag'
   | 'search'
+  | 'sparkles'
 
 export type WorkflowNodeKind =
   | 'workflow_start'
@@ -16,12 +17,18 @@ export type WorkflowNodeKind =
   | 'start_awareness_campaign'
   | 'add_target_to_group'
   | 'start_osint_on_targets'
+  | 'generate_scenario_from_osint'
   | 'condition'
   | 'workflow_end'
 
 export type WorkflowNodeStatus = 'pronto' | 'attivo' | 'bozza'
 export type CampaignChannel = 'email' | 'sms' | 'im'
 export type OsintType = 'social' | 'company' | 'domain'
+export type ScenarioTemplate =
+  | 'credential_harvest'
+  | 'executive_impersonation'
+  | 'supplier_fraud'
+export type OsintEvidenceStrategy = 'most_relevant' | 'broad' | 'recent'
 export type ConditionField =
   | 'email_opened'
   | 'link_clicked'
@@ -71,7 +78,14 @@ export interface StartOsintOnTargetsConfig {
   type: OsintType
 }
 
+export interface GenerateScenarioFromOsintConfig {
+  scenarioTemplate: ScenarioTemplate
+  channel: CampaignChannel
+  evidenceStrategy: OsintEvidenceStrategy
+}
+
 export interface ConditionConfig {
+  waitForMinutes: number
   rules: ConditionRule[]
   elseBranch: {
     id: string
@@ -116,6 +130,11 @@ export interface StartOsintOnTargetsNodeData extends WorkflowNodeBase {
   config: StartOsintOnTargetsConfig
 }
 
+export interface GenerateScenarioFromOsintNodeData extends WorkflowNodeBase {
+  kind: 'generate_scenario_from_osint'
+  config: GenerateScenarioFromOsintConfig
+}
+
 export interface ConditionNodeData extends WorkflowNodeBase {
   kind: 'condition'
   config: ConditionConfig
@@ -132,6 +151,7 @@ export type WorkflowNodeData =
   | StartAwarenessCampaignNodeData
   | AddTargetToGroupNodeData
   | StartOsintOnTargetsNodeData
+  | GenerateScenarioFromOsintNodeData
   | ConditionNodeData
   | WorkflowEndNodeData
 

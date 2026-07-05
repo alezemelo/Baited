@@ -29,6 +29,9 @@ after(() => server.close())
 
 test('serializer creates a detached v1 payload without React Flow UI state', () => {
   const draft = createDraft()
+  const condition = requiredNode('condition-email-opened', 'condition')
+  const scenario = requiredNode('generate-scenario-osint', 'scenario')
+  draft.nodes.push(condition, scenario)
   draft.nodes[0].selected = true
   draft.nodes[0].className = 'workflow-node-error'
   draft.edges[0].selected = true
@@ -48,6 +51,28 @@ test('serializer creates a detached v1 payload without React Flow UI state', () 
     source: 'targets',
     target: 'end',
   })
+  const serializedCondition = payload.nodes.find(
+    (node) => node.id === 'condition',
+  )
+  assert.equal(
+    serializedCondition?.data.kind === 'condition'
+      ? serializedCondition.data.config.waitForMinutes
+      : undefined,
+    2880,
+  )
+  const serializedScenario = payload.nodes.find(
+    (node) => node.id === 'scenario',
+  )
+  assert.deepEqual(
+    serializedScenario?.data.kind === 'generate_scenario_from_osint'
+      ? serializedScenario.data.config
+      : undefined,
+    {
+      scenarioTemplate: 'credential_harvest',
+      channel: 'email',
+      evidenceStrategy: 'most_relevant',
+    },
+  )
 
   payload.metadata.name = 'Mutato'
   payload.nodes[0].data.label = 'Mutato'

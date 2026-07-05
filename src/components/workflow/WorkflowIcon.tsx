@@ -6,6 +6,7 @@ import {
   MessageSquareText,
   Search,
   ShieldAlert,
+  Sparkles,
   Users,
   type LucideIcon,
 } from 'lucide-react'
@@ -20,6 +21,7 @@ const icons: Record<WorkflowIconName, LucideIcon> = {
   training: GraduationCap,
   flag: Flag,
   search: Search,
+  sparkles: Sparkles,
 }
 
 interface WorkflowIconProps {

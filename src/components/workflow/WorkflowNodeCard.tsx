@@ -9,6 +9,7 @@ const categoryTone = {
   add_target_to_group: 'text-secondary bg-secondary/10',
   start_awareness_campaign: 'text-primary bg-primary/10',
   start_osint_on_targets: 'text-secondary bg-secondary/10',
+  generate_scenario_from_osint: 'text-primary bg-primary/10',
   workflow_end: 'text-on-surface bg-white/5',
 } as const
 

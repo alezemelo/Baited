@@ -19,6 +19,7 @@ export type WorkflowValidationCode =
   | 'invalid_connection'
   | 'missing_condition_branch'
   | 'missing_end'
+  | 'missing_osint_source'
   | 'missing_required_field'
   | 'missing_start'
   | 'multiple_start'
@@ -83,6 +84,7 @@ export function validateWorkflow(
   validateConditionBranches(draft.nodes, draft.edges, issues)
   validateReachability(draft.nodes, draft.edges, startNodes, incomingCounts, issues)
   validateTerminalPaths(draft.nodes, draft.edges, startNodes, endNodes, issues)
+  validateOsintScenarioSources(draft.nodes, draft.edges, issues)
   validateCycles(draft.nodes, draft.edges, issues)
   validateRequiredFields(draft.nodes, issues)
 
@@ -90,6 +92,35 @@ export function validateWorkflow(
     isValid: issues.length === 0,
     issues,
   }
+}
+
+function validateOsintScenarioSources(
+  nodes: WorkflowNode[],
+  edges: WorkflowEdge[],
+  issues: WorkflowValidationIssue[],
+) {
+  const osintNodeIds = nodes
+    .filter((node) => node.data.kind === 'start_osint_on_targets')
+    .map((node) => node.id)
+  const nodesDownstreamFromOsint = getReachableNodeIds(
+    nodes,
+    edges,
+    osintNodeIds,
+  )
+
+  nodes.forEach((node) => {
+    if (
+      node.data.kind === 'generate_scenario_from_osint' &&
+      !nodesDownstreamFromOsint.has(node.id)
+    ) {
+      issues.push({
+        code: 'missing_osint_source',
+        message: `${node.data.label} richiede un nodo OSINT precedente nel percorso.`,
+        nodeId: node.id,
+        severity: 'error',
+      })
+    }
+  })
 }
 
 function validateTerminalPaths(
@@ -482,7 +513,40 @@ export function validateWorkflowNodeData(
     })
   }
 
+  if (data.kind === 'generate_scenario_from_osint') {
+    if (!data.config.scenarioTemplate) {
+      errors.push({
+        field: 'scenarioTemplate',
+        message: 'Seleziona uno scenario predefinito.',
+      })
+    }
+
+    if (!data.config.channel) {
+      errors.push({
+        field: 'channel',
+        message: 'Seleziona un canale risultante.',
+      })
+    }
+
+    if (!data.config.evidenceStrategy) {
+      errors.push({
+        field: 'evidenceStrategy',
+        message: 'Seleziona una strategia per le evidenze OSINT.',
+      })
+    }
+  }
+
   if (data.kind === 'condition') {
+    if (
+      !Number.isFinite(data.config.waitForMinutes) ||
+      data.config.waitForMinutes < 0
+    ) {
+      errors.push({
+        field: 'waitForMinutes',
+        message: 'Il timeout della condizione deve essere zero o positivo.',
+      })
+    }
+
     if (data.config.rules.length === 0) {
       errors.push({
         field: 'rules',

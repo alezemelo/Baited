@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createWorkflowNode } from '../src/features/workflow/catalog'
+import {
+  createWorkflowNode,
+  workflowNodeCatalog,
+} from '../src/features/workflow/catalog'
 import type {
   WorkflowDraft,
   WorkflowEdge,
@@ -166,6 +169,113 @@ test('reverse reachability supports multiple ends and converging branches', () =
 
   assert.equal(nodeIdsThatCanReachEnd.size, draft.nodes.length)
   assert.equal(validateWorkflow(draft).isValid, true)
+})
+
+test('condition timeout must be finite and non-negative', () => {
+  const negativeDraft = createValidDraft()
+  const negativeCondition = negativeDraft.nodes.find(
+    (node) => node.data.kind === 'condition',
+  )
+
+  assert.ok(negativeCondition)
+  if (negativeCondition.data.kind === 'condition') {
+    negativeCondition.data.config.waitForMinutes = -1
+  }
+
+  assert.ok(validateWorkflow(negativeDraft).issues.some(
+    (issue) =>
+      issue.code === 'missing_required_field' &&
+      issue.field === 'waitForMinutes',
+  ))
+
+  const nonFiniteDraft = createValidDraft()
+  const nonFiniteCondition = nonFiniteDraft.nodes.find(
+    (node) => node.data.kind === 'condition',
+  )
+
+  assert.ok(nonFiniteCondition)
+  if (nonFiniteCondition.data.kind === 'condition') {
+    nonFiniteCondition.data.config.waitForMinutes = Number.NaN
+  }
+
+  assert.ok(validateWorkflow(nonFiniteDraft).issues.some(
+    (issue) => issue.field === 'waitForMinutes',
+  ))
+})
+
+test('scenario generation requires an OSINT node earlier in its path', () => {
+  const draft = createValidDraft()
+  const scenario = requiredNode('generate-scenario-osint', 'scenario')
+
+  draft.nodes.push(scenario)
+  draft.edges = draft.edges.filter(
+    (candidate) => candidate.id !== 'email-opened',
+  )
+  draft.edges.push(
+    edge('email-scenario', 'email', 'scenario'),
+    edge('scenario-opened', 'scenario', 'opened'),
+  )
+
+  assert.ok(validateWorkflow(draft).issues.some(
+    (issue) =>
+      issue.code === 'missing_osint_source' &&
+      issue.nodeId === 'scenario',
+  ))
+})
+
+test('OSINT scenario chain is valid and catalog exposes eight kinds', () => {
+  const draft = createValidDraft()
+  const osint = requiredNode('start-osint-social', 'osint')
+  const scenario = requiredNode('generate-scenario-osint', 'scenario')
+
+  draft.nodes.push(osint, scenario)
+  draft.edges = draft.edges.filter(
+    (candidate) => candidate.id !== 'targets-email',
+  )
+  draft.edges.push(
+    edge('targets-osint', 'targets', 'osint'),
+    edge('osint-scenario', 'osint', 'scenario'),
+    edge('scenario-email', 'scenario', 'email'),
+  )
+
+  assert.equal(validateWorkflow(draft).isValid, true)
+  assert.equal(
+    new Set(workflowNodeCatalog.map((item) => item.kind)).size,
+    8,
+  )
+})
+
+test('OSINT scenario configuration fields are required', () => {
+  const draft = createValidDraft()
+  const osint = requiredNode('start-osint-social', 'osint')
+  const scenario = requiredNode('generate-scenario-osint', 'scenario')
+
+  if (scenario.data.kind === 'generate_scenario_from_osint') {
+    scenario.data.config.scenarioTemplate = '' as never
+    scenario.data.config.channel = '' as never
+    scenario.data.config.evidenceStrategy = '' as never
+  }
+
+  draft.nodes.push(osint, scenario)
+  draft.edges = draft.edges.filter(
+    (candidate) => candidate.id !== 'targets-email',
+  )
+  draft.edges.push(
+    edge('targets-osint', 'targets', 'osint'),
+    edge('osint-scenario', 'osint', 'scenario'),
+    edge('scenario-email', 'scenario', 'email'),
+  )
+
+  const invalidFields = validateWorkflow(draft).issues
+    .filter((issue) => issue.nodeId === 'scenario' && issue.field)
+    .map((issue) => issue.field)
+    .sort()
+
+  assert.deepEqual(invalidFields, [
+    'channel',
+    'evidenceStrategy',
+    'scenarioTemplate',
+  ])
 })
 
 function createValidDraft(): WorkflowDraft {
