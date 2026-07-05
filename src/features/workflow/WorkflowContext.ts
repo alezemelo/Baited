@@ -18,6 +18,7 @@ import type {
 import type {
   WorkflowValidationResult,
 } from './validation/validateWorkflow'
+import type { CreateWorkflowRequest } from './api/workflows'
 
 export interface WorkflowContextValue {
   draft: WorkflowDraft
@@ -26,6 +27,7 @@ export interface WorkflowContextValue {
   edges: WorkflowEdge[]
   selectedNodeId: string | null
   selectedNode: WorkflowNode | null
+  hasUnsavedChanges: boolean
   updateMetadata: (patch: Partial<WorkflowMetadata>) => void
   addNode: (templateId: string, position: XYPosition) => string | null
   updateNodeData: (
@@ -38,6 +40,7 @@ export interface WorkflowContextValue {
   applyNodesChange: (changes: NodeChange<WorkflowNode>[]) => void
   applyEdgesChange: (changes: EdgeChange<WorkflowEdge>[]) => void
   selectNode: (nodeId: string | null) => void
+  markWorkflowSaved: (request: CreateWorkflowRequest) => void
 }
 
 export const WorkflowContext = createContext<WorkflowContextValue | null>(null)

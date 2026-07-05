@@ -83,3 +83,12 @@ Registro append-only. Non modificare o rimuovere le voci esistenti; eventuali co
 - Verifiche: `npm run test` — superato con 9 test; `npm run build` — superato; `npm run lint` — superato; `git diff --check` — superato. Browser smoke test non eseguito perché il bind del server locale non è stato autorizzato dall'ambiente.
 - Decisioni: D-011.
 - Follow-up: TASK-008 deve eseguire QA browser completo, verificare accessibilità/responsive e rifinire documentazione e UX finale.
+
+## TASK-008 — Test, accessibilità e rifinitura
+
+- Completata: 2026-07-05
+- Risultato: configurati Vitest/Testing Library, Playwright e axe; coperti configurazione nodo, focus/errori, dirty state, eliminazione, aggiunta da tastiera, errore/retry API e recupero dopo refresh; aggiunti `beforeunload`, feedback coerenti e documentazione completa.
+- File principali: `vite.config.ts`, `playwright.config.ts`, `src/**/*.test.tsx`, `e2e/workflow.spec.ts`, `src/components/layout/AppHeader.tsx`, `src/components/workflow/NodeLibrary.tsx`, `src/components/workflow/WorkflowPropertiesPanel.tsx`, `src/components/workflow/WorkflowProvider.tsx`, `README.md`.
+- Verifiche: `npm run test` — superato con 9 test dominio e 5 test componenti; `npm run test:e2e` — superato con 3 test Chromium inclusi axe, errore/retry e refresh; `npm run build`, `npm run lint` e `git diff --check` — superati.
+- Decisioni: D-012.
+- Follow-up: Nessuno; tutte le task del piano Workflow Editor MVP sono completate.

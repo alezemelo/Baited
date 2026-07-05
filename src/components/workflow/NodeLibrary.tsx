@@ -13,12 +13,14 @@ interface NodeLibraryProps {
   blocks: readonly NodeLibraryBlock[]
   onBlockDragEnd: () => void
   onBlockDragStart: (templateId: string) => void
+  onBlockAdd: (templateId: string) => void
 }
 
 export function NodeLibrary({
   blocks,
   onBlockDragEnd,
   onBlockDragStart,
+  onBlockAdd,
 }: NodeLibraryProps) {
   const categoryGroups = useMemo(() => groupBlocksByCategory(blocks), [blocks])
 
@@ -58,6 +60,8 @@ export function NodeLibrary({
         <button
           aria-label="Crea blocco personalizzato"
           className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-surface-high text-on-surface-muted transition-colors hover:border-primary/40 hover:text-primary"
+          disabled
+          title="Disponibile in una versione futura"
           type="button"
         >
           <Plus aria-hidden="true" className="size-4" />
@@ -76,13 +80,14 @@ export function NodeLibrary({
             <div className="space-y-2">
               {categoryBlocks.map((block) => (
                 <button
-                  aria-label={`Trascina ${block.label} sul canvas`}
+                  aria-label={`Aggiungi ${block.label} al canvas`}
                   className="group flex w-full cursor-grab items-center gap-3 rounded-xl border border-white/[0.07] bg-surface-container p-3 text-left shadow-[0_8px_20px_rgb(0_0_0/0.12)] transition-all hover:-translate-y-0.5 hover:border-secondary/35 hover:bg-surface-high active:cursor-grabbing"
                   draggable
                   key={block.id}
                   onDragEnd={onBlockDragEnd}
                   onDragStart={(event) => startDrag(event, block)}
                   onMouseDown={(event) => startPointerDrag(event, block)}
+                  onClick={() => onBlockAdd(block.id)}
                   type="button"
                 >
                   <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-surface-high text-on-surface-muted transition-colors group-hover:text-secondary">
@@ -112,7 +117,8 @@ export function NodeLibrary({
             </span>
           </div>
           <p className="mt-2 text-xs leading-5 text-on-surface-muted">
-            Il workflow viene salvato automaticamente come bozza.
+            Puoi aggiungere i blocchi con Invio oppure trascinarli per scegliere
+            la posizione. Il salvataggio è disponibile in Revisione.
           </p>
         </div>
       </div>

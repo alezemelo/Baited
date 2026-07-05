@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import {
   useEffect,
+  useRef,
   useState,
 } from 'react'
 import { useWorkflow } from '../../features/workflow/WorkflowContext'
@@ -16,23 +17,23 @@ import { NodeInspector } from './NodeInspector'
 export function WorkflowPropertiesPanel() {
   const {
     duplicateNode,
-    edges,
     removeNode,
     selectedNode,
     updateNodeData,
   } = useWorkflow()
   const [isPanelOpen, setIsPanelOpen] = useState(true)
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
-  const selectedNodeHasConnections = selectedNode
-    ? edges.some(
-      (edge) =>
-        edge.source === selectedNode.id || edge.target === selectedNode.id,
-    )
-    : false
+  const cancelDeleteButtonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     setIsConfirmingDelete(false)
   }, [selectedNode?.id])
+
+  useEffect(() => {
+    if (isConfirmingDelete) {
+      cancelDeleteButtonRef.current?.focus()
+    }
+  }, [isConfirmingDelete])
 
   const duplicateSelection = () => {
     if (selectedNode) {
@@ -54,12 +55,7 @@ export function WorkflowPropertiesPanel() {
       return
     }
 
-    if (selectedNodeHasConnections) {
-      setIsConfirmingDelete(true)
-      return
-    }
-
-    confirmDeleteSelection()
+    setIsConfirmingDelete(true)
   }
 
   const closePanel = () => {
@@ -145,11 +141,20 @@ export function WorkflowPropertiesPanel() {
 
           {isConfirmingDelete ? (
             <div
+              aria-describedby="delete-node-description"
               aria-label="Conferma eliminazione nodo"
               className="rounded-xl border border-primary/30 bg-surface-container p-3"
-              role="dialog"
+              onKeyDown={(event) => {
+                if (event.key === 'Escape') {
+                  setIsConfirmingDelete(false)
+                }
+              }}
+              role="alertdialog"
             >
-              <p className="text-xs leading-5 text-on-surface">
+              <p
+                className="text-xs leading-5 text-on-surface"
+                id="delete-node-description"
+              >
                 Eliminare{' '}
                 <span className="font-semibold text-primary">
                   {selectedNode.data.label}
@@ -160,6 +165,7 @@ export function WorkflowPropertiesPanel() {
                 <button
                   className="rounded-lg border border-white/10 px-3 py-2 font-label text-xs text-on-surface-muted transition-colors hover:bg-white/5"
                   onClick={() => setIsConfirmingDelete(false)}
+                  ref={cancelDeleteButtonRef}
                   type="button"
                 >
                   Annulla
@@ -184,8 +190,8 @@ export function WorkflowPropertiesPanel() {
             Seleziona un nodo
           </p>
           <p className="mt-1 text-xs leading-5 text-on-surface-muted">
-            La configurazione dettagliata sarà disponibile nel prossimo step di
-            sviluppo.
+            Seleziona un blocco sul canvas per configurarlo, duplicarlo o
+            eliminarlo.
           </p>
         </div>
       )}

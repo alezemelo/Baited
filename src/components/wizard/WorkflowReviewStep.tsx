@@ -34,7 +34,7 @@ interface WorkflowReviewStepProps {
 export function WorkflowReviewStep({
   onFocusNode,
 }: WorkflowReviewStepProps) {
-  const { draft, validation } = useWorkflow()
+  const { draft, markWorkflowSaved, validation } = useWorkflow()
   const [simulateError, setSimulateError] = useState(false)
   const [saveState, dispatchSave] = useReducer(
     workflowSaveReducer,
@@ -69,6 +69,7 @@ export function WorkflowReviewStep({
       const record = { request, response }
 
       persistLastSavedWorkflow(record, window.localStorage)
+      markWorkflowSaved(request)
       dispatchSave({ type: 'save_succeeded', record })
     } catch (error) {
       dispatchSave({

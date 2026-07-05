@@ -20,6 +20,8 @@ import {
 import {
   loadLastSavedWorkflow,
   restoreWorkflowDraft,
+  serializeWorkflow,
+  type CreateWorkflowRequest,
 } from '../../features/workflow/api/workflows'
 import { initialWorkflowDraft } from '../../features/workflow/initialWorkflow'
 import { wouldCreateCycle } from '../../features/workflow/validation/graph'
@@ -70,6 +72,9 @@ export function WorkflowProvider({
   const [nodes, setNodes] = useState(clonedInitialDraft.nodes)
   const [edges, setEdges] = useState(clonedInitialDraft.edges)
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
+  const [savedRequestSnapshot, setSavedRequestSnapshot] = useState(() =>
+    JSON.stringify(serializeWorkflow(clonedInitialDraft)),
+  )
 
   const selectedNode =
     nodes.find((node) => node.id === selectedNodeId) ?? null
@@ -194,6 +199,14 @@ export function WorkflowProvider({
     [clonedInitialDraft, edges, metadata, nodes],
   )
   const validation = useMemo(() => validateWorkflow(draft), [draft])
+  const currentRequestSnapshot = useMemo(
+    () => JSON.stringify(serializeWorkflow(draft)),
+    [draft],
+  )
+  const hasUnsavedChanges = currentRequestSnapshot !== savedRequestSnapshot
+  const markWorkflowSaved = (request: CreateWorkflowRequest) => {
+    setSavedRequestSnapshot(JSON.stringify(request))
+  }
 
   const value: WorkflowContextValue = {
     draft,
@@ -202,6 +215,7 @@ export function WorkflowProvider({
     edges,
     selectedNodeId,
     selectedNode,
+    hasUnsavedChanges,
     updateMetadata,
     addNode,
     updateNodeData,
@@ -211,6 +225,7 @@ export function WorkflowProvider({
     applyNodesChange,
     applyEdgesChange,
     selectNode,
+    markWorkflowSaved,
   }
 
   return (

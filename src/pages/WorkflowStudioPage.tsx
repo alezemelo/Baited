@@ -13,15 +13,33 @@ export function WorkflowStudioPage() {
 }
 
 function WorkflowStudioContent() {
-  const { draft } = useWorkflow()
+  const { draft, hasUnsavedChanges } = useWorkflow()
   const workflowTitle = draft.metadata.name.trim() || 'Nuovo workflow'
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) {
+      return
+    }
+
+    const warnAboutUnsavedChanges = (event: BeforeUnloadEvent) => {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+
+    window.addEventListener('beforeunload', warnAboutUnsavedChanges)
+
+    return () => {
+      window.removeEventListener('beforeunload', warnAboutUnsavedChanges)
+    }
+  }, [hasUnsavedChanges])
 
   return (
     <main className="flex h-dvh min-h-[640px] flex-col overflow-hidden bg-surface text-on-surface">
       <AppHeader
         activeTab="Editor"
         category={draft.metadata.category}
-        status="Attivo"
+        hasUnsavedChanges={hasUnsavedChanges}
+        status={hasUnsavedChanges ? 'Modifiche non salvate' : 'Draft allineato'}
         title={workflowTitle}
       />
 
@@ -32,3 +50,4 @@ function WorkflowStudioContent() {
     </main>
   )
 }
+import { useEffect } from 'react'

@@ -32,7 +32,7 @@ const steps: readonly WorkflowWizardStep[] = [
 ]
 
 export function WorkflowWizard() {
-  const { draft, selectNode, validation } = useWorkflow()
+  const { addNode, draft, selectNode, validation } = useWorkflow()
   const [currentStep, setCurrentStep] =
     useState<WorkflowWizardStepId>('details')
   const [highestVisitedIndex, setHighestVisitedIndex] = useState(0)
@@ -87,6 +87,16 @@ export function WorkflowWizard() {
     window.requestAnimationFrame(() => selectNode(nodeId))
   }
 
+  const addNodeFromLibrary = (templateId: string) => {
+    const nodeIndex = draft.nodes.length
+
+    addNode(templateId, {
+      x: 280 + (nodeIndex % 3) * 260,
+      y: 120 + Math.floor(nodeIndex / 3) * 170,
+    })
+    setPendingLibraryBlockId(null)
+  }
+
   return (
     <section
       aria-label="Creazione workflow"
@@ -111,6 +121,7 @@ export function WorkflowWizard() {
           <>
             <NodeLibrary
               blocks={nodeLibraryBlocks}
+              onBlockAdd={addNodeFromLibrary}
               onBlockDragEnd={() => setPendingLibraryBlockId(null)}
               onBlockDragStart={setPendingLibraryBlockId}
             />

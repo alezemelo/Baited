@@ -10,7 +10,7 @@ Costruire un MVP desktop-first per comporre, validare e salvare workflow di camp
 
 ## Stato sintetico
 
-TASK-007 è completata. Lo step Revisione serializza il payload v1, salva tramite MSW, mostra loading/successo/errore con retry e ripristina da `localStorage` l'ultimo workflow salvato.
+Il piano Workflow Editor MVP è completato. Il percorso Dettagli → Workflow → Revisione → salvataggio è coperto da test dominio, componenti ed E2E, con retry, refresh, dirty state e audit axe.
 
 ## Task attiva
 
@@ -31,9 +31,13 @@ Nessuna task in corso.
 - Implementata la configurazione dei nodi e archiviata `TASK-005`.
 - Implementata la validazione DAG/branch e archiviata `TASK-006`.
 - Implementati revisione, salvataggio mock e ripristino locale e archiviata `TASK-007`.
+- Consolidati test, accessibilità, dirty state e documentazione e archiviata `TASK-008`.
 
 ## Verifiche effettuate
 
+- TASK-008 — `npm run test` superato: 9 test dominio e 5 test componenti.
+- TASK-008 — `npm run test:e2e` superato: 3 test Chromium per errore/retry/refresh, aggiunta tastiera/dirty state e audit axe su Dettagli/Revisione.
+- TASK-008 — `npm run build`, `npm run lint` e `git diff --check` superati.
 - TASK-007 — `npm run build`, `npm run lint`, `npm run test` e `git diff --check` superati; suite a 9 test inclusi serializer, stati API e persistenza.
 - `npm run build` — superato.
 - `npm run lint` — superato.
@@ -50,7 +54,7 @@ Nessuna task in corso.
 
 ## Problemi aperti
 
-Nessun blocco noto. Il browser smoke test di TASK-007 non è stato eseguito perché l'ambiente non ha autorizzato il bind del server locale; build, lint e test automatici sono verdi.
+Nessun blocco noto. Eccezione di accessibilità documentata: pan, zoom e creazione visuale degli archi sul canvas React Flow richiedono un dispositivo di puntamento; aggiunta blocchi, configurazione, revisione e salvataggio sono utilizzabili da tastiera.
 
 ## Contratto salvataggio mock
 
@@ -60,4 +64,4 @@ Nessun blocco noto. Il browser smoke test di TASK-007 non è stato eseguito perc
 
 ## Prossimo passo
 
-Avviare TASK-008 — Test, accessibilità e rifinitura: eseguire QA browser end-to-end inclusi errore/retry/refresh, correggere le anomalie e allineare README e handoff al comportamento finale.
+Non esistono task pianificate eseguibili: richiedere una decisione sul prossimo incremento prima di ampliare lo scope.

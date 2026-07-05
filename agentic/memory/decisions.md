@@ -78,3 +78,11 @@
 - Decisione: simulare `POST /api/workflows` con MSW e mantenere serializer, client, persistenza e macchina a stati in `src/features/workflow/api/`.
 - Persistenza: salvare request e response sotto la chiave `baited:last-saved-workflow`, così il provider può ricostruire il grafo dopo un refresh.
 - Test errore: l'header `x-baited-simulate-error: true` forza una risposta `503` una sola volta dall'interfaccia di revisione; il tentativo successivo può riuscire senza perdere il draft.
+
+## D-012 — Piramide test e alternativa tastiera al drag
+
+- Data: 2026-07-05
+- Stato: accettata
+- Decisione: mantenere test di dominio con `node:test`, test componenti con Vitest/Testing Library e percorso browser con Playwright; usare axe nel test E2E per l'audit automatico di Dettagli e Revisione.
+- Accessibilità: ogni blocco della libreria è un pulsante che aggiunge il nodo con click, Invio o Spazio, mantenendo il drag-and-drop per il posizionamento libero.
+- Eccezione documentata: pan, zoom e creazione visuale degli archi restano interazioni specifiche di React Flow che richiedono un dispositivo di puntamento nell'MVP.

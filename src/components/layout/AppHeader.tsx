@@ -1,8 +1,5 @@
 import {
   Activity,
-  EllipsisVertical,
-  History,
-  Save,
   Workflow,
 } from 'lucide-react'
 
@@ -15,6 +12,7 @@ interface AppHeaderProps {
   category: string
   status: string
   activeTab: AppTab
+  hasUnsavedChanges: boolean
 }
 
 export function AppHeader({
@@ -22,6 +20,7 @@ export function AppHeader({
   category,
   status,
   activeTab,
+  hasUnsavedChanges,
 }: AppHeaderProps) {
   return (
     <header className="z-40 flex h-14 shrink-0 items-center justify-between border-b border-white/10 bg-surface/90 px-4 backdrop-blur-xl">
@@ -47,12 +46,15 @@ export function AppHeader({
           return (
             <button
               aria-current={isActive ? 'page' : undefined}
+              aria-disabled={!isActive}
               className={`rounded-md px-4 py-1.5 font-label text-xs font-medium transition-colors ${
                 isActive
                   ? 'bg-primary/10 text-on-surface shadow-[inset_0_-2px_0_#ffb3b0]'
                   : 'text-on-surface-muted hover:bg-white/5 hover:text-on-surface'
               }`}
               key={tab}
+              disabled={!isActive}
+              title={!isActive ? 'Disponibile in una versione futura' : undefined}
               type="button"
             >
               {tab}
@@ -62,36 +64,22 @@ export function AppHeader({
       </nav>
 
       <div className="flex shrink-0 items-center gap-3">
-        <div className="hidden items-center gap-2 text-xs text-secondary md:flex">
+        <div
+          aria-live="polite"
+          className={`hidden items-center gap-2 text-xs md:flex ${
+            hasUnsavedChanges ? 'text-primary' : 'text-secondary'
+          }`}
+        >
           <Activity aria-hidden="true" className="size-3.5" />
           <span className="font-label">{status}</span>
-          <span aria-hidden="true" className="size-2 rounded-full bg-secondary shadow-[0_0_8px_#4de082]" />
-        </div>
-        <button
-          className="hidden items-center gap-2 rounded-lg bg-primary-container px-3.5 py-2 font-label text-xs font-semibold text-on-primary transition-opacity hover:opacity-90 sm:flex"
-          type="button"
-        >
-          <Save aria-hidden="true" className="size-3.5" />
-          Salva workflow
-        </button>
-        <div className="hidden items-center gap-1 border-l border-white/10 pl-2 xl:flex">
-          <span className="px-1 font-label text-[11px] text-on-surface-muted">
-            Bozza salvata
-          </span>
-          <button
-            aria-label="Visualizza cronologia"
-            className="rounded-md p-1.5 text-on-surface-muted transition-colors hover:bg-white/5 hover:text-primary"
-            type="button"
-          >
-            <History aria-hidden="true" className="size-4" />
-          </button>
-          <button
-            aria-label="Altre opzioni"
-            className="rounded-md p-1.5 text-on-surface-muted transition-colors hover:bg-white/5 hover:text-primary"
-            type="button"
-          >
-            <EllipsisVertical aria-hidden="true" className="size-4" />
-          </button>
+          <span
+            aria-hidden="true"
+            className={`size-2 rounded-full ${
+              hasUnsavedChanges
+                ? 'bg-primary shadow-[0_0_8px_#f87171]'
+                : 'bg-secondary shadow-[0_0_8px_#4de082]'
+            }`}
+          />
         </div>
       </div>
     </header>
