@@ -3,10 +3,22 @@ import {
   ArrowRight,
   CheckCircle2,
   GitBranch,
+  LoaderCircle,
   LocateFixed,
+  RotateCcw,
+  Save,
   Target,
   Workflow,
 } from 'lucide-react'
+import { useMemo, useReducer, useState } from 'react'
+import {
+  createInitialWorkflowSaveState,
+  loadLastSavedWorkflow,
+  persistLastSavedWorkflow,
+  saveWorkflow,
+  serializeWorkflow,
+  workflowSaveReducer,
+} from '../../features/workflow/api/workflows'
 import { useWorkflow } from '../../features/workflow/WorkflowContext'
 import type {
   WorkflowEdge,
@@ -23,6 +35,51 @@ export function WorkflowReviewStep({
   onFocusNode,
 }: WorkflowReviewStepProps) {
   const { draft, validation } = useWorkflow()
+  const [simulateError, setSimulateError] = useState(false)
+  const [saveState, dispatchSave] = useReducer(
+    workflowSaveReducer,
+    loadLastSavedWorkflow(window.localStorage),
+    createInitialWorkflowSaveState,
+  )
+  const branchSummaries = useMemo(
+    () => getBranchSummaries(draft.nodes, draft.edges),
+    [draft.edges, draft.nodes],
+  )
+  const branchCount = branchSummaries.reduce(
+    (total, summary) => total + summary.branches.length,
+    0,
+  )
+  const isSaving = saveState.status === 'loading'
+
+  const handleSave = async () => {
+    if (!validation.isValid || isSaving) {
+      return
+    }
+
+    const request = serializeWorkflow(draft)
+    const shouldSimulateError = simulateError
+
+    setSimulateError(false)
+    dispatchSave({ type: 'save_started' })
+
+    try {
+      const response = await saveWorkflow(request, {
+        simulateError: shouldSimulateError,
+      })
+      const record = { request, response }
+
+      persistLastSavedWorkflow(record, window.localStorage)
+      dispatchSave({ type: 'save_succeeded', record })
+    } catch (error) {
+      dispatchSave({
+        type: 'save_failed',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Non è stato possibile salvare il workflow.',
+      })
+    }
+  }
 
   return (
     <section
@@ -88,6 +145,10 @@ export function WorkflowReviewStep({
               {draft.edges.length} connessioni
             </span>
             <ArrowRight aria-hidden="true" className="size-4 text-on-surface-muted" />
+            <span className="rounded-lg bg-surface-lowest px-3 py-2 font-label text-xs text-on-surface">
+              {branchCount} branch
+            </span>
+            <ArrowRight aria-hidden="true" className="size-4 text-on-surface-muted" />
             <span
               className={`rounded-lg px-3 py-2 font-label text-xs font-medium ${
                 validation.isValid
@@ -101,6 +162,42 @@ export function WorkflowReviewStep({
             </span>
           </div>
         </article>
+
+        {branchSummaries.length > 0 ? (
+          <article className="mt-4 rounded-2xl border border-white/[0.08] bg-surface-container p-5">
+            <div className="flex items-center gap-2 text-secondary">
+              <GitBranch aria-hidden="true" className="size-4" />
+              <h3 className="text-sm font-semibold text-on-surface">
+                Riepilogo branch
+              </h3>
+            </div>
+            <div className="mt-4 space-y-3">
+              {branchSummaries.map((summary) => (
+                <div
+                  className="rounded-xl border border-white/[0.07] bg-surface-lowest p-4"
+                  key={summary.nodeId}
+                >
+                  <p className="text-sm font-semibold text-on-surface">
+                    {summary.label}
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {summary.branches.map((branch) => (
+                      <span
+                        className="rounded-lg border border-white/[0.08] bg-surface-container px-2.5 py-1.5 font-label text-[10px] text-on-surface-muted"
+                        key={branch.id}
+                      >
+                        <strong className="font-semibold text-on-surface">
+                          {branch.label}
+                        </strong>{' '}
+                        → {branch.targetLabel ?? 'Non collegato'}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
+        ) : null}
 
         <article className="mt-4 rounded-2xl border border-white/[0.08] bg-surface-container p-5">
           <div className="flex items-center justify-between gap-3">
@@ -172,9 +269,160 @@ export function WorkflowReviewStep({
             </div>
           )}
         </article>
+
+        <article className="mt-4 rounded-2xl border border-white/[0.08] bg-surface-container p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-primary">
+                <Save aria-hidden="true" className="size-4" />
+                <h3 className="text-sm font-semibold text-on-surface">
+                  Salvataggio mock
+                </h3>
+              </div>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-on-surface-muted">
+                Invia il payload v1 a <code>POST /api/workflows</code> e conserva
+                localmente l’ultimo workflow salvato.
+              </p>
+            </div>
+
+            <button
+              className="flex min-w-40 items-center justify-center gap-2 rounded-lg bg-primary-container px-4 py-2.5 font-label text-xs font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-35"
+              disabled={!validation.isValid || isSaving}
+              onClick={() => void handleSave()}
+              type="button"
+            >
+              {isSaving ? (
+                <LoaderCircle
+                  aria-hidden="true"
+                  className="size-4 animate-spin"
+                />
+              ) : saveState.status === 'error' ? (
+                <RotateCcw aria-hidden="true" className="size-4" />
+              ) : (
+                <Save aria-hidden="true" className="size-4" />
+              )}
+              {isSaving
+                ? 'Salvataggio…'
+                : saveState.status === 'error'
+                  ? 'Riprova'
+                  : 'Salva workflow'}
+            </button>
+          </div>
+
+          {!validation.isValid ? (
+            <p className="mt-4 rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm leading-6 text-primary">
+              Correggi tutti gli errori di validazione prima di salvare.
+            </p>
+          ) : null}
+
+          {saveState.status === 'success' ? (
+            <div
+              aria-live="polite"
+              className="mt-4 rounded-xl border border-secondary/20 bg-secondary/10 px-4 py-3"
+            >
+              <div className="flex items-start gap-3">
+                <CheckCircle2
+                  aria-hidden="true"
+                  className="mt-0.5 size-4 shrink-0 text-secondary"
+                />
+                <div>
+                  <p className="text-sm font-semibold text-secondary">
+                    Workflow salvato
+                  </p>
+                  <p className="mt-1 break-all font-label text-xs text-on-surface">
+                    ID: {saveState.savedWorkflow.response.id}
+                  </p>
+                  <p className="mt-1 font-label text-[10px] text-on-surface-muted">
+                    Versione {saveState.savedWorkflow.response.version} ·{' '}
+                    {formatSavedAt(
+                      saveState.savedWorkflow.response.createdAt,
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {saveState.status === 'error' ? (
+            <div
+              aria-live="assertive"
+              className="mt-4 rounded-xl border border-primary/20 bg-primary/10 px-4 py-3"
+              role="alert"
+            >
+              <div className="flex items-start gap-3">
+                <AlertTriangle
+                  aria-hidden="true"
+                  className="mt-0.5 size-4 shrink-0 text-primary"
+                />
+                <div>
+                  <p className="text-sm font-semibold text-primary">
+                    Salvataggio non riuscito
+                  </p>
+                  <p className="mt-1 text-sm leading-5 text-on-surface-muted">
+                    {saveState.message} Il draft è ancora disponibile.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          <label className="mt-4 flex w-fit cursor-pointer items-center gap-2 font-label text-[10px] text-on-surface-muted">
+            <input
+              checked={simulateError}
+              className="size-3.5 accent-primary-container"
+              disabled={isSaving}
+              onChange={(event) => setSimulateError(event.target.checked)}
+              type="checkbox"
+            />
+            Simula un errore al prossimo tentativo
+          </label>
+        </article>
       </div>
     </section>
   )
+}
+
+function getBranchSummaries(
+  nodes: ReturnType<typeof useWorkflow>['draft']['nodes'],
+  edges: WorkflowEdge[],
+) {
+  const nodesById = new Map(nodes.map((node) => [node.id, node]))
+
+  return nodes.flatMap((node) => {
+    if (node.data.kind !== 'condition') {
+      return []
+    }
+
+    const branches = [
+      ...node.data.config.rules.map((rule) => ({
+        id: rule.id,
+        label: rule.label,
+      })),
+      node.data.config.elseBranch,
+    ].map((branch) => {
+      const edge = edges.find(
+        (candidate) =>
+          candidate.source === node.id &&
+          candidate.sourceHandle === branch.id,
+      )
+
+      return {
+        ...branch,
+        targetLabel: edge
+          ? nodesById.get(edge.target)?.data.label
+          : undefined,
+      }
+    })
+
+    return [{ nodeId: node.id, label: node.data.label, branches }]
+  })
+}
+
+function formatSavedAt(createdAt: string) {
+  return new Intl.DateTimeFormat('it-IT', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(createdAt))
 }
 
 function getIssueFocusNodeId(

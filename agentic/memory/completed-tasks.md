@@ -74,3 +74,12 @@ Registro append-only. Non modificare o rimuovere le voci esistenti; eventuali co
 - Decisioni: D-010.
 - Note tecniche: gli algoritmi di reachability e cycle detection sono O(V+E); codici errore esposti: `missing_start`, `multiple_start`, `missing_end`, `self_loop`, `duplicate_edge`, `invalid_connection`, `cycle_detected`, `orphan_node`, `unreachable_node`, `missing_required_field`, `missing_condition_branch`, `dangling_condition_branch`.
 - Follow-up: TASK-007 deve usare `validation.isValid` per bloccare il salvataggio mock e serializzare il payload.
+
+## TASK-007 — Revisione e salvataggio mock
+
+- Completata: 2026-07-05
+- Risultato: aggiunti payload v1 privo dello stato UI React Flow, `POST /api/workflows` intercettato da MSW, persistenza e ripristino dell'ultimo workflow, riepilogo branch e stati loading/successo/errore con retry nello step Revisione.
+- File principali: `src/features/workflow/api/workflows.ts`, `src/features/workflow/api/mock.ts`, `src/components/wizard/WorkflowReviewStep.tsx`, `src/components/workflow/WorkflowProvider.tsx`, `src/main.tsx`, `tests/workflow-api.test.ts`, `public/mockServiceWorker.js`.
+- Verifiche: `npm run test` — superato con 9 test; `npm run build` — superato; `npm run lint` — superato; `git diff --check` — superato. Browser smoke test non eseguito perché il bind del server locale non è stato autorizzato dall'ambiente.
+- Decisioni: D-011.
+- Follow-up: TASK-008 deve eseguire QA browser completo, verificare accessibilità/responsive e rifinire documentazione e UX finale.

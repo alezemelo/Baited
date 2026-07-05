@@ -70,3 +70,11 @@
 - Decisione: mantenere la validazione strutturale del workflow in moduli puri sotto `src/features/workflow/validation/`, senza dipendenze React.
 - Motivo: il canvas, la revisione e il salvataggio mock devono consumare gli stessi errori strutturati senza duplicare regole.
 - Test: usare `node --test` dopo compilazione TypeScript dedicata in `.tmp-tests`, evitando nuove dipendenze per i test unitari del dominio.
+
+## D-011 — API mock MSW e record locale dell'ultimo salvataggio
+
+- Data: 2026-07-05
+- Stato: accettata
+- Decisione: simulare `POST /api/workflows` con MSW e mantenere serializer, client, persistenza e macchina a stati in `src/features/workflow/api/`.
+- Persistenza: salvare request e response sotto la chiave `baited:last-saved-workflow`, così il provider può ricostruire il grafo dopo un refresh.
+- Test errore: l'header `x-baited-simulate-error: true` forza una risposta `503` una sola volta dall'interfaccia di revisione; il tentativo successivo può riuscire senza perdere il draft.

@@ -35,7 +35,7 @@ Realizzare una demo desktop-first in cui l'utente definisce i dati generali, com
 | TASK-004 | Editor canvas | TASK-002, TASK-003 | Completata |
 | TASK-005 | Configurazione dei nodi | TASK-004 | Completata |
 | TASK-006 | Branching e validazione DAG | TASK-005 | Completata |
-| TASK-007 | Revisione e salvataggio mock | TASK-006 | Pianificata |
+| TASK-007 | Revisione e salvataggio mock | TASK-006 | Completata |
 | TASK-008 | Test, accessibilità e rifinitura | TASK-007 | Pianificata |
 | TASK-009 | Convenzione React pages/components | TASK-001 | Completata |
 | TASK-010 | Design system Lumina/Baited | TASK-009 | Completata |

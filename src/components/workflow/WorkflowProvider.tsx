@@ -17,6 +17,10 @@ import {
   createWorkflowNode,
   getWorkflowNodeConnectionRules,
 } from '../../features/workflow/catalog'
+import {
+  loadLastSavedWorkflow,
+  restoreWorkflowDraft,
+} from '../../features/workflow/api/workflows'
 import { initialWorkflowDraft } from '../../features/workflow/initialWorkflow'
 import { wouldCreateCycle } from '../../features/workflow/validation/graph'
 import { validateWorkflow } from '../../features/workflow/validation/validateWorkflow'
@@ -56,9 +60,12 @@ function cloneDraft(draft: WorkflowDraft): WorkflowDraft {
 
 export function WorkflowProvider({
   children,
-  initialDraft = initialWorkflowDraft,
+  initialDraft,
 }: WorkflowProviderProps) {
-  const clonedInitialDraft = useMemo(() => cloneDraft(initialDraft), [initialDraft])
+  const clonedInitialDraft = useMemo(
+    () => cloneDraft(resolveInitialDraft(initialDraft)),
+    [initialDraft],
+  )
   const [metadata, setMetadata] = useState(clonedInitialDraft.metadata)
   const [nodes, setNodes] = useState(clonedInitialDraft.nodes)
   const [edges, setEdges] = useState(clonedInitialDraft.edges)
@@ -211,6 +218,18 @@ export function WorkflowProvider({
       {children}
     </WorkflowContext.Provider>
   )
+}
+
+function resolveInitialDraft(initialDraft?: WorkflowDraft) {
+  if (initialDraft) {
+    return initialDraft
+  }
+
+  const savedWorkflow = loadLastSavedWorkflow(window.localStorage)
+
+  return savedWorkflow
+    ? restoreWorkflowDraft(savedWorkflow)
+    : initialWorkflowDraft
 }
 
 function createWorkflowNodeFromExisting(node: WorkflowNode): WorkflowNode {

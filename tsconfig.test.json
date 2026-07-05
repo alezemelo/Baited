@@ -17,6 +17,7 @@
   "include": [
     "tests/**/*.ts",
     "src/features/workflow/catalog.ts",
+    "src/features/workflow/api/**/*.ts",
     "src/features/workflow/types.ts",
     "src/features/workflow/validation/**/*.ts"
   ]

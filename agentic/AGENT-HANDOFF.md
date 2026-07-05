@@ -10,7 +10,7 @@ Costruire un MVP desktop-first per comporre, validare e salvare workflow di camp
 
 ## Stato sintetico
 
-TASK-006 è completata. Il workflow ora ha validazione DAG/branch/configurazioni incomplete con errori strutturati, evidenziazione su canvas, focus dalla revisione e test automatici dedicati.
+TASK-007 è completata. Lo step Revisione serializza il payload v1, salva tramite MSW, mostra loading/successo/errore con retry e ripristina da `localStorage` l'ultimo workflow salvato.
 
 ## Task attiva
 
@@ -30,9 +30,11 @@ Nessuna task in corso.
 - Implementato l'editor canvas operativo e archiviata `TASK-004`.
 - Implementata la configurazione dei nodi e archiviata `TASK-005`.
 - Implementata la validazione DAG/branch e archiviata `TASK-006`.
+- Implementati revisione, salvataggio mock e ripristino locale e archiviata `TASK-007`.
 
 ## Verifiche effettuate
 
+- TASK-007 — `npm run build`, `npm run lint`, `npm run test` e `git diff --check` superati; suite a 9 test inclusi serializer, stati API e persistenza.
 - `npm run build` — superato.
 - `npm run lint` — superato.
 - `npm run test` — superato con 6 test del validator workflow.
@@ -48,8 +50,14 @@ Nessuna task in corso.
 
 ## Problemi aperti
 
-Nessun blocco noto. Caso limite consapevole: TASK-006 non richiede ancora di forzare ogni foglia non-end a convergere su un end; TASK-007 dovrà solo bloccare il salvataggio sugli errori già esposti da `validation.isValid`.
+Nessun blocco noto. Il browser smoke test di TASK-007 non è stato eseguito perché l'ambiente non ha autorizzato il bind del server locale; build, lint e test automatici sono verdi.
+
+## Contratto salvataggio mock
+
+- Request: `version`, `metadata`, `nodes`, `edges`; response: `id`, `version`, `status`, `createdAt`.
+- Persistenza: chiave `localStorage` `baited:last-saved-workflow`, contenente request e response.
+- Errore simulato: checkbox in Revisione, implementata con header one-shot `x-baited-simulate-error: true` e risposta `503`.
 
 ## Prossimo passo
 
-Avviare TASK-007 — Revisione e salvataggio mock: serializzare il payload, bloccare il salvataggio quando `validation.isValid` è falso, simulare `POST /api/workflows` e salvare l'ultimo workflow in `localStorage`.
+Avviare TASK-008 — Test, accessibilità e rifinitura: eseguire QA browser end-to-end inclusi errore/retry/refresh, correggere le anomalie e allineare README e handoff al comportamento finale.
