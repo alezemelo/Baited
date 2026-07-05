@@ -28,3 +28,12 @@ Registro append-only. Non modificare o rimuovere le voci esistenti; eventuali co
 - Verifiche: `npm run build` — superato; `npm run lint` — superato; browser 1280×720 e 1440×900 — dimensioni, overflow e rendering verificati; drag, selezione, nuova connessione, zoom, fit view e pan — superati; console — nessun warning o errore.
 - Decisioni: D-007.
 - Follow-up: TASK-002 deve evolvere i tipi e dati demo esistenti nel modello definitivo senza spostare componenti React fuori da `src/components/`.
+
+## TASK-002 — Modello workflow e stato applicativo
+
+- Completata: 2026-07-05
+- Risultato: introdotti union discriminata, configurazioni per i sette kind, catalogo/factory, draft iniziale tipizzato e provider condiviso con operazioni per metadati, nodi, archi e selezione.
+- File principali: `src/features/workflow/`, `src/components/workflow/WorkflowProvider.tsx`, `src/components/workflow/WorkflowCanvas.tsx`.
+- Verifiche: `npm run build` — superato; `npm run lint` — superato senza warning; browser — sette nodi, sei archi e sei template verificati; drag/selezione e nuova connessione — superati; console — nessun warning o errore.
+- Decisioni: D-008.
+- Follow-up: TASK-003 deve costruire il wizard sui metadati e sulle operazioni già esposte dal provider.

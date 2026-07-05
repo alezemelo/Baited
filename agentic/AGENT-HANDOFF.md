@@ -10,11 +10,11 @@ Costruire un MVP desktop-first per comporre, validare e salvare workflow di camp
 
 ## Stato sintetico
 
-La shell Lumina/Baited è completata: top bar, rail, libreria blocchi, toolbar e canvas scuro compongono l'editor. Il grafo demo usa sette nodi custom tipizzati e mantiene tutte le interazioni React Flow. La fase successiva deve trasformare tipi e dati demo nel modello applicativo definitivo.
+Il modello applicativo è operativo: sette kind discriminati, catalogo/factory centralizzato, draft iniziale tipizzato e `WorkflowProvider` condiviso alimentano pagina, libreria e canvas. La fase successiva è il wizard a tre step.
 
 ## Task attiva
 
-Nessuna. `TASK-010` è stata completata e archiviata.
+Nessuna. `TASK-002` è stata completata e archiviata.
 
 ## Ultima sessione
 
@@ -25,6 +25,7 @@ Nessuna. `TASK-010` è stata completata e archiviata.
 - Creato il sistema agentico Markdown e archiviata `TASK-001`.
 - Applicata la convenzione React pages/components e archiviata `TASK-009`.
 - Applicato il design system Lumina/Baited e archiviata `TASK-010`.
+- Implementato il modello workflow e archiviata `TASK-002`.
 
 ## Verifiche effettuate
 
@@ -34,11 +35,12 @@ Nessuna. `TASK-010` è stata completata e archiviata.
 - Browser locale — pagina, sidebar e quattro nodi React Flow verificati dopo il refactor.
 - Browser 1280×720 e 1440×900 — layout senza overflow, sette nodi e sei archi iniziali verificati.
 - Drag/selezione, nuova connessione, zoom, fit view e pan — superati; console senza warning o errori.
+- Modello/provider — build e lint senza warning; browser con drag, selezione e connessione superato.
 
 ## Problemi aperti
 
-Nessun blocco noto. I font remoti hanno fallback di sistema; pulsanti e navigazione esterni al canvas restano dimostrativi come previsto.
+Nessun blocco noto. I vincoli del catalogo sono dichiarativi: la loro applicazione e la validazione DAG appartengono alle task successive.
 
 ## Prossimo passo
 
-Aprire [`tasks/TASK-002-workflow-model.md`](tasks/TASK-002-workflow-model.md), impostarla `in_progress` ed evolvere tipi e dati demo nel modello definitivo rispettando D-006 e D-007.
+Aprire [`tasks/TASK-003-wizard-shell.md`](tasks/TASK-003-wizard-shell.md), impostarla `in_progress` e costruire gli step Dettagli, Workflow e Revisione sopra il provider esistente.

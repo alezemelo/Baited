@@ -1,23 +1,26 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react'
-import type { BaitedWorkflowNode } from '../../features/workflow/demoWorkflow'
+import type { WorkflowNode } from '../../features/workflow/types'
 import { WorkflowIcon } from './WorkflowIcon'
 
 const categoryTone = {
-  trigger: 'text-primary bg-primary/10',
-  campaign: 'text-secondary bg-secondary/10',
+  workflow_start: 'text-primary bg-primary/10',
+  create_campaign: 'text-secondary bg-secondary/10',
   condition: 'text-primary bg-primary/10',
-  action: 'text-secondary bg-secondary/10',
-  training: 'text-primary bg-primary/10',
-  end: 'text-on-surface bg-white/5',
+  add_target_to_group: 'text-secondary bg-secondary/10',
+  start_awareness_campaign: 'text-primary bg-primary/10',
+  start_osint_on_targets: 'text-secondary bg-secondary/10',
+  workflow_end: 'text-on-surface bg-white/5',
 } as const
 
 export function WorkflowNodeCard({
   data,
   selected,
-}: NodeProps<BaitedWorkflowNode>) {
-  const isTrigger = data.kind === 'trigger'
+}: NodeProps<WorkflowNode>) {
+  const isTrigger = data.kind === 'workflow_start'
   const isCondition = data.kind === 'condition'
-  const isEnd = data.kind === 'end'
+  const isEnd = data.kind === 'workflow_end'
+  const conditionRule = isCondition ? data.config.rules[0] : null
+  const elseBranch = isCondition ? data.config.elseBranch : null
 
   return (
     <article
@@ -67,24 +70,24 @@ export function WorkflowNodeCard({
         </div>
       </div>
 
-      {isCondition ? (
+      {conditionRule && elseBranch ? (
         <>
           <span className="absolute -right-9 top-[31px] font-label text-[9px] text-on-surface-muted">
-            NO
+            {elseBranch.label.toUpperCase()}
           </span>
           <Handle
             className="workflow-handle"
-            id="no"
+            id={elseBranch.id}
             position={Position.Right}
             style={{ top: 36 }}
             type="source"
           />
           <span className="absolute -right-8 bottom-[25px] font-label text-[9px] text-on-surface-muted">
-            SÌ
+            {conditionRule.label.toUpperCase()}
           </span>
           <Handle
             className="workflow-handle"
-            id="yes"
+            id={conditionRule.id}
             position={Position.Right}
             style={{ top: 78 }}
             type="source"

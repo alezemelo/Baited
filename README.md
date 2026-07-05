@@ -33,6 +33,10 @@ src/
 
 Le pagine usano il suffisso `Page`; i componenti sono raggruppati per area sotto `components/`. `App.tsx` assembla l'entrypoint e non contiene logica di dominio.
 
+## Modello workflow
+
+I tipi discriminati, il catalogo dei blocchi e il draft iniziale risiedono in `src/features/workflow/`. `WorkflowProvider` espone metadati, nodi, archi, selezione e operazioni di modifica ai componenti dell'editor.
+
 ## Lavorare sul progetto
 
 Prima di iniziare una sessione leggere [`agentic/START-SESSION.md`](agentic/START-SESSION.md). Prima di terminarla seguire [`agentic/END-SESSION.md`](agentic/END-SESSION.md).

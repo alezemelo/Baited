@@ -30,7 +30,7 @@ Realizzare una demo desktop-first in cui l'utente definisce i dati generali, com
 | Task | Risultato | Dipendenze | Stato |
 | --- | --- | --- | --- |
 | TASK-001 | Bootstrap e struttura agentica | — | Completata |
-| TASK-002 | Modello workflow e store | TASK-001, TASK-010 | Pianificata |
+| TASK-002 | Modello workflow e store | TASK-001, TASK-010 | Completata |
 | TASK-003 | Shell del wizard | TASK-002 | Pianificata |
 | TASK-004 | Editor canvas | TASK-002, TASK-003 | Pianificata |
 | TASK-005 | Configurazione dei nodi | TASK-004 | Pianificata |

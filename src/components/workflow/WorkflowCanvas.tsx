@@ -1,22 +1,15 @@
 import {
-  addEdge,
   Background,
   BackgroundVariant,
   Controls,
   MarkerType,
   Panel,
   ReactFlow,
-  useEdgesState,
-  useNodesState,
-  type Connection,
   type Edge,
   type NodeTypes,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
-import {
-  initialWorkflowEdges,
-  initialWorkflowNodes,
-} from '../../features/workflow/demoWorkflow'
+import { useWorkflow } from '../../features/workflow/WorkflowContext'
 import { CanvasActionBar } from './CanvasActionBar'
 import { WorkflowNodeCard } from './WorkflowNodeCard'
 
@@ -30,20 +23,15 @@ const defaultEdgeOptions: Partial<Edge> = {
 }
 
 export function WorkflowCanvas() {
-  const [nodes, , onNodesChange] = useNodesState(initialWorkflowNodes)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialWorkflowEdges)
-
-  const onConnect = (connection: Connection) => {
-    setEdges((currentEdges) =>
-      addEdge(
-        {
-          ...connection,
-          ...defaultEdgeOptions,
-        },
-        currentEdges,
-      ),
-    )
-  }
+  const {
+    applyEdgesChange,
+    applyNodesChange,
+    connectNodes,
+    draft,
+    edges,
+    nodes,
+    selectNode,
+  } = useWorkflow()
 
   return (
     <section
@@ -59,9 +47,11 @@ export function WorkflowCanvas() {
         minZoom={0.4}
         nodeTypes={nodeTypes}
         nodes={nodes}
-        onConnect={onConnect}
-        onEdgesChange={onEdgesChange}
-        onNodesChange={onNodesChange}
+        onConnect={connectNodes}
+        onEdgesChange={applyEdgesChange}
+        onNodeClick={(_, node) => selectNode(node.id)}
+        onNodesChange={applyNodesChange}
+        onPaneClick={() => selectNode(null)}
       >
         <Background
           color="rgba(255, 255, 255, 0.18)"
@@ -76,7 +66,7 @@ export function WorkflowCanvas() {
               Workflow attivo
             </p>
             <p className="mt-0.5 text-xs font-medium text-on-surface">
-              Simulazione phishing Q3
+              {draft.metadata.name}
             </p>
           </div>
         </Panel>
