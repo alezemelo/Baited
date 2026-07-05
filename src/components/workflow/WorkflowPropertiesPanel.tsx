@@ -1,48 +1,201 @@
-import { MousePointer2, Settings2 } from 'lucide-react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  MousePointer2,
+  Settings2,
+  Trash2,
+} from 'lucide-react'
+import {
+  useEffect,
+  useState,
+} from 'react'
 import { useWorkflow } from '../../features/workflow/WorkflowContext'
 
 export function WorkflowPropertiesPanel() {
-  const { selectedNode } = useWorkflow()
+  const {
+    duplicateNode,
+    edges,
+    removeNode,
+    selectedNode,
+  } = useWorkflow()
+  const [isPanelOpen, setIsPanelOpen] = useState(true)
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
+  const selectedNodeHasConnections = selectedNode
+    ? edges.some(
+      (edge) =>
+        edge.source === selectedNode.id || edge.target === selectedNode.id,
+    )
+    : false
+
+  useEffect(() => {
+    setIsConfirmingDelete(false)
+  }, [selectedNode?.id])
+
+  const duplicateSelection = () => {
+    if (selectedNode) {
+      duplicateNode(selectedNode.id)
+    }
+  }
+
+  const confirmDeleteSelection = () => {
+    if (!selectedNode) {
+      return
+    }
+
+    removeNode(selectedNode.id)
+    setIsConfirmingDelete(false)
+  }
+
+  const requestDeleteSelection = () => {
+    if (!selectedNode) {
+      return
+    }
+
+    if (selectedNodeHasConnections) {
+      setIsConfirmingDelete(true)
+      return
+    }
+
+    confirmDeleteSelection()
+  }
+
+  const closePanel = () => {
+    setIsConfirmingDelete(false)
+    setIsPanelOpen(false)
+  }
+
+  if (!isPanelOpen) {
+    return (
+      <aside
+        aria-label="Proprietà del nodo"
+        className="hidden w-14 shrink-0 flex-col items-center border-l border-white/10 bg-surface-low py-4 xl:flex"
+      >
+        <button
+          aria-expanded="false"
+          aria-label="Apri pannello proprietà"
+          className="flex size-9 items-center justify-center rounded-lg border border-white/10 bg-surface-container text-on-surface-muted transition-colors hover:border-secondary/35 hover:text-secondary"
+          onClick={() => setIsPanelOpen(true)}
+          type="button"
+        >
+          <ChevronLeft aria-hidden="true" className="size-4" />
+        </button>
+        <div className="mt-4 flex size-9 items-center justify-center rounded-lg bg-surface-container text-primary">
+          <Settings2 aria-hidden="true" className="size-4" />
+        </div>
+      </aside>
+    )
+  }
 
   return (
     <aside
       aria-label="Proprietà del nodo"
       className="hidden w-64 shrink-0 flex-col border-l border-white/10 bg-surface-low p-4 xl:flex"
     >
-      <div className="flex items-center gap-2">
-        <Settings2 aria-hidden="true" className="size-4 text-primary" />
-        <h2 className="text-sm font-semibold text-on-surface">Proprietà</h2>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Settings2 aria-hidden="true" className="size-4 text-primary" />
+          <h2 className="text-sm font-semibold text-on-surface">Proprietà</h2>
+        </div>
+        <button
+          aria-expanded="true"
+          aria-label="Chiudi pannello proprietà"
+          className="flex size-8 items-center justify-center rounded-lg text-on-surface-muted transition-colors hover:bg-white/5 hover:text-on-surface"
+          onClick={closePanel}
+          type="button"
+        >
+          <ChevronRight aria-hidden="true" className="size-4" />
+        </button>
       </div>
 
       {selectedNode ? (
-        <div className="mt-5 rounded-xl border border-secondary/25 bg-surface-container p-4">
-          <p className="font-label text-[9px] font-semibold uppercase tracking-[0.12em] text-secondary">
-            Nodo selezionato
-          </p>
-          <h3 className="mt-2 text-sm font-semibold text-on-surface">
-            {selectedNode.data.label}
-          </h3>
-          <p className="mt-1 font-label text-[10px] text-on-surface-muted">
-            {selectedNode.data.kind}
-          </p>
-          <dl className="mt-4 space-y-3 border-t border-white/[0.07] pt-4">
-            <div>
-              <dt className="font-label text-[9px] uppercase tracking-wide text-on-surface-muted">
-                Stato
-              </dt>
-              <dd className="mt-1 text-xs text-on-surface">
-                {selectedNode.data.status ?? 'Non impostato'}
-              </dd>
+        <div className="mt-5 space-y-3">
+          <div className="rounded-xl border border-secondary/25 bg-surface-container p-4">
+            <p className="font-label text-[9px] font-semibold uppercase tracking-[0.12em] text-secondary">
+              Nodo selezionato
+            </p>
+            <h3 className="mt-2 text-sm font-semibold text-on-surface">
+              {selectedNode.data.label}
+            </h3>
+            <p className="mt-1 font-label text-[10px] text-on-surface-muted">
+              {selectedNode.data.kind}
+            </p>
+            <dl className="mt-4 space-y-3 border-t border-white/[0.07] pt-4">
+              <div>
+                <dt className="font-label text-[9px] uppercase tracking-wide text-on-surface-muted">
+                  Stato
+                </dt>
+                <dd className="mt-1 text-xs text-on-surface">
+                  {selectedNode.data.status ?? 'Non impostato'}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-label text-[9px] uppercase tracking-wide text-on-surface-muted">
+                  ID
+                </dt>
+                <dd className="mt-1 break-all font-label text-[10px] text-on-surface">
+                  {selectedNode.id}
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <div className="rounded-xl border border-white/[0.07] bg-surface-container p-3">
+            <p className="font-label text-[9px] font-semibold uppercase tracking-[0.12em] text-on-surface-muted">
+              Azioni nodo
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button
+                className="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-surface-high px-3 py-2 font-label text-xs font-medium text-on-surface transition-colors hover:bg-surface-highest"
+                onClick={duplicateSelection}
+                type="button"
+              >
+                <Copy aria-hidden="true" className="size-3.5" />
+                Duplica
+              </button>
+              <button
+                aria-label="Elimina selezione"
+                className="flex items-center justify-center gap-2 rounded-lg border border-primary/25 bg-primary/10 px-3 py-2 font-label text-xs font-medium text-primary transition-colors hover:bg-primary/15"
+                onClick={requestDeleteSelection}
+                type="button"
+              >
+                <Trash2 aria-hidden="true" className="size-3.5" />
+                Elimina
+              </button>
             </div>
-            <div>
-              <dt className="font-label text-[9px] uppercase tracking-wide text-on-surface-muted">
-                ID
-              </dt>
-              <dd className="mt-1 break-all font-label text-[10px] text-on-surface">
-                {selectedNode.id}
-              </dd>
+          </div>
+
+          {isConfirmingDelete ? (
+            <div
+              aria-label="Conferma eliminazione nodo"
+              className="rounded-xl border border-primary/30 bg-surface-container p-3"
+              role="dialog"
+            >
+              <p className="text-xs leading-5 text-on-surface">
+                Eliminare{' '}
+                <span className="font-semibold text-primary">
+                  {selectedNode.data.label}
+                </span>{' '}
+                e le sue connessioni?
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <button
+                  className="rounded-lg border border-white/10 px-3 py-2 font-label text-xs text-on-surface-muted transition-colors hover:bg-white/5"
+                  onClick={() => setIsConfirmingDelete(false)}
+                  type="button"
+                >
+                  Annulla
+                </button>
+                <button
+                  className="rounded-lg bg-primary-container px-3 py-2 font-label text-xs font-semibold text-on-primary transition-opacity hover:opacity-90"
+                  onClick={confirmDeleteSelection}
+                  type="button"
+                >
+                  Elimina nodo
+                </button>
+              </div>
             </div>
-          </dl>
+          ) : null}
         </div>
       ) : (
         <div className="mt-5 flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-white/10 px-5 text-center">

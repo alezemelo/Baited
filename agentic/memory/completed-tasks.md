@@ -46,3 +46,12 @@ Registro append-only. Non modificare o rimuovere le voci esistenti; eventuali co
 - Verifiche: `npm run build` — superato; `npm run lint` — superato; browser 1024 px — validazione nome, focus, navigazione e persistenza superati; browser 1280 px — area proprietà e selezione nodo superate; console — nessun warning o errore.
 - Decisioni: D-009.
 - Follow-up: TASK-004 deve rendere operativa la libreria con drag-and-drop, duplicazione ed eliminazione usando le operazioni già esposte dal provider.
+
+## TASK-004 — Editor canvas
+
+- Completata: 2026-07-05
+- Risultato: resa operativa la libreria per categorie con drag-and-drop sul canvas, coordinate corrette con zoom/pan, minimappa, selezione persistente, spostamento, collegamento, duplicazione, eliminazione e conferma inline per nodi con connessioni.
+- File principali: `src/components/workflow/NodeLibrary.tsx`, `src/components/workflow/WorkflowCanvas.tsx`, `src/components/workflow/CanvasActionBar.tsx`, `src/components/workflow/WorkflowProvider.tsx`, `src/components/wizard/WorkflowWizard.tsx`, `src/features/workflow/catalog.ts`.
+- Verifiche: `npm run build` — superato; `npm run lint` — superato; browser locale 1280×720 con zoom canvas 0.4544 — aggiunti tutti i sei template di libreria, drag-and-drop, selezione, spostamento, nuova connessione, duplicazione, eliminazione senza connessioni e conferma eliminazione con connessioni superati.
+- Decisioni: Nessuna.
+- Follow-up: TASK-005 deve usare la selezione e le operazioni del provider per rendere modificabili le configurazioni dei nodi.

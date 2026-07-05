@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { nodeLibraryBlocks } from '../../features/workflow/catalog'
 import { useWorkflow } from '../../features/workflow/WorkflowContext'
 import { NodeLibrary } from '../workflow/NodeLibrary'
@@ -37,7 +37,19 @@ export function WorkflowWizard() {
     useState<WorkflowWizardStepId>('details')
   const [highestVisitedIndex, setHighestVisitedIndex] = useState(0)
   const [nameError, setNameError] = useState<string>()
+  const [pendingLibraryBlockId, setPendingLibraryBlockId] =
+    useState<string | null>(null)
   const currentIndex = steps.findIndex((step) => step.id === currentStep)
+
+  useEffect(() => {
+    const clearPendingLibraryBlock = () => setPendingLibraryBlockId(null)
+
+    window.addEventListener('mouseup', clearPendingLibraryBlock)
+
+    return () => {
+      window.removeEventListener('mouseup', clearPendingLibraryBlock)
+    }
+  }, [])
 
   const goToStep = (step: WorkflowWizardStepId) => {
     const targetIndex = steps.findIndex((candidate) => candidate.id === step)
@@ -87,8 +99,15 @@ export function WorkflowWizard() {
 
         {currentStep === 'workflow' ? (
           <>
-            <NodeLibrary blocks={nodeLibraryBlocks} />
-            <WorkflowCanvas />
+            <NodeLibrary
+              blocks={nodeLibraryBlocks}
+              onBlockDragEnd={() => setPendingLibraryBlockId(null)}
+              onBlockDragStart={setPendingLibraryBlockId}
+            />
+            <WorkflowCanvas
+              onPendingNodeDrop={() => setPendingLibraryBlockId(null)}
+              pendingTemplateId={pendingLibraryBlockId}
+            />
             <WorkflowPropertiesPanel />
           </>
         ) : null}

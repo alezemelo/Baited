@@ -13,7 +13,10 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { createWorkflowNode } from '../../features/workflow/catalog'
+import {
+  createWorkflowNode,
+  getWorkflowNodeConnectionRules,
+} from '../../features/workflow/catalog'
 import { initialWorkflowDraft } from '../../features/workflow/initialWorkflow'
 import {
   WorkflowContext,
@@ -33,10 +36,16 @@ interface WorkflowProviderProps {
 }
 
 let generatedEdgeSequence = 0
+let duplicatedNodeSequence = 0
 
 function createEdgeId(source: string, target: string) {
   generatedEdgeSequence += 1
   return `${source}-${target}-${Date.now()}-${generatedEdgeSequence}`
+}
+
+function createDuplicatedNodeId(node: WorkflowNode) {
+  duplicatedNodeSequence += 1
+  return `${node.id}-copy-${Date.now()}-${duplicatedNodeSequence}`
 }
 
 function cloneDraft(draft: WorkflowDraft): WorkflowDraft {
@@ -62,12 +71,7 @@ export function WorkflowProvider({
 
   const selectNode = (nodeId: string | null) => {
     setSelectedNodeId(nodeId)
-    setNodes((currentNodes) =>
-      currentNodes.map((node) => ({
-        ...node,
-        selected: node.id === nodeId,
-      })),
-    )
+    setNodes((currentNodes) => markSelectedNode(currentNodes, nodeId))
   }
 
   const addNode = (templateId: string, position: XYPosition) => {
@@ -77,8 +81,10 @@ export function WorkflowProvider({
       return null
     }
 
-    setNodes((currentNodes) => [...currentNodes, node])
-    selectNode(node.id)
+    setSelectedNodeId(node.id)
+    setNodes((currentNodes) =>
+      markSelectedNode([...currentNodes, node], node.id),
+    )
     return node.id
   }
 
@@ -115,13 +121,19 @@ export function WorkflowProvider({
     }
 
     const duplicate = createWorkflowNodeFromExisting(sourceNode)
-    setNodes((currentNodes) => [...currentNodes, duplicate])
-    selectNode(duplicate.id)
+    setSelectedNodeId(duplicate.id)
+    setNodes((currentNodes) =>
+      markSelectedNode([...currentNodes, duplicate], duplicate.id),
+    )
     return duplicate.id
   }
 
   const connectNodes = (connection: Connection) => {
-    if (!connection.source || !connection.target) {
+    if (
+      !connection.source ||
+      !connection.target ||
+      !canConnectNodes(connection, nodes, edges)
+    ) {
       return
     }
 
@@ -187,7 +199,7 @@ export function WorkflowProvider({
 }
 
 function createWorkflowNodeFromExisting(node: WorkflowNode): WorkflowNode {
-  const duplicatedId = `${node.id}-copy-${Date.now()}`
+  const duplicatedId = createDuplicatedNodeId(node)
 
   return {
     ...node,
@@ -223,4 +235,74 @@ function getConnectionBranch(
   }
 
   return null
+}
+
+function markSelectedNode(
+  nodes: WorkflowNode[],
+  selectedNodeId: string | null,
+): WorkflowNode[] {
+  return nodes.map((node) => ({
+    ...node,
+    selected: node.id === selectedNodeId,
+  }))
+}
+
+function canConnectNodes(
+  connection: Connection,
+  nodes: WorkflowNode[],
+  edges: WorkflowEdge[],
+) {
+  const sourceNode = nodes.find((node) => node.id === connection.source)
+  const targetNode = nodes.find((node) => node.id === connection.target)
+
+  if (!sourceNode || !targetNode || sourceNode.id === targetNode.id) {
+    return false
+  }
+
+  const sourceRules = getWorkflowNodeConnectionRules(sourceNode.data.kind)
+  const targetRules = getWorkflowNodeConnectionRules(targetNode.data.kind)
+
+  if (
+    !sourceRules?.allowOutgoing ||
+    !targetRules?.allowIncoming
+  ) {
+    return false
+  }
+
+  const incomingCount = edges.filter(
+    (edge) => edge.target === targetNode.id,
+  ).length
+  const outgoingCount = edges.filter(
+    (edge) => edge.source === sourceNode.id,
+  ).length
+  const handleOutgoingCount = edges.filter(
+    (edge) =>
+      edge.source === sourceNode.id &&
+      edge.sourceHandle === connection.sourceHandle,
+  ).length
+
+  if (
+    targetRules.maxIncoming !== null &&
+    incomingCount >= targetRules.maxIncoming
+  ) {
+    return false
+  }
+
+  if (
+    sourceRules.maxOutgoing !== null &&
+    outgoingCount >= sourceRules.maxOutgoing
+  ) {
+    return false
+  }
+
+  if (sourceNode.data.kind === 'condition' && handleOutgoingCount > 0) {
+    return false
+  }
+
+  return !edges.some(
+    (edge) =>
+      edge.source === connection.source &&
+      edge.target === connection.target &&
+      edge.sourceHandle === connection.sourceHandle,
+  )
 }

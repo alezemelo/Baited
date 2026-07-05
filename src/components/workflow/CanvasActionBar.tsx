@@ -1,4 +1,4 @@
-import { Play, Save, Trash2 } from 'lucide-react'
+import { Play, Save } from 'lucide-react'
 
 export function CanvasActionBar() {
   return (
@@ -16,13 +16,6 @@ export function CanvasActionBar() {
       >
         <Save aria-hidden="true" className="size-3.5" />
         Salva bozza
-      </button>
-      <button
-        aria-label="Elimina selezione"
-        className="flex size-8 items-center justify-center rounded-lg text-primary transition-colors hover:bg-primary/10"
-        type="button"
-      >
-        <Trash2 aria-hidden="true" className="size-4" />
       </button>
     </div>
   )

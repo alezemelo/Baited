@@ -225,6 +225,10 @@ export const nodeLibraryBlocks: NodeLibraryBlock[] = workflowNodeCatalog
     kind,
   }))
 
+export function getWorkflowNodeConnectionRules(kind: WorkflowNodeCatalogItem['kind']) {
+  return workflowNodeCatalog.find((item) => item.kind === kind)?.connectionRules
+}
+
 export function createWorkflowNode(
   templateId: string,
   options: CreateWorkflowNodeOptions = {},

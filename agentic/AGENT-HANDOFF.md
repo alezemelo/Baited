@@ -10,11 +10,11 @@ Costruire un MVP desktop-first per comporre, validare e salvare workflow di camp
 
 ## Stato sintetico
 
-TASK-004 è in corso. Il wizard a tre step resta operativo sopra il modello condiviso; baseline build/lint iniziale verde. La sessione sta collegando libreria e operazioni canvas al provider per rendere operativo l'editor.
+TASK-004 è completata e archiviata. L'editor canvas ora aggiunge template dalla libreria per categorie con drag-and-drop, conserva coordinate corrette con zoom/pan, mostra minimappa e supporta selezione, spostamento, collegamento, duplicazione ed eliminazione con conferma quando il nodo ha connessioni.
 
 ## Task attiva
 
-`TASK-004 — Editor canvas` (`in_progress`).
+Nessuna. `TASK-004` è stata completata e archiviata.
 
 ## Ultima sessione
 
@@ -27,6 +27,7 @@ TASK-004 è in corso. Il wizard a tre step resta operativo sopra il modello cond
 - Applicato il design system Lumina/Baited e archiviata `TASK-010`.
 - Implementato il modello workflow e archiviata `TASK-002`.
 - Implementato il wizard a tre step e archiviata `TASK-003`.
+- Implementato l'editor canvas operativo e archiviata `TASK-004`.
 
 ## Verifiche effettuate
 
@@ -38,11 +39,12 @@ TASK-004 è in corso. Il wizard a tre step resta operativo sopra il modello cond
 - Drag/selezione, nuova connessione, zoom, fit view e pan — superati; console senza warning o errori.
 - Modello/provider — build e lint senza warning; browser con drag, selezione e connessione superato.
 - Wizard — validazione/focus, navigazione, persistenza, revisione e pannello proprietà verificati a 1024 e 1280 px.
+- Editor canvas — build e lint superati; browser 1280×720 con zoom canvas 0.4544: sei template aggiunti, drag-and-drop, selezione, spostamento, connessione, duplicazione, eliminazione e conferma eliminazione superati.
 
 ## Problemi aperti
 
-Nessun blocco noto. La libreria è ancora visuale: aggiunta tramite drag-and-drop, duplicazione, eliminazione e conferme appartengono a TASK-004.
+Nessun blocco noto. La configurazione dettagliata dei nodi resta visuale/non modificabile e appartiene a TASK-005.
 
 ## Prossimo passo
 
-Implementare drag-and-drop dalla libreria al canvas, poi collegare duplicazione/eliminazione alla selezione mantenendo controlli, minimappa, zoom, pan e fit view.
+Aprire `tasks/TASK-005-node-configuration.md`, impostarla `in_progress` e rendere modificabili le configurazioni dei nodi selezionati nel pannello proprietà.
