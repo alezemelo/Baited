@@ -92,10 +92,21 @@ export function WorkflowProvider({
     nodeId: string,
     updater: (currentData: WorkflowNodeData) => WorkflowNodeData,
   ) => {
+    const node = nodes.find((candidate) => candidate.id === nodeId)
+
+    if (!node) {
+      return
+    }
+
+    const nextData = updater(node.data)
+
     setNodes((currentNodes) =>
       currentNodes.map((node) =>
-        node.id === nodeId ? { ...node, data: updater(node.data) } : node,
+        node.id === nodeId ? { ...node, data: nextData } : node,
       ),
+    )
+    setEdges((currentEdges) =>
+      syncEdgesWithNodeData(currentEdges, nodeId, nextData),
     )
   }
 
@@ -305,4 +316,45 @@ function canConnectNodes(
       edge.target === connection.target &&
       edge.sourceHandle === connection.sourceHandle,
   )
+}
+
+function syncEdgesWithNodeData(
+  edges: WorkflowEdge[],
+  nodeId: string,
+  data: WorkflowNodeData,
+) {
+  if (data.kind !== 'condition') {
+    return edges
+  }
+
+  return edges.map((edge) => {
+    if (edge.source !== nodeId || !edge.sourceHandle) {
+      return edge
+    }
+
+    const rule = data.config.rules.find(
+      (conditionRule) => conditionRule.id === edge.sourceHandle,
+    )
+
+    if (rule) {
+      return {
+        ...edge,
+        label: rule.label,
+        data: { branchId: rule.id, branchType: 'rule' as const },
+      }
+    }
+
+    if (data.config.elseBranch.id === edge.sourceHandle) {
+      return {
+        ...edge,
+        label: data.config.elseBranch.label,
+        data: {
+          branchId: data.config.elseBranch.id,
+          branchType: 'else' as const,
+        },
+      }
+    }
+
+    return edge
+  })
 }

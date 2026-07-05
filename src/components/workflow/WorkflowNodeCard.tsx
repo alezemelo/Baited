@@ -19,8 +19,20 @@ export function WorkflowNodeCard({
   const isTrigger = data.kind === 'workflow_start'
   const isCondition = data.kind === 'condition'
   const isEnd = data.kind === 'workflow_end'
-  const conditionRule = isCondition ? data.config.rules[0] : null
-  const elseBranch = isCondition ? data.config.elseBranch : null
+  const conditionBranches = isCondition
+    ? [
+        ...data.config.rules.map((rule, index) => ({
+          id: rule.id,
+          label: rule.label,
+          type: index === 0 ? 'if' : 'else if',
+        })),
+        {
+          id: data.config.elseBranch.id,
+          label: data.config.elseBranch.label,
+          type: 'else',
+        },
+      ]
+    : []
 
   return (
     <article
@@ -70,29 +82,29 @@ export function WorkflowNodeCard({
         </div>
       </div>
 
-      {conditionRule && elseBranch ? (
-        <>
-          <span className="absolute -right-9 top-[31px] font-label text-[9px] text-on-surface-muted">
-            {elseBranch.label.toUpperCase()}
-          </span>
-          <Handle
-            className="workflow-handle"
-            id={elseBranch.id}
-            position={Position.Right}
-            style={{ top: 36 }}
-            type="source"
-          />
-          <span className="absolute -right-8 bottom-[25px] font-label text-[9px] text-on-surface-muted">
-            {conditionRule.label.toUpperCase()}
-          </span>
-          <Handle
-            className="workflow-handle"
-            id={conditionRule.id}
-            position={Position.Right}
-            style={{ top: 78 }}
-            type="source"
-          />
-        </>
+      {conditionBranches.length > 0 ? (
+        <div className="mt-3 space-y-1 border-t border-white/[0.07] pt-3">
+          {conditionBranches.map((branch) => (
+            <div
+              className="relative rounded-lg bg-surface-lowest px-2 py-1.5 pr-4"
+              key={branch.id}
+            >
+              <span className="block font-label text-[8px] font-semibold uppercase tracking-wide text-on-surface-muted">
+                {branch.type}
+              </span>
+              <span className="block truncate font-label text-[9px] text-on-surface">
+                {branch.label || 'Branch senza label'}
+              </span>
+              <Handle
+                className="workflow-handle"
+                id={branch.id}
+                position={Position.Right}
+                style={{ top: '50%' }}
+                type="source"
+              />
+            </div>
+          ))}
+        </div>
       ) : !isEnd ? (
         <Handle
           className="workflow-handle"

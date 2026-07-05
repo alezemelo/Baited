@@ -10,11 +10,11 @@ Costruire un MVP desktop-first per comporre, validare e salvare workflow di camp
 
 ## Stato sintetico
 
-TASK-004 è completata e archiviata. L'editor canvas ora aggiunge template dalla libreria per categorie con drag-and-drop, conserva coordinate corrette con zoom/pan, mostra minimappa e supporta selezione, spostamento, collegamento, duplicazione ed eliminazione con conferma quando il nodo ha connessioni.
+TASK-005 è completata e archiviata. Il pannello proprietà ospita `NodeInspector` con form specifici per i sette tipi nodo, stato incompleto visibile, aggiornamenti realtime del draft e branch condition `if`/`else if` ordinabili con `else` finale.
 
 ## Task attiva
 
-Nessuna. `TASK-004` è stata completata e archiviata.
+Nessuna. `TASK-005` è stata completata e archiviata.
 
 ## Ultima sessione
 
@@ -28,6 +28,7 @@ Nessuna. `TASK-004` è stata completata e archiviata.
 - Implementato il modello workflow e archiviata `TASK-002`.
 - Implementato il wizard a tre step e archiviata `TASK-003`.
 - Implementato l'editor canvas operativo e archiviata `TASK-004`.
+- Implementata la configurazione dei nodi e archiviata `TASK-005`.
 
 ## Verifiche effettuate
 
@@ -40,11 +41,12 @@ Nessuna. `TASK-004` è stata completata e archiviata.
 - Modello/provider — build e lint senza warning; browser con drag, selezione e connessione superato.
 - Wizard — validazione/focus, navigazione, persistenza, revisione e pannello proprietà verificati a 1024 e 1280 px.
 - Editor canvas — build e lint superati; browser 1280×720 con zoom canvas 0.4544: sei template aggiunti, drag-and-drop, selezione, spostamento, connessione, duplicazione, eliminazione e conferma eliminazione superati.
+- Configurazione nodi — build, lint e diff check superati; browser 1440×900: trigger, campagne, target group, awareness, condition, end e OSINT configurati; persistenza tra selezione/step e console pulita verificate.
 
 ## Problemi aperti
 
-Nessun blocco noto. La configurazione dettagliata dei nodi resta visuale/non modificabile e appartiene a TASK-005.
+Nessun blocco noto. La validazione DAG, branch e configurazioni incomplete appartiene a TASK-006.
 
 ## Prossimo passo
 
-Aprire `tasks/TASK-005-node-configuration.md`, impostarla `in_progress` e rendere modificabili le configurazioni dei nodi selezionati nel pannello proprietà.
+Aprire `tasks/TASK-006-branching-validation.md`, impostarla `in_progress` e implementare validazione DAG, branch condition e configurazioni incomplete.

@@ -55,3 +55,12 @@ Registro append-only. Non modificare o rimuovere le voci esistenti; eventuali co
 - Verifiche: `npm run build` — superato; `npm run lint` — superato; browser locale 1280×720 con zoom canvas 0.4544 — aggiunti tutti i sei template di libreria, drag-and-drop, selezione, spostamento, nuova connessione, duplicazione, eliminazione senza connessioni e conferma eliminazione con connessioni superati.
 - Decisioni: Nessuna.
 - Follow-up: TASK-005 deve usare la selezione e le operazioni del provider per rendere modificabili le configurazioni dei nodi.
+
+## TASK-005 — Configurazione dei nodi
+
+- Completata: 2026-07-05
+- Risultato: implementato `NodeInspector` con form specifici per i sette tipi nodo, campi obbligatori accessibili, stato incompleto visibile sul nodo, aggiornamento realtime di label/subtitle/status e supporto a regole condition `if`/`else if` ordinabili con `else` finale non eliminabile.
+- File principali: `src/components/workflow/NodeInspector.tsx`, `src/components/workflow/config/FormControls.tsx`, `src/components/workflow/WorkflowPropertiesPanel.tsx`, `src/components/workflow/WorkflowNodeCard.tsx`, `src/components/workflow/WorkflowProvider.tsx`.
+- Verifiche: `npm run build` — superato; `npm run lint` — superato; `git diff --check` — superato; browser 1440×900 — configurati trigger, campagna email/IM, campagna SMS, target group, awareness, condition, end e OSINT; persistenza tra selezioni e step Revisione superata; console senza warning o errori.
+- Decisioni: Nessuna.
+- Follow-up: TASK-006 deve validare DAG, branch condition e configurazioni incomplete prima del salvataggio.
