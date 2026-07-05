@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-label: "Geist", ui-sans-serif, system-ui, sans-serif;
+
+  --color-surface: #131316;
+  --color-surface-lowest: #0e0e11;
+  --color-surface-low: #1b1b1e;
+  --color-surface-container: #1f1f22;
+  --color-surface-high: #2a2a2d;
+  --color-surface-highest: #353438;
+  --color-on-surface: #e5e1e6;
+  --color-on-surface-muted: #aaa6ad;
+  --color-outline: #574140;
+  --color-primary: #ffb3b0;
+  --color-primary-container: #f87171;
+  --color-on-primary: #670211;
+  --color-secondary: #4de082;
+  --color-on-secondary: #003919;
+}
+
+:root {
+  color: #e5e1e6;
+  background: #131316;
+  font-family: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid #4de082;
+  outline-offset: 2px;
+}
+
+.stealth-scroll {
+  scrollbar-color: rgb(255 255 255 / 14%) transparent;
+  scrollbar-width: thin;
+}
+
+.stealth-scroll::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.stealth-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+}
+
+.react-flow__node {
+  width: auto;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  font-family: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+}
+
+.react-flow__edge-path {
+  stroke: rgb(77 224 130 / 68%);
+  stroke-width: 1.6;
+  filter: drop-shadow(0 0 2px rgb(77 224 130 / 24%));
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #4de082;
+  stroke-width: 2;
+}
+
+.react-flow__edge-text {
+  fill: #d6d2d8;
+  font-family: "Geist", ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.react-flow__edge-textbg {
+  fill: #1f1f22;
+  fill-opacity: 1;
+}
+
+.react-flow__handle.workflow-handle {
+  width: 9px;
+  height: 9px;
+  border: 1px solid #0e0e11;
+  background: #4de082;
+  box-shadow: 0 0 6px rgb(77 224 130 / 55%);
+}
+
+.react-flow__controls {
+  gap: 2px;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 8%);
+  border-radius: 10px;
+  background: rgb(31 31 34 / 88%);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 22%);
+  backdrop-filter: blur(12px);
+}
+
+.react-flow__controls-button {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-bottom: 0;
+  background: transparent;
+  fill: #aaa6ad;
+}
+
+.react-flow__controls-button:hover {
+  background: rgb(255 255 255 / 8%);
+  fill: #e5e1e6;
+}
+
+.react-flow__attribution {
+  border-radius: 4px 0 0;
+  background: rgb(14 14 17 / 72%);
+  color: #77737b;
+  font-size: 9px;
+}
