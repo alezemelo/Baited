@@ -92,3 +92,12 @@ Registro append-only. Non modificare o rimuovere le voci esistenti; eventuali co
 - Verifiche: `npm run test` — superato con 9 test dominio e 5 test componenti; `npm run test:e2e` — superato con 3 test Chromium inclusi axe, errore/retry e refresh; `npm run build`, `npm run lint` e `git diff --check` — superati.
 - Decisioni: D-012.
 - Follow-up: Nessuno; tutte le task del piano Workflow Editor MVP sono completate.
+
+## TASK-011 — Terminazione di tutti i percorsi
+
+- Completata: 2026-07-05
+- Risultato: aggiunta la reachability inversa multi-end, introdotto l'errore strutturato `unterminated_path`, completato il ramo training del workflow iniziale e mantenuto il focus generico dalla revisione.
+- File principali: `src/features/workflow/validation/graph.ts`, `src/features/workflow/validation/validateWorkflow.ts`, `src/features/workflow/initialWorkflow.ts`, `tests/workflow-validation.test.ts`, `e2e/workflow.spec.ts`, `README.md`.
+- Verifiche: `npm run test` — superato con 11 test dominio e 5 componenti; `npm run test:e2e` — superato con 3 test Chromium; `npm run build`, `npm run lint` e `git diff --check` — superati.
+- Decisioni: D-013.
+- Follow-up: TASK-012 deve rendere esplicito il timeout di valutazione delle condizioni.

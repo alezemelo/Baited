@@ -24,6 +24,7 @@ test('completes save error, retry and refresh recovery', async ({ page }) => {
   await page.getByText('Training di base', { exact: true }).click()
   await page.getByLabel('Target campagna Q3').check()
   await page.getByRole('button', { name: 'Vai alla revisione' }).press('Enter')
+  await expect(page.getByText('7 connessioni')).toBeVisible()
 
   const saveButton = page.getByRole('button', { name: 'Salva workflow' })
   await expect(saveButton).toBeEnabled()

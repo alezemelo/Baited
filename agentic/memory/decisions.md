@@ -86,3 +86,11 @@
 - Decisione: mantenere test di dominio con `node:test`, test componenti con Vitest/Testing Library e percorso browser con Playwright; usare axe nel test E2E per l'audit automatico di Dettagli e Revisione.
 - Accessibilità: ogni blocco della libreria è un pulsante che aggiunge il nodo con click, Invio o Spazio, mantenendo il drag-and-drop per il posizionamento libero.
 - Eccezione documentata: pan, zoom e creazione visuale degli archi restano interazioni specifiche di React Flow che richiedono un dispositivo di puntamento nell'MVP.
+
+## D-013 — Terminazione verificata con reachability inversa
+
+- Data: 2026-07-05
+- Stato: accettata
+- Decisione: un workflow è salvabile solo se ogni nodo raggiungibile dallo start può raggiungere almeno un `workflow_end`.
+- Algoritmo: costruire l'adiacenza inversa e visitare il grafo a partire da tutti gli end; l'intersezione negativa con i nodi raggiungibili dallo start produce gli errori `unterminated_path` in O(V+E).
+- Feedback: associare l'errore a ciascun nodo del percorso non terminato con il messaggio `<label> non conduce ad alcun nodo end.`.

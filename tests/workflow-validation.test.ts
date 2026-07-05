@@ -10,7 +10,10 @@ import {
   validateWorkflow,
   type WorkflowValidationCode,
 } from '../src/features/workflow/validation/validateWorkflow'
-import { wouldCreateCycle } from '../src/features/workflow/validation/graph'
+import {
+  getNodeIdsThatCanReachTargets,
+  wouldCreateCycle,
+} from '../src/features/workflow/validation/graph'
 
 test('valid workflow returns no validation issues and is not mutated', () => {
   const draft = createValidDraft()
@@ -122,6 +125,47 @@ test('self-loop, duplicate edges and required fields are reported', () => {
   assert.ok(validationCodes.includes('self_loop'))
   assert.ok(validationCodes.includes('duplicate_edge'))
   assert.ok(validationCodes.includes('missing_required_field'))
+})
+
+test('reachable paths that cannot reach an end are reported', () => {
+  const draft = createValidDraft()
+  draft.edges = draft.edges.filter(
+    (candidate) => candidate.id !== 'training-end',
+  )
+
+  const result = validateWorkflow(draft)
+  const unterminatedNodeIds = result.issues
+    .filter((issue) => issue.code === 'unterminated_path')
+    .map((issue) => issue.nodeId)
+    .sort()
+
+  assert.deepEqual(unterminatedNodeIds, ['risk', 'training'])
+  assert.ok(result.issues.some(
+    (issue) =>
+      issue.code === 'unterminated_path' &&
+      issue.message === 'Training di base non conduce ad alcun nodo end.',
+  ))
+})
+
+test('reverse reachability supports multiple ends and converging branches', () => {
+  const draft = createValidDraft()
+  const secondEnd = requiredNode('workflow-end', 'end-training')
+  const trainingEdge = draft.edges.find(
+    (candidate) => candidate.id === 'training-end',
+  )
+
+  assert.ok(trainingEdge)
+  trainingEdge.target = secondEnd.id
+  draft.nodes.push(secondEnd)
+
+  const nodeIdsThatCanReachEnd = getNodeIdsThatCanReachTargets(
+    draft.nodes,
+    draft.edges,
+    ['end', 'end-training'],
+  )
+
+  assert.equal(nodeIdsThatCanReachEnd.size, draft.nodes.length)
+  assert.equal(validateWorkflow(draft).isValid, true)
 })
 
 function createValidDraft(): WorkflowDraft {

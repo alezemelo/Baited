@@ -8,6 +8,7 @@ import type {
 } from '../types'
 import {
   findCycleNodeIds,
+  getNodeIdsThatCanReachTargets,
   getReachableNodeIds,
 } from './graph'
 
@@ -23,6 +24,7 @@ export type WorkflowValidationCode =
   | 'multiple_start'
   | 'orphan_node'
   | 'self_loop'
+  | 'unterminated_path'
   | 'unreachable_node'
 
 export interface WorkflowValidationIssue {
@@ -80,6 +82,7 @@ export function validateWorkflow(
   validateConnectionLimits(draft.nodes, incomingCounts, outgoingCounts, issues)
   validateConditionBranches(draft.nodes, draft.edges, issues)
   validateReachability(draft.nodes, draft.edges, startNodes, incomingCounts, issues)
+  validateTerminalPaths(draft.nodes, draft.edges, startNodes, endNodes, issues)
   validateCycles(draft.nodes, draft.edges, issues)
   validateRequiredFields(draft.nodes, issues)
 
@@ -87,6 +90,44 @@ export function validateWorkflow(
     isValid: issues.length === 0,
     issues,
   }
+}
+
+function validateTerminalPaths(
+  nodes: WorkflowNode[],
+  edges: WorkflowEdge[],
+  startNodes: WorkflowNode[],
+  endNodes: WorkflowNode[],
+  issues: WorkflowValidationIssue[],
+) {
+  if (startNodes.length !== 1 || endNodes.length === 0) {
+    return
+  }
+
+  const reachableNodeIds = getReachableNodeIds(
+    nodes,
+    edges,
+    startNodes.map((node) => node.id),
+  )
+  const nodeIdsThatCanReachEnd = getNodeIdsThatCanReachTargets(
+    nodes,
+    edges,
+    endNodes.map((node) => node.id),
+  )
+
+  nodes.forEach((node) => {
+    if (
+      node.data.kind !== 'workflow_end' &&
+      reachableNodeIds.has(node.id) &&
+      !nodeIdsThatCanReachEnd.has(node.id)
+    ) {
+      issues.push({
+        code: 'unterminated_path',
+        message: `${node.data.label} non conduce ad alcun nodo end.`,
+        nodeId: node.id,
+        severity: 'error',
+      })
+    }
+  })
 }
 
 function validateStartAndEnd(

@@ -39,6 +39,9 @@ Realizzare una demo desktop-first in cui l'utente definisce i dati generali, com
 | TASK-008 | Test, accessibilità e rifinitura | TASK-007 | Completata |
 | TASK-009 | Convenzione React pages/components | TASK-001 | Completata |
 | TASK-010 | Design system Lumina/Baited | TASK-009 | Completata |
+| TASK-011 | Terminazione di tutti i percorsi | TASK-008 | Completata |
+| TASK-012 | Timeout esplicito delle condizioni | TASK-011 | Pianificata |
+| TASK-013 | Generazione scenario da risultati OSINT | TASK-012 | Pianificata |
 
 ## Definizione di completamento
 
@@ -49,3 +52,6 @@ Realizzare una demo desktop-first in cui l'utente definisce i dati generali, com
 - Un salvataggio mock riuscito restituisce e mostra l'identificativo del workflow.
 - Build, lint e test automatizzati risultano verdi.
 - README e handoff riflettono il comportamento effettivo.
+- Ogni percorso raggiungibile termina in un nodo end.
+- Le condizioni rappresentano esplicitamente il tempo massimo di attesa.
+- La generazione di uno scenario dai risultati OSINT è disponibile come azione tipizzata.

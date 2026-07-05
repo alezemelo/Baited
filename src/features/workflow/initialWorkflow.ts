@@ -28,7 +28,7 @@ const initialNodes: WorkflowNode[] = [
     x: 1060,
     y: 380,
   }),
-  requireInitialNode('workflow-end', 'end', { x: 1060, y: 80 }),
+  requireInitialNode('workflow-end', 'end', { x: 1320, y: 230 }),
 ]
 
 const initialEdges: WorkflowEdge[] = [
@@ -72,6 +72,12 @@ const initialEdges: WorkflowEdge[] = [
     id: 'risk-training',
     source: 'risk',
     target: 'training',
+    markerEnd,
+  },
+  {
+    id: 'training-end',
+    source: 'training',
+    target: 'end',
     markerEnd,
   },
 ]

@@ -10,7 +10,7 @@ Costruire un MVP desktop-first per comporre, validare e salvare workflow di camp
 
 ## Stato sintetico
 
-Il piano Workflow Editor MVP è completato. Il percorso Dettagli → Workflow → Revisione → salvataggio è coperto da test dominio, componenti ed E2E, con retry, refresh, dirty state e audit axe.
+TASK-011 è completata. Ogni nodo raggiungibile deve ora poter arrivare a un end; il workflow iniziale include `training → end` e la suite completa è verde.
 
 ## Task attiva
 
@@ -32,9 +32,11 @@ Nessuna task in corso.
 - Implementata la validazione DAG/branch e archiviata `TASK-006`.
 - Implementati revisione, salvataggio mock e ripristino locale e archiviata `TASK-007`.
 - Consolidati test, accessibilità, dirty state e documentazione e archiviata `TASK-008`.
+- Aggiunta la terminazione obbligatoria dei percorsi e archiviata `TASK-011`.
 
 ## Verifiche effettuate
 
+- TASK-011 — `npm run test` superato: 11 test dominio e 5 test componenti; `npm run test:e2e` superato: 3 test Chromium; build, lint e diff check superati.
 - TASK-008 — `npm run test` superato: 9 test dominio e 5 test componenti.
 - TASK-008 — `npm run test:e2e` superato: 3 test Chromium per errore/retry/refresh, aggiunta tastiera/dirty state e audit axe su Dettagli/Revisione.
 - TASK-008 — `npm run build`, `npm run lint` e `git diff --check` superati.
@@ -56,6 +58,12 @@ Nessuna task in corso.
 
 Nessun blocco noto. Eccezione di accessibilità documentata: pan, zoom e creazione visuale degli archi sul canvas React Flow richiedono un dispositivo di puntamento; aggiunta blocchi, configurazione, revisione e salvataggio sono utilizzabili da tastiera.
 
+## Terminazione percorsi
+
+- Codice errore: `unterminated_path`.
+- Messaggio: `<label> non conduce ad alcun nodo end.` con `nodeId` per focus ed evidenziazione.
+- Algoritmo: visita inversa multi-source dagli end più reachability dallo start, complessità O(V+E).
+
 ## Contratto salvataggio mock
 
 - Request: `version`, `metadata`, `nodes`, `edges`; response: `id`, `version`, `status`, `createdAt`.
@@ -64,4 +72,4 @@ Nessun blocco noto. Eccezione di accessibilità documentata: pan, zoom e creazio
 
 ## Prossimo passo
 
-Non esistono task pianificate eseguibili: richiedere una decisione sul prossimo incremento prima di ampliare lo scope.
+Avviare TASK-012 — Timeout esplicito delle condizioni: aggiungere `waitForMinutes` al modello condition, all'inspector, alla validazione e al payload.

@@ -39,6 +39,8 @@ npx playwright install chromium
 
 Il salvataggio è disabilitato finché `validation.isValid` è falso. Lo stato del draft segnala le modifiche non salvate e attiva la conferma nativa quando si tenta di chiudere o ricaricare la pagina.
 
+La validazione richiede uno start unico, almeno un end, assenza di cicli e che ogni nodo raggiungibile possa condurre a un end. Un ramo operativo lasciato senza terminazione viene segnalato con `unterminated_path` e blocca il salvataggio.
+
 ## Canvas e accessibilità
 
 - I blocchi della libreria possono essere trascinati oppure aggiunti con click, `Invio` o `Spazio`.

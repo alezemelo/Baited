@@ -30,6 +30,26 @@ export function buildAdjacency(
   return adjacency
 }
 
+export function buildReverseAdjacency(
+  nodes: WorkflowNode[],
+  edges: WorkflowEdge[],
+) {
+  const reverseAdjacency = new Map<string, string[]>()
+  const nodeIds = new Set(nodes.map((node) => node.id))
+
+  nodes.forEach((node) => reverseAdjacency.set(node.id, []))
+
+  edges.forEach((edge) => {
+    if (!nodeIds.has(edge.source) || !nodeIds.has(edge.target)) {
+      return
+    }
+
+    reverseAdjacency.get(edge.target)?.push(edge.source)
+  })
+
+  return reverseAdjacency
+}
+
 export function getReachableNodeIds(
   nodes: WorkflowNode[],
   edges: WorkflowEdge[],
@@ -56,6 +76,34 @@ export function getReachableNodeIds(
   }
 
   return reachableNodeIds
+}
+
+export function getNodeIdsThatCanReachTargets(
+  nodes: WorkflowNode[],
+  edges: WorkflowEdge[],
+  targetNodeIds: string[],
+) {
+  const reverseAdjacency = buildReverseAdjacency(nodes, edges)
+  const nodeIdsThatCanReachTargets = new Set<string>()
+  const queue = [...targetNodeIds]
+
+  while (queue.length > 0) {
+    const nodeId = queue.shift()
+
+    if (!nodeId || nodeIdsThatCanReachTargets.has(nodeId)) {
+      continue
+    }
+
+    nodeIdsThatCanReachTargets.add(nodeId)
+
+    reverseAdjacency.get(nodeId)?.forEach((sourceId) => {
+      if (!nodeIdsThatCanReachTargets.has(sourceId)) {
+        queue.push(sourceId)
+      }
+    })
+  }
+
+  return nodeIdsThatCanReachTargets
 }
 
 export function wouldCreateCycle(
