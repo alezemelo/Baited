@@ -32,7 +32,7 @@ const steps: readonly WorkflowWizardStep[] = [
 ]
 
 export function WorkflowWizard() {
-  const { draft } = useWorkflow()
+  const { draft, selectNode, validation } = useWorkflow()
   const [currentStep, setCurrentStep] =
     useState<WorkflowWizardStepId>('details')
   const [highestVisitedIndex, setHighestVisitedIndex] = useState(0)
@@ -77,6 +77,16 @@ export function WorkflowWizard() {
     setCurrentStep(steps[previousIndex].id)
   }
 
+  const focusWorkflowNode = (nodeId: string) => {
+    const workflowStepIndex = steps.findIndex((step) => step.id === 'workflow')
+
+    setHighestVisitedIndex((visitedIndex) =>
+      Math.max(visitedIndex, workflowStepIndex),
+    )
+    setCurrentStep('workflow')
+    window.requestAnimationFrame(() => selectNode(nodeId))
+  }
+
   return (
     <section
       aria-label="Creazione workflow"
@@ -112,7 +122,9 @@ export function WorkflowWizard() {
           </>
         ) : null}
 
-        {currentStep === 'review' ? <WorkflowReviewStep /> : null}
+        {currentStep === 'review' ? (
+          <WorkflowReviewStep onFocusNode={focusWorkflowNode} />
+        ) : null}
       </div>
 
       <footer className="flex h-16 shrink-0 items-center justify-between border-t border-white/10 bg-surface-low px-6">
@@ -140,8 +152,16 @@ export function WorkflowWizard() {
             <ArrowRight aria-hidden="true" className="size-3.5" />
           </button>
         ) : (
-          <span className="rounded-lg border border-secondary/25 bg-secondary/10 px-4 py-2 font-label text-xs font-medium text-secondary">
-            Pronto per il salvataggio
+          <span
+            className={`rounded-lg border px-4 py-2 font-label text-xs font-medium ${
+              validation.isValid
+                ? 'border-secondary/25 bg-secondary/10 text-secondary'
+                : 'border-primary/25 bg-primary/10 text-primary'
+            }`}
+          >
+            {validation.isValid
+              ? 'Pronto per il salvataggio'
+              : `${validation.issues.length} errori da correggere`}
           </span>
         )}
       </footer>

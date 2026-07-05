@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "test": "tsc -p tsconfig.test.json && cp tests/package.test.json .tmp-tests/package.json && node --test .tmp-tests/tests/*.js",
     "preview": "vite preview"
   },
   "dependencies": {

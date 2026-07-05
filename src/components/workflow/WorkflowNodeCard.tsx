@@ -19,6 +19,7 @@ export function WorkflowNodeCard({
   const isTrigger = data.kind === 'workflow_start'
   const isCondition = data.kind === 'condition'
   const isEnd = data.kind === 'workflow_end'
+  const hasValidationError = data.validationState === 'error'
   const conditionBranches = isCondition
     ? [
         ...data.config.rules.map((rule, index) => ({
@@ -37,7 +38,9 @@ export function WorkflowNodeCard({
   return (
     <article
       className={`relative w-[210px] rounded-2xl border bg-surface-container p-4 shadow-[0_10px_28px_rgb(0_0_0/0.24)] transition-[border-color,box-shadow,transform] ${
-        selected
+        hasValidationError
+          ? 'border-primary shadow-[0_0_0_1px_rgb(248_113_113/0.18),0_0_18px_rgb(248_113_113/0.28)]'
+          : selected
           ? 'border-secondary shadow-[0_0_0_1px_rgb(77_224_130/0.12),0_0_14px_rgb(77_224_130/0.25)]'
           : 'border-white/10 hover:border-white/20'
       }`}
@@ -61,7 +64,11 @@ export function WorkflowNodeCard({
             <span className="truncate font-label text-[9px] font-semibold uppercase tracking-[0.1em] text-on-surface-muted">
               {data.category}
             </span>
-            {data.status ? (
+            {hasValidationError ? (
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 font-label text-[8px] font-semibold uppercase tracking-wide text-primary">
+                Da correggere
+              </span>
+            ) : data.status ? (
               <span className="flex items-center gap-1 font-label text-[9px] text-on-surface-muted">
                 <span
                   aria-hidden="true"

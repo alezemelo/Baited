@@ -64,3 +64,13 @@ Registro append-only. Non modificare o rimuovere le voci esistenti; eventuali co
 - Verifiche: `npm run build` — superato; `npm run lint` — superato; `git diff --check` — superato; browser 1440×900 — configurati trigger, campagna email/IM, campagna SMS, target group, awareness, condition, end e OSINT; persistenza tra selezioni e step Revisione superata; console senza warning o errori.
 - Decisioni: Nessuna.
 - Follow-up: TASK-006 deve validare DAG, branch condition e configurazioni incomplete prima del salvataggio.
+
+## TASK-006 — Branching e validazione DAG
+
+- Completata: 2026-07-05
+- Risultato: introdotto un validator puro per DAG, start/end, self-loop, archi duplicati, reachability, nodi orfani, branch condition e campi obbligatori; il provider blocca nuove connessioni cicliche; canvas e revisione evidenziano errori strutturati con focus sul nodo problematico.
+- File principali: `src/features/workflow/validation/graph.ts`, `src/features/workflow/validation/validateWorkflow.ts`, `src/components/workflow/WorkflowProvider.tsx`, `src/components/workflow/WorkflowCanvas.tsx`, `src/components/wizard/WorkflowReviewStep.tsx`, `tests/workflow-validation.test.ts`, `tsconfig.test.json`.
+- Verifiche: `npm run test` — superato con 6 test su caso valido non mutante, ciclo, orfani/raggiungibilità, start/end, branch condition e self-loop/duplicati/campi obbligatori; `npm run build` — superato; `npm run lint` — superato.
+- Decisioni: D-010.
+- Note tecniche: gli algoritmi di reachability e cycle detection sono O(V+E); codici errore esposti: `missing_start`, `multiple_start`, `missing_end`, `self_loop`, `duplicate_edge`, `invalid_connection`, `cycle_detected`, `orphan_node`, `unreachable_node`, `missing_required_field`, `missing_condition_branch`, `dangling_condition_branch`.
+- Follow-up: TASK-007 deve usare `validation.isValid` per bloccare il salvataggio mock e serializzare il payload.

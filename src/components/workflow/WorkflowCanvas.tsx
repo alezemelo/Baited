@@ -13,6 +13,8 @@ import {
 import '@xyflow/react/dist/style.css'
 import {
   useCallback,
+  useEffect,
+  useMemo,
   useRef,
   useState,
   type DragEvent,
@@ -64,7 +66,77 @@ export function WorkflowCanvas({
     edges,
     nodes,
     selectNode,
+    selectedNodeId,
+    validation,
   } = useWorkflow()
+  const errorNodeIds = useMemo(
+    () =>
+      new Set(
+        validation.issues
+          .map((issue) => issue.nodeId)
+          .filter((nodeId): nodeId is string => Boolean(nodeId)),
+      ),
+    [validation.issues],
+  )
+  const errorEdgeIds = useMemo(
+    () =>
+      new Set(
+        validation.issues
+          .map((issue) => issue.edgeId)
+          .filter((edgeId): edgeId is string => Boolean(edgeId)),
+      ),
+    [validation.issues],
+  )
+  const visibleNodes = useMemo<WorkflowNode[]>(
+    () =>
+      nodes.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          validationState: errorNodeIds.has(node.id) ? 'error' : undefined,
+        },
+      })),
+    [errorNodeIds, nodes],
+  )
+  const visibleEdges = useMemo<WorkflowEdge[]>(
+    () =>
+      edges.map((edge) =>
+        errorEdgeIds.has(edge.id)
+          ? {
+              ...edge,
+              className: [edge.className, 'workflow-edge-error']
+                .filter(Boolean)
+                .join(' '),
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                color: '#f87171',
+              },
+            }
+          : edge,
+      ),
+    [edges, errorEdgeIds],
+  )
+
+  useEffect(() => {
+    if (!reactFlowInstance || !selectedNodeId) {
+      return
+    }
+
+    const selectedNode = nodes.find((node) => node.id === selectedNodeId)
+
+    if (!selectedNode) {
+      return
+    }
+
+    void reactFlowInstance.setCenter(
+      selectedNode.position.x + 105,
+      selectedNode.position.y + 64,
+      {
+        duration: 420,
+        zoom: 1,
+      },
+    )
+  }, [nodes, reactFlowInstance, selectedNodeId])
 
   const handleDragOver = useCallback((event: DragEvent) => {
     event.preventDefault()
@@ -153,13 +225,13 @@ export function WorkflowCanvas({
     >
       <ReactFlow<WorkflowNode, WorkflowEdge>
         defaultEdgeOptions={defaultEdgeOptions}
-        edges={edges}
+        edges={visibleEdges}
         fitView
         fitViewOptions={{ padding: 0.2 }}
         maxZoom={1.5}
         minZoom={0.4}
         nodeTypes={nodeTypes}
-        nodes={nodes}
+        nodes={visibleNodes}
         onConnect={connectNodes}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
@@ -191,6 +263,15 @@ export function WorkflowCanvas({
             </p>
             <p className="mt-0.5 text-xs font-medium text-on-surface">
               {draft.metadata.name}
+            </p>
+            <p
+              className={`mt-1 font-label text-[10px] ${
+                validation.isValid ? 'text-secondary' : 'text-primary'
+              }`}
+            >
+              {validation.isValid
+                ? 'DAG valido'
+                : `${validation.issues.length} errori da correggere`}
             </p>
           </div>
         </Panel>

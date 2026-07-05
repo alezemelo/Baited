@@ -18,6 +18,8 @@ import {
   getWorkflowNodeConnectionRules,
 } from '../../features/workflow/catalog'
 import { initialWorkflowDraft } from '../../features/workflow/initialWorkflow'
+import { wouldCreateCycle } from '../../features/workflow/validation/graph'
+import { validateWorkflow } from '../../features/workflow/validation/validateWorkflow'
 import {
   WorkflowContext,
   type WorkflowContextValue,
@@ -184,9 +186,11 @@ export function WorkflowProvider({
     }),
     [clonedInitialDraft, edges, metadata, nodes],
   )
+  const validation = useMemo(() => validateWorkflow(draft), [draft])
 
   const value: WorkflowContextValue = {
     draft,
+    validation,
     nodes,
     edges,
     selectedNodeId,
@@ -267,6 +271,10 @@ function canConnectNodes(
   const targetNode = nodes.find((node) => node.id === connection.target)
 
   if (!sourceNode || !targetNode || sourceNode.id === targetNode.id) {
+    return false
+  }
+
+  if (wouldCreateCycle(nodes, edges, connection)) {
     return false
   }
 

@@ -15,9 +15,13 @@ import type {
   WorkflowNode,
   WorkflowNodeData,
 } from './types'
+import type {
+  WorkflowValidationResult,
+} from './validation/validateWorkflow'
 
 export interface WorkflowContextValue {
   draft: WorkflowDraft
+  validation: WorkflowValidationResult
   nodes: WorkflowNode[]
   edges: WorkflowEdge[]
   selectedNodeId: string | null

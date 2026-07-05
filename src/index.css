@@ -88,11 +88,21 @@ input:focus-visible {
   stroke-width: 2;
 }
 
+.react-flow__edge.workflow-edge-error .react-flow__edge-path {
+  stroke: #f87171;
+  stroke-width: 2.1;
+  filter: drop-shadow(0 0 4px rgb(248 113 113 / 36%));
+}
+
 .react-flow__edge-text {
   fill: #d6d2d8;
   font-family: "Geist", ui-sans-serif, system-ui, sans-serif;
   font-size: 10px;
   font-weight: 500;
+}
+
+.react-flow__edge.workflow-edge-error .react-flow__edge-text {
+  fill: #ffb3b0;
 }
 
 .react-flow__edge-textbg {

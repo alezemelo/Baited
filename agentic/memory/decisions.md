@@ -62,3 +62,11 @@
 - Decisione: gestire localmente lo step corrente e la massima tappa visitata, mantenendo metadati e grafo nel `WorkflowProvider`.
 - Navigazione: gli step futuri restano disabilitati finché non vengono raggiunti; quelli visitati sono navigabili da tastiera tramite label univoche.
 - Validazione: il passaggio Dettagli → Workflow richiede un nome non vuoto, mostra errore inline e riporta il focus al campo.
+
+## D-010 — Validazione workflow come logica pura testabile
+
+- Data: 2026-07-05
+- Stato: accettata
+- Decisione: mantenere la validazione strutturale del workflow in moduli puri sotto `src/features/workflow/validation/`, senza dipendenze React.
+- Motivo: il canvas, la revisione e il salvataggio mock devono consumare gli stessi errori strutturati senza duplicare regole.
+- Test: usare `node --test` dopo compilazione TypeScript dedicata in `.tmp-tests`, evitando nuove dipendenze per i test unitari del dominio.
