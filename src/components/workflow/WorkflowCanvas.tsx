@@ -64,9 +64,9 @@ export function WorkflowCanvas() {
         onNodesChange={onNodesChange}
       >
         <Background
-          color="rgba(255, 255, 255, 0.08)"
+          color="rgba(255, 255, 255, 0.18)"
           gap={24}
-          size={1}
+          size={1.4}
           variant={BackgroundVariant.Dots}
         />
         <Controls position="bottom-left" showInteractive={false} />

@@ -124,17 +124,37 @@ input:focus-visible {
   border: 0;
   border-bottom: 0;
   background: transparent;
-  fill: #aaa6ad;
+  color: #ffb3b0;
+}
+
+.react-flow__controls-button svg {
+  fill: currentColor;
+  stroke: currentColor;
 }
 
 .react-flow__controls-button:hover {
   background: rgb(255 255 255 / 8%);
-  fill: #e5e1e6;
+  color: #4de082;
+}
+
+.react-flow__panel.react-flow__controls.vertical.bottom.left
+  .react-flow__controls-button {
+  color: #0e0e11;
 }
 
 .react-flow__attribution {
   border-radius: 4px 0 0;
-  background: rgb(14 14 17 / 72%);
-  color: #77737b;
-  font-size: 9px;
+  background: rgb(229 225 230 / 94%);
+  color: #0e0e11;
+  font-size: 10px;
+  padding: 2px 5px;
+}
+
+.react-flow__attribution a {
+  color: #0e0e11 !important;
+  -webkit-text-fill-color: #0e0e11;
+  font-weight: 700;
+  opacity: 1 !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
