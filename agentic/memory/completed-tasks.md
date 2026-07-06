@@ -255,3 +255,13 @@ Registro append-only. Non modificare o rimuovere le voci esistenti; eventuali co
 - Decisioni: Nessuna.
 - Follow-up: quando serve gestione completa, aggiungere caricamento per ID senza passare dal localStorage e azioni di duplicazione/eliminazione.
 - Impatto documentazione: aggiornate bootstrap/runtime, state/data flow e API/persistenza; nessun cambio API payload o dipendenze.
+
+## TASK-029 — Eliminazione workflow salvati
+
+- Completata: 2026-07-06
+- Risultato: aggiunta eliminazione dei workflow salvati da `/workflows` con conferma, chiamata `DELETE /api/workflows/:id`, rimozione dalla lista dopo successo, stato errore recuperabile e pulizia di `baited:last-saved-workflow` quando coincide con il workflow eliminato.
+- File principali: `src/features/workflow/api/workflows.ts`, `src/pages/WorkflowsPage.tsx`, `src/pages/WorkflowsPage.test.tsx`, `e2e/workflow.spec.ts`, `docs/03-frontend-state-and-data-flow.md`, `docs/06-api-and-persistence.md`.
+- Verifiche: `npm run test` — 15 test dominio e 31 componenti superati; `npm run test:e2e` — 6 test Chromium superati; `npm run build`, `npm run lint` e `git diff --check` — superati.
+- Decisioni: Nessuna.
+- Follow-up: quando serve gestione completa, aggiungere eliminazione batch e caricamento editor per ID senza passare dal localStorage.
+- Impatto documentazione: aggiornate state/data flow e API/persistenza; nessun cambio API payload o dipendenze.

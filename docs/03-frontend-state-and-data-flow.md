@@ -59,7 +59,7 @@ Selecting a node clears edge selection, and selecting an edge clears node select
 
 From the review step, validation issues with a `nodeId` or `edgeId` expose a navigation action. The wizard marks the workflow step as visited, switches back to the canvas, and selects the referenced node or edge so the properties panel opens on the problematic element. Workflow-level issues without a concrete reference remain informational.
 
-The saved-workflows archive is intentionally outside `WorkflowProvider`: it reads complete persisted mock records through the API and summarizes them. Selecting "Apri nello studio" converts the stored record into the same `SavedWorkflowRecord` shape used by localStorage restoration, then the provider loads it on `/workflow`.
+The saved-workflows archive is intentionally outside `WorkflowProvider`: it reads complete persisted mock records through the API and summarizes them. Selecting "Apri nello studio" converts the stored record into the same `SavedWorkflowRecord` shape used by localStorage restoration, then the provider loads it on `/workflow`. Deleting an archive item calls the API, removes the record from the list after success, and clears `baited:last-saved-workflow` when the deleted ID matches the staged editor record.
 
 ## Adding and moving blocks
 

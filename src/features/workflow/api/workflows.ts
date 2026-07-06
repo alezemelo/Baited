@@ -49,6 +49,7 @@ export type SavedWorkflowResource = CreateWorkflowRequest &
 
 export interface WorkflowStorage {
   getItem: (key: string) => string | null
+  removeItem: (key: string) => void
   setItem: (key: string, value: string) => void
 }
 
@@ -75,6 +76,10 @@ interface SaveWorkflowOptions {
 interface ListWorkflowsOptions {
   endpoint?: string
   signal?: AbortSignal
+}
+
+interface DeleteWorkflowOptions {
+  endpoint?: string
 }
 
 export class WorkflowApiError extends Error {
@@ -165,6 +170,20 @@ export async function listSavedWorkflows(
   )
 }
 
+export async function deleteSavedWorkflow(
+  workflowId: string,
+  options: DeleteWorkflowOptions = {},
+) {
+  const endpoint =
+    options.endpoint ?? `/api/workflows/${encodeURIComponent(workflowId)}`
+  const response = await fetch(endpoint, { method: 'DELETE' })
+  const body: unknown = await response.json().catch(() => null)
+
+  if (!response.ok) {
+    throw new WorkflowApiError(getApiErrorMessage(body), response.status)
+  }
+}
+
 export function getWorkflowResourceRecord(
   workflow: SavedWorkflowResource,
 ): SavedWorkflowRecord {
@@ -186,6 +205,10 @@ export function persistLastSavedWorkflow(
   storage: WorkflowStorage,
 ) {
   storage.setItem(LAST_SAVED_WORKFLOW_KEY, JSON.stringify(record))
+}
+
+export function clearLastSavedWorkflow(storage: WorkflowStorage) {
+  storage.removeItem(LAST_SAVED_WORKFLOW_KEY)
 }
 
 export function loadLastSavedWorkflow(

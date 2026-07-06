@@ -8,6 +8,7 @@ import {
   Plus,
   RefreshCw,
   Target,
+  Trash2,
   Workflow,
   type LucideIcon,
 } from 'lucide-react'
@@ -15,8 +16,11 @@ import { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { SideNavigation } from '../components/layout/SideNavigation'
 import {
+  clearLastSavedWorkflow,
+  deleteSavedWorkflow,
   getWorkflowResourceRecord,
   listSavedWorkflows,
+  loadLastSavedWorkflow,
   persistLastSavedWorkflow,
   type SavedWorkflowResource,
 } from '../features/workflow/api/workflows'
@@ -31,6 +35,12 @@ export function WorkflowsPage() {
     status: 'loading',
     workflows: [],
   })
+  const [confirmDeleteWorkflowId, setConfirmDeleteWorkflowId] =
+    useState<string | null>(null)
+  const [deletingWorkflowId, setDeletingWorkflowId] = useState<string | null>(
+    null,
+  )
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const loadWorkflows = () => {
     const controller = new AbortController()
@@ -72,6 +82,34 @@ export function WorkflowsPage() {
     (total, workflow) => total + workflow.edges.length,
     0,
   )
+
+  const confirmDeleteWorkflow = async (workflowId: string) => {
+    setDeletingWorkflowId(workflowId)
+    setDeleteError(null)
+
+    try {
+      await deleteSavedWorkflow(workflowId)
+      setLoadState((currentState) => ({
+        status: 'success',
+        workflows: currentState.workflows.filter(
+          (workflow) => workflow.id !== workflowId,
+        ),
+      }))
+      setConfirmDeleteWorkflowId(null)
+
+      if (loadLastSavedWorkflow(window.localStorage)?.response.id === workflowId) {
+        clearLastSavedWorkflow(window.localStorage)
+      }
+    } catch (error) {
+      setDeleteError(
+        error instanceof Error
+          ? error.message
+          : 'Non è stato possibile eliminare il workflow.',
+      )
+    } finally {
+      setDeletingWorkflowId(null)
+    }
+  }
 
   return (
     <div className="flex h-dvh min-h-[640px] flex-col overflow-hidden bg-surface text-on-surface">
@@ -171,6 +209,28 @@ export function WorkflowsPage() {
               </div>
             ) : null}
 
+            {deleteError ? (
+              <div
+                className="mt-5 rounded-xl border border-primary/20 bg-primary/10 px-4 py-3"
+                role="alert"
+              >
+                <div className="flex items-start gap-3">
+                  <AlertTriangle
+                    aria-hidden="true"
+                    className="mt-0.5 size-4 shrink-0 text-primary"
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-primary">
+                      Eliminazione non riuscita
+                    </p>
+                    <p className="mt-1 text-sm leading-5 text-on-surface-muted">
+                      {deleteError}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
             {loadState.status === 'loading' && workflows.length === 0 ? (
               <div className="mt-6 rounded-xl border border-white/[0.08] bg-surface-container p-6">
                 <div className="flex items-center gap-3 text-on-surface-muted">
@@ -209,7 +269,15 @@ export function WorkflowsPage() {
               >
                 {workflows.map((workflow) => (
                   <WorkflowArchiveCard
+                    confirmDeleteWorkflowId={confirmDeleteWorkflowId}
+                    deletingWorkflowId={deletingWorkflowId}
                     key={workflow.id}
+                    onCancelDelete={() => setConfirmDeleteWorkflowId(null)}
+                    onConfirmDelete={confirmDeleteWorkflow}
+                    onRequestDelete={(workflowId) => {
+                      setConfirmDeleteWorkflowId(workflowId)
+                      setDeleteError(null)
+                    }}
                     workflow={workflow}
                   />
                 ))}
@@ -247,10 +315,23 @@ function MetricCard({
 }
 
 function WorkflowArchiveCard({
+  confirmDeleteWorkflowId,
+  deletingWorkflowId,
+  onCancelDelete,
+  onConfirmDelete,
+  onRequestDelete,
   workflow,
 }: {
+  confirmDeleteWorkflowId: string | null
+  deletingWorkflowId: string | null
+  onCancelDelete: () => void
+  onConfirmDelete: (workflowId: string) => void
+  onRequestDelete: (workflowId: string) => void
   workflow: SavedWorkflowResource
 }) {
+  const isConfirmingDelete = confirmDeleteWorkflowId === workflow.id
+  const isDeleting = deletingWorkflowId === workflow.id
+  const workflowName = workflow.metadata.name || 'Workflow senza nome'
   const openWorkflow = () => {
     persistLastSavedWorkflow(
       getWorkflowResourceRecord(workflow),
@@ -266,7 +347,7 @@ function WorkflowArchiveCard({
             {workflow.metadata.category || 'Senza categoria'}
           </p>
           <h2 className="mt-2 truncate text-lg font-semibold text-on-surface">
-            {workflow.metadata.name || 'Workflow senza nome'}
+            {workflowName}
           </h2>
           <p className="mt-1 break-all font-label text-[10px] text-on-surface-muted">
             {workflow.id}
@@ -303,15 +384,68 @@ function WorkflowArchiveCard({
           <CalendarClock aria-hidden="true" className="size-3.5" />
           Salvato {formatSavedAt(workflow.createdAt)}
         </p>
-        <NavLink
-          className="inline-flex items-center gap-2 rounded-lg border border-secondary/25 bg-secondary/10 px-3 py-2 font-label text-xs font-semibold text-secondary transition-colors hover:border-secondary/50 hover:bg-secondary/15"
-          onClick={openWorkflow}
-          to="/workflow"
-        >
-          Apri nello studio
-          <ArrowRight aria-hidden="true" className="size-3.5" />
-        </NavLink>
+        <div className="flex flex-wrap gap-2">
+          <button
+            aria-label={`Elimina workflow ${workflowName}`}
+            className="inline-flex items-center gap-2 rounded-lg border border-primary/25 bg-primary/10 px-3 py-2 font-label text-xs font-semibold text-primary transition-colors hover:border-primary/45 hover:bg-primary/15 disabled:cursor-not-allowed disabled:opacity-45"
+            disabled={isDeleting}
+            onClick={() => onRequestDelete(workflow.id)}
+            type="button"
+          >
+            <Trash2 aria-hidden="true" className="size-3.5" />
+            Elimina
+          </button>
+          <NavLink
+            aria-disabled={isDeleting}
+            className={`inline-flex items-center gap-2 rounded-lg border border-secondary/25 bg-secondary/10 px-3 py-2 font-label text-xs font-semibold text-secondary transition-colors hover:border-secondary/50 hover:bg-secondary/15 ${
+              isDeleting ? 'pointer-events-none opacity-45' : ''
+            }`}
+            onClick={openWorkflow}
+            to="/workflow"
+          >
+            Apri nello studio
+            <ArrowRight aria-hidden="true" className="size-3.5" />
+          </NavLink>
+        </div>
       </div>
+
+      {isConfirmingDelete ? (
+        <div
+          aria-label={`Conferma eliminazione ${workflowName}`}
+          className="mt-4 rounded-xl border border-primary/30 bg-surface-lowest p-3"
+          role="alertdialog"
+        >
+          <p className="text-xs leading-5 text-on-surface">
+            Eliminare questo workflow salvato?
+          </p>
+          <div className="mt-3 flex flex-col gap-2">
+            <button
+              className="flex min-h-9 w-full items-center justify-center rounded-lg border border-white/10 px-3 py-2 text-center font-label text-xs leading-4 text-on-surface-muted transition-colors hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-45"
+              disabled={isDeleting}
+              onClick={onCancelDelete}
+              type="button"
+            >
+              Annulla
+            </button>
+            <button
+              className="flex min-h-9 w-full items-center justify-center gap-2 rounded-lg bg-primary-container px-3 py-2 text-center font-label text-xs font-semibold leading-4 text-on-primary transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45"
+              disabled={isDeleting}
+              onClick={() => void onConfirmDelete(workflow.id)}
+              type="button"
+            >
+              {isDeleting ? (
+                <LoaderCircle
+                  aria-hidden="true"
+                  className="size-3.5 animate-spin"
+                />
+              ) : (
+                <Trash2 aria-hidden="true" className="size-3.5" />
+              )}
+              Elimina workflow
+            </button>
+          </div>
+        </div>
+      ) : null}
     </article>
   )
 }

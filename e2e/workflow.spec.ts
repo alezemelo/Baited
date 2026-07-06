@@ -105,6 +105,26 @@ test('completes save error, retry and refresh recovery', async ({
   ).toBeVisible()
   await expect(page.getByText('9 nodi')).toBeVisible()
   await expect(page.getByText('9 connessioni')).toBeVisible()
+
+  await page.getByRole('link', { name: 'Workflow salvati' }).click()
+  await page
+    .getByRole('button', {
+      name: 'Elimina workflow Campagna Q3 — Sicurezza email',
+    })
+    .click()
+  await page
+    .getByRole('button', { name: 'Elimina workflow', exact: true })
+    .click()
+  await expect(page.getByText('Nessun workflow salvato')).toBeVisible()
+  const deletedWorkflowResponse = await request.get(
+    `${mockApiBaseUrl}/workflows/${workflowId}`,
+  )
+  expect(deletedWorkflowResponse.status()).toBe(404)
+  expect(
+    await page.evaluate(() =>
+      window.localStorage.getItem('baited:last-saved-workflow'),
+    ),
+  ).toBeNull()
   expect(consoleErrors).toEqual([])
 })
 

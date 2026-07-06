@@ -22,6 +22,7 @@ The server defaults to host `127.0.0.1`, port `3001`, and a simulated delay of 5
 | `POST` | `/api/workflows` | Validate the top-level shape, persist a complete record, and return compact save metadata |
 | `GET` | `/api/workflows` | List persisted mock workflow records |
 | `GET` | `/api/workflows/:id` | Read one persisted record; missing IDs return JSON Server's 404 |
+| `DELETE` | `/api/workflows/:id` | Remove one persisted mock workflow record |
 
 The underlying JSON Server router also exposes generic mutation routes. The frontend does not use them, and they are not part of the application-level contract documented here.
 
@@ -77,6 +78,8 @@ The database record contains the complete request plus those four response field
 
 `GET /api/workflows` returns an array of those complete database records. [`WorkflowsPage`](../src/pages/WorkflowsPage.tsx) sorts them newest-first in the browser and displays workflow name, category, target, ID, saved date, node count, and edge count.
 
+`DELETE /api/workflows/:id` removes a record from the mock database. The archive page requires confirmation before calling it, keeps the record visible if deletion fails, and updates the in-memory list after success.
+
 ## Error responses
 
 | Status | Trigger | Body |
@@ -101,7 +104,7 @@ interface SavedWorkflowRecord {
 
 This localStorage record restores the editor on reload. It does not replace the mock database: the two copies exist for different demo behaviors, as explained in [Frontend state and data flow](03-frontend-state-and-data-flow.md).
 
-The saved-workflows page can also write one API record into this localStorage shape before navigating to `/workflow`. That is a client-side "open in studio" bridge, not a new backend endpoint.
+The saved-workflows page can also write one API record into this localStorage shape before navigating to `/workflow`. That is a client-side "open in studio" bridge, not a new backend endpoint. If that same workflow is deleted from the archive, the page removes the localStorage record so `/workflow` does not restore a workflow that no longer exists in the mock database.
 
 ## curl and Postman
 
@@ -121,6 +124,8 @@ curl --request POST http://127.0.0.1:3001/api/workflows \
   --data '{"version":1,"metadata":{"name":"curl test","description":"","category":"Test","targetGroupId":"test-group"},"nodes":[],"edges":[]}'
 
 curl http://127.0.0.1:3001/api/workflows
+
+curl --request DELETE http://127.0.0.1:3001/api/workflows/workflow-id-here
 ```
 
 In Postman, use the same URL, select a raw JSON body, and set `Content-Type: application/json`. Add `x-baited-simulate-error: true` to test the `503` path. Copy the returned ID into `GET /api/workflows/:id` to inspect the complete persisted record.

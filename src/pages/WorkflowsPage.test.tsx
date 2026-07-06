@@ -3,7 +3,9 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  getWorkflowResourceRecord,
   LAST_SAVED_WORKFLOW_KEY,
+  persistLastSavedWorkflow,
   serializeWorkflow,
   type SavedWorkflowResource,
 } from '../features/workflow/api/workflows'
@@ -41,6 +43,72 @@ describe('WorkflowsPage', () => {
     expect(window.localStorage.getItem(LAST_SAVED_WORKFLOW_KEY)).toContain(
       'workflow-list-test',
     )
+  })
+
+  it('deletes a saved workflow after confirmation and clears matching local restore state', async () => {
+    const user = userEvent.setup()
+    const workflow = createSavedWorkflowResource()
+    const fetchMock = stubWorkflowsResponse([workflow])
+
+    persistLastSavedWorkflow(
+      getWorkflowResourceRecord(workflow),
+      window.localStorage,
+    )
+    renderWorkflowsPage()
+
+    await user.click(
+      await screen.findByRole('button', {
+        name: 'Elimina workflow Campagna Q3 — Sicurezza email',
+      }),
+    )
+    await user.click(
+      screen.getByRole('button', { name: 'Elimina workflow' }),
+    )
+
+    expect(await screen.findByText('Nessun workflow salvato')).toBeVisible()
+    expect(screen.queryByText('workflow-list-test')).not.toBeInTheDocument()
+    expect(window.localStorage.getItem(LAST_SAVED_WORKFLOW_KEY)).toBeNull()
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/workflows/workflow-list-test',
+      { method: 'DELETE' },
+    )
+  })
+
+  it('keeps the workflow visible when deletion fails', async () => {
+    const user = userEvent.setup()
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_: RequestInfo | URL, init?: RequestInit) => {
+        if (init?.method === 'DELETE') {
+          return new Response(
+            JSON.stringify({ message: 'Eliminazione mock non riuscita.' }),
+            { headers: { 'content-type': 'application/json' }, status: 503 },
+          )
+        }
+
+        return new Response(JSON.stringify([createSavedWorkflowResource()]), {
+          headers: { 'content-type': 'application/json' },
+          status: 200,
+        })
+      }),
+    )
+
+    renderWorkflowsPage()
+
+    await user.click(
+      await screen.findByRole('button', {
+        name: 'Elimina workflow Campagna Q3 — Sicurezza email',
+      }),
+    )
+    await user.click(
+      screen.getByRole('button', { name: 'Elimina workflow' }),
+    )
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Eliminazione mock non riuscita.',
+    )
+    expect(screen.getByText('workflow-list-test')).toBeVisible()
   })
 
   it('shows an empty state when no workflows exist', async () => {
@@ -81,13 +149,26 @@ function renderWorkflowsPage() {
 }
 
 function stubWorkflowsResponse(workflows: SavedWorkflowResource[]) {
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(async () => new Response(JSON.stringify(workflows), {
+  const fetchMock = vi.fn(async (_: RequestInfo | URL, init?: RequestInit) => {
+    if (init?.method === 'DELETE') {
+      return new Response(JSON.stringify({}), {
+        headers: { 'content-type': 'application/json' },
+        status: 200,
+      })
+    }
+
+    return new Response(JSON.stringify(workflows), {
       headers: { 'content-type': 'application/json' },
       status: 200,
-    })),
+    })
+  })
+
+  vi.stubGlobal(
+    'fetch',
+    fetchMock,
   )
+
+  return fetchMock
 }
 
 function createSavedWorkflowResource(): SavedWorkflowResource {
