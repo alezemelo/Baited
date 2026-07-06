@@ -43,6 +43,8 @@ Realizzare una demo desktop-first in cui l'utente definisce i dati generali, com
 | TASK-012 | Timeout esplicito delle condizioni | TASK-011 | Completata |
 | TASK-013 | Generazione scenario da risultati OSINT | TASK-012 | Completata |
 | TASK-014 | Creazione workflow da zero | TASK-013 | Completata |
+| TASK-015 | Sostituzione MSW con JSON Server | TASK-014 | Completata |
+| TASK-016 | Documentazione composizione applicazione | TASK-015 | In corso |
 
 ## Definizione di completamento
 
@@ -57,3 +59,5 @@ Realizzare una demo desktop-first in cui l'utente definisce i dati generali, com
 - Le condizioni rappresentano esplicitamente il tempo massimo di attesa.
 - La generazione di uno scenario dai risultati OSINT è disponibile come azione tipizzata.
 - Con storage vuoto l'editor parte senza nodi o archi e consente di aggiungere anche start ed end dalla libreria.
+- Il mock API usa un server HTTP JSON Server interrogabile anche fuori dal browser e conserva il contratto di salvataggio esistente.
+- Un hub Markdown developer-first descrive composizione, runtime, blocchi, validazione, API, test ed estensione dell'applicazione.

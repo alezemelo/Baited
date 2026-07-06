@@ -1,6 +1,8 @@
 # Baited Workflow Studio
 
-MVP desktop-first per comporre, validare e salvare workflow di campagne come grafi diretti aciclici. La demo non esegue campagne reali: il salvataggio è intercettato in browser da MSW.
+MVP desktop-first per comporre, validare e salvare workflow di campagne come grafi diretti aciclici. La demo non esegue campagne reali: il salvataggio usa un'API HTTP locale basata su JSON Server.
+
+La guida tecnica completa è disponibile in [docs/README.md](docs/README.md): architettura, bootstrap, stato frontend, blocchi, validazione, API, test ed estensione dell'applicazione.
 
 ## Avvio rapido
 
@@ -11,12 +13,15 @@ npm install
 npm run dev
 ```
 
-Vite espone l'app all'indirizzo indicato nel terminale. Con storage vuoto il wizard parte da un draft senza nodi né archi; l'ultimo workflow salvato viene invece recuperato automaticamente al refresh.
+Il comando avvia insieme Vite e il mock API su `http://127.0.0.1:3001`; Vite espone l'app all'indirizzo indicato nel terminale e inoltra `/api` al mock. Con storage vuoto il wizard parte da un draft senza nodi né archi; l'ultimo workflow salvato viene invece recuperato automaticamente al refresh.
 
 ## Comandi
 
 ```bash
-npm run dev          # server di sviluppo
+npm run dev          # frontend e mock API insieme
+npm run dev:web      # solo frontend Vite
+npm run mock:api     # solo API, conserva i dati esistenti
+npm run mock:api:reset # solo API, riparte dal database vuoto
 npm run build        # typecheck e build di produzione
 npm run lint         # lint con oxlint
 npm run test         # test dominio + componenti
@@ -73,9 +78,35 @@ Il kind `generate_scenario_from_osint` configura `scenarioTemplate`, `channel` e
 }
 ```
 
-La risposta contiene `id`, `version`, `status` e `createdAt`. Request e response vengono conservate sotto la chiave `localStorage` `baited:last-saved-workflow`. La checkbox nello step Revisione invia l'header `x-baited-simulate-error: true`, che forza un errore `503` one-shot per verificare il retry senza perdere il draft.
+La risposta `201` contiene `id`, `version`, `status` e `createdAt`:
 
-Per disabilitare il worker mock e collegare un backend reale, avviare o compilare con `VITE_DISABLE_WORKFLOW_MOCKS=true`.
+```json
+{
+  "id": "workflow-550e8400-e29b-41d4-a716-446655440000",
+  "version": 1,
+  "status": "saved",
+  "createdAt": "2026-07-06T12:00:00.000Z"
+}
+```
+
+Il record completo è persistito in `mocks/data/db.json`, creato da `mocks/db.seed.json` al primo avvio. La directory runtime è ignorata da Git; `npm run mock:api:reset` la riporta allo stato iniziale. Request e response vengono inoltre conservate sotto la chiave `localStorage` `baited:last-saved-workflow` per ripristinare il draft al refresh.
+
+La checkbox nello step Revisione invia l'header `x-baited-simulate-error: true`, che forza un errore `503` one-shot senza scrivere il record e consente di verificare il retry senza perdere il draft.
+
+Gli endpoint possono essere verificati senza aprire l'app:
+
+```bash
+curl http://127.0.0.1:3001/api/health
+curl http://127.0.0.1:3001/api/workflows
+
+curl --request POST http://127.0.0.1:3001/api/workflows \
+  --header 'content-type: application/json' \
+  --data '{"version":1,"metadata":{"name":"Test curl","description":"","category":"","targetGroupId":""},"nodes":[],"edges":[]}'
+```
+
+Dopo il `POST`, `GET /api/workflows/:id` restituisce il record persistito completo. Per simulare l'errore da `curl`, aggiungere `--header 'x-baited-simulate-error: true'`.
+
+Per collegare il frontend di sviluppo a un backend diverso, avviare Vite con `VITE_MOCK_API_TARGET=https://api.example.test npm run dev:web`. In produzione, il reverse proxy dell'ambiente deve inoltrare `/api` al backend reale.
 
 ## Architettura
 
@@ -88,10 +119,14 @@ src/
 │   ├── wizard/                   # Dettagli, Workflow, Revisione
 │   └── workflow/                 # canvas, libreria e inspector
 └── features/workflow/
-    ├── api/                      # serializer, client, MSW, storage
+    ├── api/                      # serializer, client e storage locale
     ├── validation/               # validazione pura DAG/config
     ├── catalog.ts                # template e vincoli dei nodi
     └── types.ts                  # modello discriminato
+mocks/
+├── server.cjs                   # adapter HTTP e contratto custom
+├── db.seed.json                 # database iniziale versionato
+└── data/                        # database runtime ignorati da Git
 ```
 
 `WorkflowProvider` possiede metadati, nodi, archi, selezione, validazione e dirty state. Canvas, inspector e revisione consumano la stessa fonte di verità; serializer e validator restano funzioni pure testabili.
@@ -101,7 +136,7 @@ src/
 - React 19, TypeScript e Vite
 - Tailwind CSS
 - React Flow (`@xyflow/react`)
-- MSW
+- JSON Server 0.17.4
 - Vitest, Testing Library, Playwright e axe
 - Lucide React
 

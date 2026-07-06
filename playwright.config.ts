@@ -11,10 +11,19 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     ...devices['Desktop Chrome'],
   },
-  webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 4173',
-    url: 'http://127.0.0.1:4173',
-    reuseExistingServer: true,
-    timeout: 120_000,
-  },
+  webServer: [
+    {
+      command: 'npm run mock:api:e2e',
+      url: 'http://127.0.0.1:3002/api/health',
+      reuseExistingServer: false,
+      timeout: 120_000,
+    },
+    {
+      command: 'npm run dev:web -- --host 127.0.0.1 --port 4173',
+      env: { VITE_MOCK_API_TARGET: 'http://127.0.0.1:3002' },
+      url: 'http://127.0.0.1:4173',
+      reuseExistingServer: true,
+      timeout: 120_000,
+    },
+  ],
 })

@@ -128,3 +128,12 @@ Registro append-only. Non modificare o rimuovere le voci esistenti; eventuali co
 - Verifiche: `npm run test` — superato con 15 test dominio e 9 componenti; `npm run test:e2e` — superato con 3 test Chromium; `npm run build`, `npm run lint` e `git diff --check` — superati.
 - Decisioni: D-016.
 - Follow-up: Nessuno.
+
+## TASK-015 — API mock con JSON Server
+
+- Completata: 2026-07-06
+- Risultato: sostituito il mock browser MSW con un server HTTP JSON Server persistente, aggiunti adapter del contratto, proxy Vite, avvio congiunto, reset del database e lettura dei record tramite API; rimossi bootstrap, handler, dipendenza diretta e service worker MSW.
+- File principali: `mocks/server.cjs`, `mocks/db.seed.json`, `package.json`, `vite.config.ts`, `playwright.config.ts`, `src/main.tsx`, `tests/workflow-api.test.ts`, `e2e/workflow.spec.ts`, `README.md`.
+- Verifiche: `npm run test` — 15 test dominio e 9 componenti superati; `npm run test:e2e` — 3 test Chromium superati; `npm run build`, `npm run lint`, `npm audit --omit=optional` e `git diff --check` — superati; smoke test `POST`/`GET` con `curl` e avvio congiunto `npm run dev` — superati.
+- Decisioni: D-017.
+- Follow-up: Nessuno.

@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict'
+import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
+import { mkdtemp, rm } from 'node:fs/promises'
+import { createServer } from 'node:net'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 import { after, before, test } from 'node:test'
-import { setupServer } from 'msw/node'
 import { createWorkflowNode } from '../src/features/workflow/catalog'
-import { workflowHandlers } from '../src/features/workflow/api/mock'
 import {
   LAST_SAVED_WORKFLOW_KEY,
   createInitialWorkflowSaveState,
@@ -22,10 +25,57 @@ import type {
   WorkflowNode,
 } from '../src/features/workflow/types'
 
-const server = setupServer(...workflowHandlers)
+let apiBaseUrl = ''
+let apiProcess: ChildProcessWithoutNullStreams
+let apiProcessOutput = ''
+let temporaryDirectory = ''
 
-before(() => server.listen({ onUnhandledRequest: 'error' }))
-after(() => server.close())
+before(async () => {
+  temporaryDirectory = await mkdtemp(path.join(tmpdir(), 'baited-api-test-'))
+  const port = await getAvailablePort()
+  apiBaseUrl = `http://127.0.0.1:${port}/api`
+  apiProcess = spawn(
+    process.execPath,
+    [
+      'mocks/server.cjs',
+      '--host',
+      '127.0.0.1',
+      '--port',
+      String(port),
+      '--db',
+      path.join(temporaryDirectory, 'db.json'),
+      '--reset',
+    ],
+    {
+      cwd: process.cwd(),
+      env: {
+        ...process.env,
+        MOCK_API_DELAY_MS: '0',
+        NODE_ENV: 'test',
+      },
+      stdio: 'pipe',
+    },
+  )
+  apiProcess.stdout.on('data', (chunk) => {
+    apiProcessOutput += chunk.toString()
+  })
+  apiProcess.stderr.on('data', (chunk) => {
+    apiProcessOutput += chunk.toString()
+  })
+
+  await waitForApi(`${apiBaseUrl}/health`)
+})
+
+after(async () => {
+  if (apiProcess?.exitCode === null) {
+    apiProcess.kill('SIGTERM')
+    await new Promise<void>((resolve) => apiProcess.once('exit', () => resolve()))
+  }
+
+  if (temporaryDirectory) {
+    await rm(temporaryDirectory, { force: true, recursive: true })
+  }
+})
 
 test('serializer creates a detached v1 payload without React Flow UI state', () => {
   const draft = createDraft()
@@ -81,7 +131,7 @@ test('serializer creates a detached v1 payload without React Flow UI state', () 
   assert.equal(draft.nodes[0].data.label, 'Target selezionati')
 })
 
-test('mock API supports loading, error, retry and success states', async () => {
+test('JSON Server API supports error, retry, persistence and success states', async () => {
   const request = serializeWorkflow(createDraft())
   let state = createInitialWorkflowSaveState(null)
 
@@ -90,7 +140,7 @@ test('mock API supports loading, error, retry and success states', async () => {
 
   await assert.rejects(
     saveWorkflow(request, {
-      endpoint: 'http://localhost/api/workflows',
+      endpoint: `${apiBaseUrl}/workflows`,
       simulateError: true,
     }),
     (error: unknown) => {
@@ -107,8 +157,10 @@ test('mock API supports loading, error, retry and success states', async () => {
   assert.equal(state.status, 'error')
 
   state = workflowSaveReducer(state, { type: 'save_started' })
+  assert.deepEqual(await getPersistedWorkflows(), [])
+
   const response = await saveWorkflow(request, {
-    endpoint: 'http://localhost/api/workflows',
+    endpoint: `${apiBaseUrl}/workflows`,
   })
   const record = { request, response }
   state = workflowSaveReducer(state, { type: 'save_succeeded', record })
@@ -118,6 +170,13 @@ test('mock API supports loading, error, retry and success states', async () => {
   assert.equal(response.version, 1)
   assert.equal(response.status, 'saved')
   assert.ok(!Number.isNaN(Date.parse(response.createdAt)))
+
+  const persistedWorkflows = await getPersistedWorkflows()
+  assert.equal(persistedWorkflows.length, 1)
+  assert.deepEqual(persistedWorkflows[0], {
+    ...request,
+    ...response,
+  })
 })
 
 test('saved workflow persists and restores from local storage', () => {
@@ -188,4 +247,54 @@ function createMemoryStorage(): WorkflowStorage {
     getItem: (key) => values.get(key) ?? null,
     setItem: (key, value) => values.set(key, value),
   }
+}
+
+async function getPersistedWorkflows(): Promise<unknown[]> {
+  const response = await fetch(`${apiBaseUrl}/workflows`)
+  assert.equal(response.status, 200)
+  const body: unknown = await response.json()
+  assert.ok(Array.isArray(body))
+  return body
+}
+
+async function getAvailablePort(): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const server = createServer()
+
+    server.once('error', reject)
+    server.listen(0, '127.0.0.1', () => {
+      const address = server.address()
+
+      if (typeof address !== 'object' || address === null) {
+        server.close()
+        reject(new Error('Unable to allocate a test port.'))
+        return
+      }
+
+      const { port } = address
+      server.close((error) => {
+        if (error) reject(error)
+        else resolve(port)
+      })
+    })
+  })
+}
+
+async function waitForApi(url: string) {
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    if (apiProcess.exitCode !== null) {
+      throw new Error(`Mock API exited early.\n${apiProcessOutput}`)
+    }
+
+    try {
+      const response = await fetch(url)
+      if (response.ok) return
+    } catch {
+      // The server may still be binding its port.
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 50))
+  }
+
+  throw new Error(`Mock API did not become ready.\n${apiProcessOutput}`)
 }

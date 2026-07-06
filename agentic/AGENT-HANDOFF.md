@@ -10,11 +10,11 @@ Costruire un MVP desktop-first per comporre, validare e salvare workflow di camp
 
 ## Stato sintetico
 
-TASK-014 è completata. Con storage vuoto l'editor parte senza nodi o archi; Start/End sono in libreria, l'esempio è opzionale e “Nuovo workflow” resetta draft e storage.
+TASK-016 è in corso: creazione dell'hub documentale developer-first sulla composizione reale dell'applicazione.
 
 ## Task attiva
 
-Nessuna task in corso.
+TASK-016 — Documentazione composizione applicazione (`in_progress`).
 
 ## Ultima sessione
 
@@ -36,9 +36,11 @@ Nessuna task in corso.
 - Reso esplicito il timeout delle condition e archiviata `TASK-012`.
 - Aggiunta la generazione scenario da OSINT e archiviata `TASK-013`.
 - Abilitata la creazione del workflow da zero e archiviata `TASK-014`.
+- Sostituito MSW con JSON Server, aggiunti proxy, persistenza, reset e test HTTP reali e archiviata `TASK-015`.
 
 ## Verifiche effettuate
 
+- TASK-015 — 15 test dominio, 9 componenti e 3 E2E Chromium superati; build, lint, audit, diff check, smoke `curl` e avvio congiunto superati.
 - TASK-014 — 15 test dominio, 9 componenti e 3 E2E Chromium superati; build, lint e diff check superati.
 - TASK-013 — 15 test dominio, 7 componenti e 3 E2E Chromium superati; build, lint e diff check superati.
 - TASK-012 — `npm run test` superato: 12 test dominio e 6 componenti; `npm run test:e2e` superato: 3 test Chromium; build, lint e diff check superati.
@@ -73,6 +75,7 @@ Nessun blocco noto. Eccezione di accessibilità documentata: pan, zoom e creazio
 ## Contratto salvataggio mock
 
 - Request: `version`, `metadata`, `nodes`, `edges`; response: `id`, `version`, `status`, `createdAt`.
+- Server: JSON Server 0.17.4 su `127.0.0.1:3001`, proxy Vite `/api`, database runtime `mocks/data/db.json` inizializzato dal seed versionato.
 - Persistenza: chiave `localStorage` `baited:last-saved-workflow`, contenente request e response.
 - Errore simulato: checkbox in Revisione, implementata con header one-shot `x-baited-simulate-error: true` e risposta `503`.
 
@@ -85,4 +88,4 @@ Nessun blocco noto. Eccezione di accessibilità documentata: pan, zoom e creazio
 
 ## Prossimo passo
 
-Non esistono task pianificate eseguibili: richiedere una decisione prima di ampliare ulteriormente lo scope.
+Creare i nove documenti sotto `docs/`, collegarli dal README e verificarne inventario, link e coerenza con il codice corrente.

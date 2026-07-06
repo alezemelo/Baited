@@ -119,3 +119,12 @@
 - Decisione: usare `emptyWorkflowDraft` come fallback quando lo storage è vuoto e mantenere `exampleWorkflowDraft` come contenuto opzionale caricato dall'empty state.
 - Libreria: rendere disponibili anche `workflow_start` e `workflow_end`, così l'intero grafo può essere costruito da zero.
 - Reset: “Nuovo workflow” genera un nuovo ID, pulisce `baited:last-saved-workflow`, marca il draft vuoto come allineato e rimonta il wizard su Dettagli; richiede conferma solo in presenza di modifiche non salvate.
+
+## D-017 — Mock API HTTP con JSON Server stabile
+
+- Data: 2026-07-06
+- Stato: accettata
+- Decisione: sostituire il mock runtime MSW con `json-server` 0.17.4 fissato, usando un adapter CJS per conservare il contratto custom di `POST /api/workflows`, la risposta compatta e l'errore simulato `503`.
+- Persistenza: inizializzare i database runtime ignorati da Git da `mocks/db.seed.json`; sviluppo e test E2E usano database separati e i test dominio usano una directory temporanea.
+- Routing: Vite inoltra `/api` al server locale su porta 3001; il target è configurabile con `VITE_MOCK_API_TARGET` e Playwright usa la porta isolata 3002.
+- Motivo versione: la linea 1.x di JSON Server è ancora beta; la 0.17.4 espone l'API middleware stabile necessaria all'adapter senza cambiare il contratto frontend.

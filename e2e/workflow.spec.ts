@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 
+const mockApiBaseUrl = 'http://127.0.0.1:3002/api'
+
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     if (!window.sessionStorage.getItem('baited-e2e-initialized')) {
@@ -10,7 +12,10 @@ test.beforeEach(async ({ page }) => {
   })
 })
 
-test('completes save error, retry and refresh recovery', async ({ page }) => {
+test('completes save error, retry and refresh recovery', async ({
+  page,
+  request,
+}) => {
   const consoleErrors: string[] = []
   page.on('console', (message) => {
     if (message.type() === 'error') {
@@ -37,6 +42,11 @@ test('completes save error, retry and refresh recovery', async ({ page }) => {
   await expect(
     page.getByText('Salvataggio non riuscito', { exact: true }),
   ).toBeVisible()
+  const failedRecordsResponse = await request.get(
+    `${mockApiBaseUrl}/workflows`,
+  )
+  expect(failedRecordsResponse.ok()).toBe(true)
+  expect(await failedRecordsResponse.json()).toEqual([])
   consoleErrors.length = 0
 
   await page.getByRole('button', { name: 'Riprova' }).click()
@@ -44,11 +54,22 @@ test('completes save error, retry and refresh recovery', async ({ page }) => {
   const savedId = await page.getByText(/^ID: workflow-/).textContent()
 
   expect(savedId).toBeTruthy()
+  const workflowId = savedId!.replace('ID: ', '')
+  const persistedResponse = await request.get(
+    `${mockApiBaseUrl}/workflows/${workflowId}`,
+  )
+  expect(persistedResponse.ok()).toBe(true)
+  expect(await persistedResponse.json()).toMatchObject({
+    id: workflowId,
+    version: 1,
+    status: 'saved',
+    metadata: { name: 'Campagna Q3 — Sicurezza email' },
+  })
   expect(
     await page.evaluate(() =>
       window.localStorage.getItem('baited:last-saved-workflow'),
     ),
-  ).toContain(savedId!.replace('ID: ', ''))
+  ).toContain(workflowId)
   expect(
     await page.evaluate(() =>
       window.localStorage.getItem('baited:last-saved-workflow'),
