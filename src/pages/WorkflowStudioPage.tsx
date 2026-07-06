@@ -1,6 +1,11 @@
 import { AlertTriangle, LoaderCircle } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { NavLink, useBlocker, useParams } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  NavLink,
+  useBlocker,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom'
 import { AppHeader } from '../components/layout/AppHeader'
 import { SideNavigation } from '../components/layout/SideNavigation'
 import { WorkflowProvider } from '../components/workflow/WorkflowProvider'
@@ -10,6 +15,7 @@ import {
   getWorkflowResourceRecord,
   restoreWorkflowDraft,
 } from '../features/workflow/api/workflows'
+import { createEmptyWorkflowDraft } from '../features/workflow/initialWorkflow'
 import { useWorkflow } from '../features/workflow/WorkflowContext'
 import type { WorkflowDraft } from '../features/workflow/types'
 
@@ -20,6 +26,12 @@ type WorkflowRouteState =
 
 export function WorkflowStudioPage() {
   const { workflowId } = useParams()
+  const [searchParams] = useSearchParams()
+  const shouldStartEmpty = !workflowId && searchParams.get('new') === 'true'
+  const explicitEmptyDraft = useMemo(
+    () => (shouldStartEmpty ? createEmptyWorkflowDraft() : null),
+    [shouldStartEmpty],
+  )
   const [routeState, setRouteState] = useState<WorkflowRouteState>({
     draft: null,
     status: workflowId ? 'loading' : 'ready',
@@ -67,10 +79,12 @@ export function WorkflowStudioPage() {
     return <WorkflowRouteShell error={routeState.message} />
   }
 
+  const initialDraft = routeState.draft ?? explicitEmptyDraft ?? undefined
+
   return (
     <WorkflowProvider
-      initialDraft={routeState.draft ?? undefined}
-      key={routeState.draft?.id ?? 'local-draft'}
+      initialDraft={initialDraft}
+      key={initialDraft?.id ?? 'local-draft'}
     >
       <WorkflowStudioContent />
     </WorkflowProvider>

@@ -96,15 +96,17 @@ VITE_MOCK_API_TARGET=https://api.example.test npm run dev:web
 
 On `/workflow/:workflowId`, the page first reads `GET /api/workflows/:id`. When the record is valid, it is converted to a draft and passed to `WorkflowProvider` as `initialDraft`. Refreshing that URL therefore reloads from the mock database, not from localStorage.
 
+On `/workflow?new=true`, the page creates a fresh empty draft and passes it as an explicit `initialDraft`. This bypasses `baited:last-saved-workflow` for that navigation only; it does not delete the localStorage record.
+
 On `/workflow` without an ID, provider state is selected in this order:
 
-1. an explicit `initialDraft` prop, primarily used by tests;
+1. an explicit `initialDraft` prop, used by tests, `/workflow/:workflowId`, and `/workflow?new=true`;
 2. a valid `baited:last-saved-workflow` localStorage record restored as a draft;
 3. the empty workflow draft.
 
 Malformed or missing localStorage data is ignored. Loading the example replaces graph and metadata content but preserves the current draft identity. Starting a new workflow creates a new draft identity and clears the local saved record.
 
-The Home route does not mount a provider. It reads `GET /api/workflows`, shows the newest mock database record, and links directly to `/workflow/:id`.
+The Home route does not mount a provider. Its hero CTA links to `/workflow?new=true` to start from an empty workflow. The "Ultimo workflow" card reads `GET /api/workflows`, shows the newest mock database record, and links directly to `/workflow/:id`.
 
 The Workflows route reads persisted records from `GET /api/workflows`. Opening an archive item links directly to `/workflow/:id`; localStorage is not used as an opening bridge.
 

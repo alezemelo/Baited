@@ -88,7 +88,7 @@ A successful request returns HTTP `201`:
 
 The database record contains the complete request plus those four response fields. IDs use `crypto.randomUUID()` with a `workflow-` prefix.
 
-`GET /api/workflows` returns an array of those complete database records. [`WorkflowsPage`](../src/pages/WorkflowsPage.tsx) sorts them newest-first in the browser and displays workflow name, category, target, ID, saved date, node count, and edge count. [`HomePage`](../src/pages/HomePage.tsx) uses the same list endpoint to show the newest workflow under "Ultimo workflow".
+`GET /api/workflows` returns an array of those complete database records. [`WorkflowsPage`](../src/pages/WorkflowsPage.tsx) sorts them newest-first in the browser and displays workflow name, category, target, ID, saved date, node count, and edge count. [`HomePage`](../src/pages/HomePage.tsx) uses the same list endpoint to show the newest workflow under "Ultimo workflow"; its hero CTA starts a fresh draft at `/workflow?new=true` and does not read from the API.
 
 `GET /api/workflows/:id` is used by `/workflow/:workflowId` to open a saved workflow directly from the mock database. The fetched record is converted into the editable draft passed to `WorkflowProvider`.
 
@@ -118,7 +118,7 @@ interface SavedWorkflowRecord {
 
 This localStorage record restores the editor on reload. It does not replace the mock database: the two copies exist for different demo behaviors, as explained in [Frontend state and data flow](03-frontend-state-and-data-flow.md).
 
-The saved-workflows page and Home latest-workflow card no longer write API records into localStorage before opening the editor; they link to `/workflow/:id`, which fetches by ID. If a workflow matching `baited:last-saved-workflow` is deleted from the archive, the page still removes the localStorage record so `/workflow` without an ID does not restore a workflow that no longer exists in the mock database.
+The saved-workflows page and Home latest-workflow card no longer write API records into localStorage before opening the editor; they link to `/workflow/:id`, which fetches by ID. The Home hero CTA links to `/workflow?new=true`, which bypasses localStorage with an explicit empty draft but leaves `baited:last-saved-workflow` intact. If a workflow matching `baited:last-saved-workflow` is deleted from the archive, the page still removes the localStorage record so `/workflow` without an ID does not restore a workflow that no longer exists in the mock database.
 
 ## curl and Postman
 

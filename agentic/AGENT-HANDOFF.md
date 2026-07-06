@@ -10,7 +10,7 @@ Costruire un MVP desktop-first per comporre, validare, salvare e gestire workflo
 
 ## Stato sintetico
 
-TASK-031 completata: Home e Archivio aprono workflow salvati tramite `/workflow/:workflowId`, caricando il record direttamente dal mock DB.
+TASK-032 completata: la CTA hero della Home apre un workflow vuoto tramite `/workflow?new=true`, mentre la card "Ultimo workflow" resta su `/workflow/:workflowId`.
 
 ## Task attiva
 
@@ -18,15 +18,17 @@ Nessuna.
 
 ## Ultima sessione
 
-- Creata `TASK-031` per rimuovere il bridge localStorage nell'apertura dei workflow salvati.
-- Aggiunta rotta `/workflow/:workflowId` con fetch `GET /api/workflows/:id` e mount del provider con draft DB.
-- Home e `/workflows` ora linkano direttamente allo studio per ID; localStorage resta solo per `/workflow` senza ID e per il draft salvato localmente.
-- Aggiornati test, E2E e documentazione; archiviata `TASK-031`.
+- Creata `TASK-032` per rendere esplicita la creazione di un workflow vuoto dalla CTA hero della Home.
+- Scelta implementativa: usare `/workflow?new=true` per bypassare localStorage senza cancellarlo.
+- Aggiornata la CTA hero della Home con label `Crea nuovo workflow` e link `/workflow?new=true`.
+- Aggiornato `WorkflowStudioPage` per passare un draft vuoto esplicito al provider quando la query `new=true` e presente.
+- Aggiunti test componenti per Home e inizializzazione studio; aggiornato E2E per coprire hero vuota e card ultimo workflow.
+- Aggiornata documentazione runtime, state/data flow, API/persistenza e troubleshooting; archiviata `TASK-032`.
 
 ## Verifiche effettuate
 
-- `npm run test` — superato: 15 test dominio e 31 test componenti.
-- `npm run test:e2e` — superato: 6 test Chromium, incluso refresh diretto di `/workflow/:id` senza bridge localStorage.
+- `npm run test` — superato: 15 test dominio e 33 test componenti.
+- `npm run test:e2e` — superato: 6 test Chromium, inclusa apertura hero su `/workflow?new=true` con localStorage presente.
 - `npm run build` — superato.
 - `npm run lint` — superato.
 - `git diff --check` — superato.
@@ -37,9 +39,10 @@ Nessun blocco noto. Eccezione già nota: pan, zoom e creazione visuale degli arc
 
 ## Impatto documentazione
 
-- Aggiornato `docs/02-bootstrap-and-runtime.md` con `/workflow/:id` e refresh DB-backed.
-- Aggiornato `docs/03-frontend-state-and-data-flow.md` con apertura tramite ID e ruolo residuo di localStorage.
-- Aggiornato `docs/06-api-and-persistence.md` con `GET /api/workflows/:id` usato dallo studio.
+- Aggiornato `docs/02-bootstrap-and-runtime.md` con `/workflow?new=true` e bypass localStorage.
+- Aggiornato `docs/03-frontend-state-and-data-flow.md` con separazione tra CTA hero vuota e apertura ultimo workflow per ID.
+- Aggiornato `docs/06-api-and-persistence.md` con il ruolo residuo di localStorage e della CTA Home.
+- Aggiornato `docs/07-testing-and-development.md` con troubleshooting delle tre modalita di apertura editor.
 - Nessun cambio a payload `POST /api/workflows`.
 - Nessuna nuova dipendenza.
 

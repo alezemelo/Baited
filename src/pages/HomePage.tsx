@@ -58,14 +58,8 @@ export function HomePage() {
     useState<LatestWorkflowState>({
       status: 'loading',
       workflow: null,
-    })
+  })
   const latestWorkflow = latestWorkflowState.workflow
-  const actionLabel = latestWorkflow
-    ? 'Continua nel Workflow Studio'
-    : 'Apri il Workflow Studio'
-  const workflowStudioPath = latestWorkflow
-    ? `/workflow/${latestWorkflow.id}`
-    : '/workflow'
 
   useEffect(() => {
     const controller = new AbortController()
@@ -140,9 +134,9 @@ export function HomePage() {
                   </p>
                   <NavLink
                     className="mt-7 inline-flex items-center gap-2 rounded-xl bg-primary-container px-5 py-3 font-label text-sm font-semibold text-on-primary transition-transform hover:-translate-y-0.5"
-                    to={workflowStudioPath}
+                    to="/workflow?new=true"
                   >
-                    {actionLabel}
+                    Crea nuovo workflow
                     <ArrowRight aria-hidden="true" className="size-4" />
                   </NavLink>
                 </div>

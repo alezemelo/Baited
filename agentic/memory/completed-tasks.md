@@ -285,3 +285,13 @@ Registro append-only. Non modificare o rimuovere le voci esistenti; eventuali co
 - Decisioni: Nessuna.
 - Follow-up: valutare `PATCH /api/workflows/:id` per aggiornare record esistenti invece di creare nuove versioni solo via `POST`.
 - Impatto documentazione: aggiornate bootstrap/runtime, state/data flow e API/persistenza; nessun cambio payload `POST` o dipendenze.
+
+## TASK-032 — CTA Home apre workflow vuoto
+
+- Completata: 2026-07-07
+- Risultato: la CTA hero della Home ora apre `/workflow?new=true` con label `Crea nuovo workflow`, inizializzando un draft vuoto anche se esiste `baited:last-saved-workflow`; la card "Ultimo workflow" continua ad aprire il record salvato via `/workflow/:id`.
+- File principali: `src/pages/HomePage.tsx`, `src/pages/WorkflowStudioPage.tsx`, `src/pages/HomePage.test.tsx`, `src/pages/WorkflowStudioPage.test.tsx`, `e2e/workflow.spec.ts`, `docs/02-bootstrap-and-runtime.md`, `docs/03-frontend-state-and-data-flow.md`, `docs/06-api-and-persistence.md`, `docs/07-testing-and-development.md`.
+- Verifiche: `npm run test` — 15 test dominio e 33 componenti superati; `npm run test:e2e` — 6 test Chromium superati; `npm run build`, `npm run lint` e `git diff --check` — superati.
+- Decisioni: `?new=true` bypassa localStorage senza cancellarlo.
+- Follow-up: Nessuno.
+- Impatto documentazione: aggiornate bootstrap/runtime, state/data flow, API/persistenza e testing/troubleshooting; nessun cambio API o dipendenze.

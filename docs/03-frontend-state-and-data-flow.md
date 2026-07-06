@@ -19,7 +19,8 @@
 | Save loading/error/success state | `WorkflowReviewStep` | Reducer state, separate from the draft |
 | Saved-workflow archive state | `WorkflowsPage` | Loaded from `GET /api/workflows`; not owned by the editor provider |
 | Current route/history blocker | React Router and `WorkflowStudioContent` | Home/editor navigation and dirty-draft confirmation |
-| Latest-save Home summary | `HomePage` | Loaded from `GET /api/workflows`; opening it links to `/workflow/:id` |
+| Home hero CTA | `HomePage` | Links to `/workflow?new=true` so the editor starts from an empty draft |
+| Latest-save Home summary | `HomePage` | Loaded from `GET /api/workflows`; opening the card links to `/workflow/:id` |
 
 ## Data flow
 
@@ -38,6 +39,8 @@ flowchart TD
   Serializer --> API["POST /api/workflows"]
   API --> Archive["WorkflowsPage"]
   API --> Home["Home latest-workflow summary"]
+  Home -->|create empty draft| NewRoute["/workflow?new=true"]
+  NewRoute -->|explicit empty initialDraft| Provider
   Archive -->|open saved record| IdRoute["/workflow/:id"]
   Home -->|open latest record| IdRoute
   IdRoute -->|GET /api/workflows/:id| Provider
@@ -61,7 +64,7 @@ Selecting a node clears edge selection, and selecting an edge clears node select
 
 From the review step, validation issues with a `nodeId` or `edgeId` expose a navigation action. The wizard marks the workflow step as visited, switches back to the canvas, and selects the referenced node or edge so the properties panel opens on the problematic element. Workflow-level issues without a concrete reference remain informational.
 
-The saved-workflows archive and Home latest-workflow summary are intentionally outside `WorkflowProvider`: they read complete persisted mock records through the API and summarize them. Selecting "Apri nello studio" or the Home "Apri workflow" action navigates to `/workflow/:id`, where the page fetches `GET /api/workflows/:id` and passes that record to the provider as the initial draft. Deleting an archive item calls the API, removes the record from the list after success, and clears `baited:last-saved-workflow` when the deleted ID matches any locally restored editor record.
+The saved-workflows archive and Home latest-workflow summary are intentionally outside `WorkflowProvider`: they read complete persisted mock records through the API and summarize them. Selecting "Apri nello studio" or the Home "Apri workflow" card action navigates to `/workflow/:id`, where the page fetches `GET /api/workflows/:id` and passes that record to the provider as the initial draft. The Home hero CTA instead navigates to `/workflow?new=true`, which passes an explicit empty draft and bypasses localStorage without clearing it. Deleting an archive item calls the API, removes the record from the list after success, and clears `baited:last-saved-workflow` when the deleted ID matches any locally restored editor record.
 
 ## Adding and moving blocks
 
@@ -112,13 +115,13 @@ After a successful save:
 2. the exact request becomes the provider's clean snapshot;
 3. the review reducer enters the success state.
 
-On `/workflow` reload, the stored request rebuilds the editable draft and the response ID becomes its ID. On `/workflow/:id` reload, the draft is fetched from the mock database instead. The JSON Server database and localStorage serve different purposes: the database provides saved workflow persistence, while localStorage restores a local editor draft only for the ID-less editor route.
+On `/workflow` reload, the stored request rebuilds the editable draft and the response ID becomes its ID. On `/workflow?new=true`, the page starts from an explicit empty draft even if localStorage contains a saved record. On `/workflow/:id` reload, the draft is fetched from the mock database instead. The JSON Server database and localStorage serve different purposes: the database provides saved workflow persistence, while localStorage restores a local editor draft only for the ID-less editor route without the `new=true` flag.
 
 While the editor is dirty, two guards apply:
 
 - `beforeunload` protects refresh, tab close, and document-level navigation;
 - React Router's blocker protects Home links and browser back/forward navigation inside the SPA.
 
-The user can cancel and remain on `/workflow`, or confirm and allow the route transition. Once Home is mounted, the editor provider is unmounted. Returning to `/workflow/:id` fetches that saved record again; returning to `/workflow` follows the localStorage restoration order. Unsaved edits intentionally disappear only after confirmation.
+The user can cancel and remain on `/workflow`, or confirm and allow the route transition. Once Home is mounted, the editor provider is unmounted. Returning to `/workflow/:id` fetches that saved record again; returning to `/workflow?new=true` starts empty; returning to `/workflow` follows the localStorage restoration order. Unsaved edits intentionally disappear only after confirmation.
 
 See [Graph model and validation](05-graph-model-and-validation.md) for derived validation and [API and persistence](06-api-and-persistence.md) for the save contract.

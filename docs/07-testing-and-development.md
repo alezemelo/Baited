@@ -60,7 +60,7 @@ The repository's agentic workflow also requires reading [`agentic/START-SESSION.
 | Save shows a network error | Confirm the API is running and Vite proxies to the correct `VITE_MOCK_API_TARGET` |
 | API cannot bind | Check ports 3001 for development and 3002 for E2E |
 | Tests see unexpected records | Confirm the appropriate reset command and isolated database path are used |
-| Restored UI differs from server data | Inspect `baited:last-saved-workflow`; reload restoration uses localStorage, not an API GET |
+| Restored UI differs from server data | Inspect `baited:last-saved-workflow`; plain `/workflow` reload restoration uses localStorage, while `/workflow?new=true` bypasses it and `/workflow/:id` fetches the API |
 | Playwright cannot launch | Run `npx playwright install chromium` |
 | Workflow cannot save | Inspect structured validation issues in Review and focus the associated node |
 | A changed branch shows an invalid edge | Reconnect edges whose `sourceHandle` refers to a removed condition rule |

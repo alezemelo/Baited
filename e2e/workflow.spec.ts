@@ -81,6 +81,38 @@ test('completes save error, retry and refresh recovery', async ({
     ),
   ).toContain('"kind":"generate_scenario_from_osint"')
 
+  await page.getByRole('link', { name: 'Home' }).click()
+  await expect(page).toHaveURL('/')
+  const latestWorkflowFromHome = page.getByRole('region', {
+    name: 'Ultimo workflow',
+  })
+  await expect(
+    latestWorkflowFromHome.getByText('Campagna Q3 — Sicurezza email', {
+      exact: true,
+    }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('link', { name: 'Crea nuovo workflow' }),
+  ).toHaveAttribute('href', '/workflow?new=true')
+  await page.getByRole('link', { name: 'Crea nuovo workflow' }).click()
+  await expect(page).toHaveURL('/workflow?new=true')
+  await expect(page.getByLabel('Nome workflow')).toHaveValue('')
+  await page.getByLabel('Nome workflow').fill('Workflow vuoto E2E')
+  await page.getByRole('button', { name: 'Apri workflow' }).click()
+  await expect(page.getByText('Inizia dal nodo Start')).toBeVisible()
+
+  page.once('dialog', async (dialog) => {
+    expect(dialog.message()).toContain('modifiche non salvate')
+    await dialog.accept()
+  })
+  await page.getByRole('link', { name: 'Home' }).click()
+  await expect(page).toHaveURL('/')
+  await page
+    .getByRole('region', { name: 'Ultimo workflow' })
+    .getByRole('link', { name: 'Apri workflow' })
+    .click()
+  await expect(page).toHaveURL(`/workflow/${workflowId}`)
+
   await page.getByRole('link', { name: 'Workflow salvati' }).click()
   await expect(page).toHaveURL('/workflows')
   await expect(

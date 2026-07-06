@@ -36,6 +36,9 @@ describe('HomePage', () => {
       'href',
       '/workflow',
     )
+    expect(
+      screen.getByRole('link', { name: 'Crea nuovo workflow' }),
+    ).toHaveAttribute('href', '/workflow?new=true')
     expect(screen.getByRole('button', { name: 'Target' })).toBeDisabled()
   })
 
@@ -64,11 +67,8 @@ describe('HomePage', () => {
       '/workflow/workflow-home-latest',
     )
     expect(
-      screen.getByRole('link', { name: 'Continua nel Workflow Studio' }),
-    ).toHaveAttribute(
-      'href',
-      '/workflow/workflow-home-latest',
-    )
+      screen.getByRole('link', { name: 'Crea nuovo workflow' }),
+    ).toHaveAttribute('href', '/workflow?new=true')
   })
 
   it('shows an error state when the database request fails', async () => {
