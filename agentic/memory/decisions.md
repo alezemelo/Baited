@@ -111,3 +111,11 @@
 - Vincolo: il nodo deve essere raggiungibile da almeno un `start_osint_on_targets`; in caso contrario esporre `missing_osint_source` con `nodeId`.
 - Algoritmo: visita forward multi-source da tutti i nodi OSINT, complessità O(V+E).
 - Demo: inserire OSINT → generazione scenario → campagna email nel workflow iniziale.
+
+## D-016 — Draft vuoto distinto dall'esempio
+
+- Data: 2026-07-06
+- Stato: accettata
+- Decisione: usare `emptyWorkflowDraft` come fallback quando lo storage è vuoto e mantenere `exampleWorkflowDraft` come contenuto opzionale caricato dall'empty state.
+- Libreria: rendere disponibili anche `workflow_start` e `workflow_end`, così l'intero grafo può essere costruito da zero.
+- Reset: “Nuovo workflow” genera un nuovo ID, pulisce `baited:last-saved-workflow`, marca il draft vuoto come allineato e rimonta il wizard su Dettagli; richiede conferma solo in presenza di modifiche non salvate.

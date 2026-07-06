@@ -20,7 +20,7 @@ export const workflowNodeCatalog = [
     description: 'Avvia il workflow sui target',
     category: 'Trigger',
     icon: 'users',
-    availableInLibrary: false,
+    availableInLibrary: true,
     connectionRules: {
       allowIncoming: false,
       allowOutgoing: true,
@@ -212,7 +212,7 @@ export const workflowNodeCatalog = [
     description: 'Conclude il flusso',
     category: 'Fine',
     icon: 'flag',
-    availableInLibrary: false,
+    availableInLibrary: true,
     connectionRules: {
       allowIncoming: true,
       allowOutgoing: false,

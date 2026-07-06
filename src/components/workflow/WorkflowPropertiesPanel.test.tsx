@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
-import { initialWorkflowDraft } from '../../features/workflow/initialWorkflow'
+import { exampleWorkflowDraft } from '../../features/workflow/initialWorkflow'
 import { useWorkflow } from '../../features/workflow/WorkflowContext'
 import { WorkflowProvider } from './WorkflowProvider'
 import { WorkflowPropertiesPanel } from './WorkflowPropertiesPanel'
@@ -11,7 +11,7 @@ describe('WorkflowPropertiesPanel', () => {
     const user = userEvent.setup()
 
     render(
-      <WorkflowProvider initialDraft={initialWorkflowDraft}>
+      <WorkflowProvider initialDraft={exampleWorkflowDraft}>
         <SelectEndNode />
         <WorkflowPropertiesPanel />
       </WorkflowProvider>,

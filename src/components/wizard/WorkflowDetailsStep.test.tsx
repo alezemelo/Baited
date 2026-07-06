@@ -1,12 +1,12 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { WorkflowProvider } from '../workflow/WorkflowProvider'
-import { initialWorkflowDraft } from '../../features/workflow/initialWorkflow'
+import { emptyWorkflowDraft } from '../../features/workflow/initialWorkflow'
 import { WorkflowDetailsStep } from './WorkflowDetailsStep'
 
 describe('WorkflowDetailsStep', () => {
   it('announces the name error and moves focus to the invalid field', () => {
-    const initialDraft = structuredClone(initialWorkflowDraft)
+    const initialDraft = structuredClone(emptyWorkflowDraft)
     initialDraft.metadata.name = ''
 
     render(

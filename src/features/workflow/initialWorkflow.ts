@@ -96,7 +96,7 @@ const initialEdges: WorkflowEdge[] = [
   },
 ]
 
-export const initialWorkflowDraft: WorkflowDraft = {
+export const exampleWorkflowDraft: WorkflowDraft = {
   id: 'workflow-phishing-q3',
   version: 1,
   status: 'draft',
@@ -108,4 +108,28 @@ export const initialWorkflowDraft: WorkflowDraft = {
   },
   nodes: initialNodes,
   edges: initialEdges,
+}
+
+export const emptyWorkflowDraft: WorkflowDraft = {
+  id: 'workflow-new',
+  version: 1,
+  status: 'draft',
+  metadata: {
+    name: '',
+    description: '',
+    category: 'Simulazione phishing',
+  },
+  nodes: [],
+  edges: [],
+}
+
+let emptyWorkflowSequence = 0
+
+export function createEmptyWorkflowDraft() {
+  emptyWorkflowSequence += 1
+
+  return {
+    ...structuredClone(emptyWorkflowDraft),
+    id: `workflow-new-${Date.now()}-${emptyWorkflowSequence}`,
+  }
 }

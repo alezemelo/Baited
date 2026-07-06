@@ -10,7 +10,7 @@ Costruire un MVP desktop-first per comporre, validare e salvare workflow di camp
 
 ## Stato sintetico
 
-Il piano esteso è completato. Terminazione dei percorsi, timeout condition esplicito e generazione scenario da OSINT sono implementati e coperti dalla suite completa.
+TASK-014 è completata. Con storage vuoto l'editor parte senza nodi o archi; Start/End sono in libreria, l'esempio è opzionale e “Nuovo workflow” resetta draft e storage.
 
 ## Task attiva
 
@@ -35,9 +35,11 @@ Nessuna task in corso.
 - Aggiunta la terminazione obbligatoria dei percorsi e archiviata `TASK-011`.
 - Reso esplicito il timeout delle condition e archiviata `TASK-012`.
 - Aggiunta la generazione scenario da OSINT e archiviata `TASK-013`.
+- Abilitata la creazione del workflow da zero e archiviata `TASK-014`.
 
 ## Verifiche effettuate
 
+- TASK-014 — 15 test dominio, 9 componenti e 3 E2E Chromium superati; build, lint e diff check superati.
 - TASK-013 — 15 test dominio, 7 componenti e 3 E2E Chromium superati; build, lint e diff check superati.
 - TASK-012 — `npm run test` superato: 12 test dominio e 6 componenti; `npm run test:e2e` superato: 3 test Chromium; build, lint e diff check superati.
 - TASK-011 — `npm run test` superato: 11 test dominio e 5 test componenti; `npm run test:e2e` superato: 3 test Chromium; build, lint e diff check superati.

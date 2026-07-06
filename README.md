@@ -11,7 +11,7 @@ npm install
 npm run dev
 ```
 
-Vite espone l'app all'indirizzo indicato nel terminale. L'ultimo workflow salvato viene recuperato automaticamente al refresh dallo storage del browser.
+Vite espone l'app all'indirizzo indicato nel terminale. Con storage vuoto il wizard parte da un draft senza nodi né archi; l'ultimo workflow salvato viene invece recuperato automaticamente al refresh.
 
 ## Comandi
 
@@ -43,11 +43,13 @@ La validazione richiede uno start unico, almeno un end, assenza di cicli e che o
 
 Le condizioni espongono `waitForMinutes`, il tempo massimo prima della valutazione dei branch. È distinto da `elapsedTimeMinutes`, che descrive l'attesa propria delle azioni campagna e awareness; il template iniziale usa 2880 minuti, equivalenti a 48 ore.
 
-Il kind `generate_scenario_from_osint` configura `scenarioTemplate`, `channel` ed `evidenceStrategy`. Deve trovarsi a valle di `start_osint_on_targets`; in caso contrario il validator produce `missing_osint_source`. La demo iniziale include la catena OSINT → generazione scenario → campagna email.
+Il kind `generate_scenario_from_osint` configura `scenarioTemplate`, `channel` ed `evidenceStrategy`. Deve trovarsi a valle di `start_osint_on_targets`; in caso contrario il validator produce `missing_osint_source`. Il workflow di esempio opzionale include la catena OSINT → generazione scenario → campagna email.
 
 ## Canvas e accessibilità
 
 - I blocchi della libreria possono essere trascinati oppure aggiunti con click, `Invio` o `Spazio`.
+- Start ed End fanno parte della libreria; l'empty state propone anche un workflow di esempio opzionale.
+- **Nuovo workflow** cancella il salvataggio locale e torna al draft vuoto, chiedendo conferma in presenza di modifiche non salvate.
 - Form, progress del wizard, errori e conferme distruttive espongono label, focus e annunci accessibili.
 - L'eliminazione di ogni nodo richiede conferma; `Esc` annulla il dialogo.
 - Zoom, pan e creazione visuale dei collegamenti restano interazioni specifiche del canvas React Flow e richiedono un dispositivo di puntamento. Configurazione, revisione e salvataggio sono utilizzabili da tastiera.

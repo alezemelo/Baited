@@ -19,11 +19,16 @@ import {
 } from '../../features/workflow/catalog'
 import {
   loadLastSavedWorkflow,
+  LAST_SAVED_WORKFLOW_KEY,
   restoreWorkflowDraft,
   serializeWorkflow,
   type CreateWorkflowRequest,
 } from '../../features/workflow/api/workflows'
-import { initialWorkflowDraft } from '../../features/workflow/initialWorkflow'
+import {
+  createEmptyWorkflowDraft,
+  emptyWorkflowDraft,
+  exampleWorkflowDraft,
+} from '../../features/workflow/initialWorkflow'
 import { wouldCreateCycle } from '../../features/workflow/validation/graph'
 import { validateWorkflow } from '../../features/workflow/validation/validateWorkflow'
 import {
@@ -71,6 +76,11 @@ export function WorkflowProvider({
   const [metadata, setMetadata] = useState(clonedInitialDraft.metadata)
   const [nodes, setNodes] = useState(clonedInitialDraft.nodes)
   const [edges, setEdges] = useState(clonedInitialDraft.edges)
+  const [draftIdentity, setDraftIdentity] = useState(() => ({
+    id: clonedInitialDraft.id,
+    status: clonedInitialDraft.status,
+    version: clonedInitialDraft.version,
+  }))
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
   const [savedRequestSnapshot, setSavedRequestSnapshot] = useState(() =>
     JSON.stringify(serializeWorkflow(clonedInitialDraft)),
@@ -191,12 +201,12 @@ export function WorkflowProvider({
 
   const draft = useMemo<WorkflowDraft>(
     () => ({
-      ...clonedInitialDraft,
+      ...draftIdentity,
       metadata,
       nodes,
       edges,
     }),
-    [clonedInitialDraft, edges, metadata, nodes],
+    [draftIdentity, edges, metadata, nodes],
   )
   const validation = useMemo(() => validateWorkflow(draft), [draft])
   const currentRequestSnapshot = useMemo(
@@ -206,6 +216,33 @@ export function WorkflowProvider({
   const hasUnsavedChanges = currentRequestSnapshot !== savedRequestSnapshot
   const markWorkflowSaved = (request: CreateWorkflowRequest) => {
     setSavedRequestSnapshot(JSON.stringify(request))
+  }
+  const replaceDraft = (nextDraft: WorkflowDraft) => {
+    const clonedDraft = cloneDraft(nextDraft)
+
+    setDraftIdentity({
+      id: clonedDraft.id,
+      status: clonedDraft.status,
+      version: clonedDraft.version,
+    })
+    setMetadata(clonedDraft.metadata)
+    setNodes(clonedDraft.nodes)
+    setEdges(clonedDraft.edges)
+    setSelectedNodeId(null)
+
+    return clonedDraft
+  }
+  const startNewWorkflow = () => {
+    const emptyDraft = replaceDraft(createEmptyWorkflowDraft())
+
+    window.localStorage.removeItem(LAST_SAVED_WORKFLOW_KEY)
+    setSavedRequestSnapshot(JSON.stringify(serializeWorkflow(emptyDraft)))
+  }
+  const loadExampleWorkflow = () => {
+    replaceDraft({
+      ...exampleWorkflowDraft,
+      id: draftIdentity.id,
+    })
   }
 
   const value: WorkflowContextValue = {
@@ -226,6 +263,8 @@ export function WorkflowProvider({
     applyEdgesChange,
     selectNode,
     markWorkflowSaved,
+    startNewWorkflow,
+    loadExampleWorkflow,
   }
 
   return (
@@ -244,7 +283,7 @@ function resolveInitialDraft(initialDraft?: WorkflowDraft) {
 
   return savedWorkflow
     ? restoreWorkflowDraft(savedWorkflow)
-    : initialWorkflowDraft
+    : emptyWorkflowDraft
 }
 
 function createWorkflowNodeFromExisting(node: WorkflowNode): WorkflowNode {

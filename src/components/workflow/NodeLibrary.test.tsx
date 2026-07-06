@@ -18,6 +18,17 @@ describe('NodeLibrary', () => {
       />,
     )
 
+    expect(
+      screen.getByRole('button', {
+        name: 'Aggiungi Target selezionati al canvas',
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', {
+        name: 'Aggiungi Fine workflow al canvas',
+      }),
+    ).toBeInTheDocument()
+
     const addOsint = screen.getByRole('button', {
       name: 'Aggiungi Analisi OSINT al canvas',
     })

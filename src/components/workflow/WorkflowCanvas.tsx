@@ -11,6 +11,7 @@ import {
   type ReactFlowInstance,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
+import { Sparkles } from 'lucide-react'
 import {
   useCallback,
   useEffect,
@@ -68,6 +69,7 @@ export function WorkflowCanvas({
     selectNode,
     selectedNodeId,
     validation,
+    loadExampleWorkflow,
   } = useWorkflow()
   const errorNodeIds = useMemo(
     () =>
@@ -262,7 +264,7 @@ export function WorkflowCanvas({
               Workflow attivo
             </p>
             <p className="mt-0.5 text-xs font-medium text-on-surface">
-              {draft.metadata.name}
+              {draft.metadata.name || 'Nuovo workflow'}
             </p>
             <p
               className={`mt-1 font-label text-[10px] ${
@@ -275,6 +277,29 @@ export function WorkflowCanvas({
             </p>
           </div>
         </Panel>
+        {nodes.length === 0 ? (
+          <Panel className="m-0" position="top-center">
+            <div className="mt-24 w-80 rounded-2xl border border-dashed border-white/15 bg-surface-container/90 p-6 text-center shadow-[0_16px_40px_rgb(0_0_0/0.24)] backdrop-blur-xl">
+              <span className="mx-auto flex size-11 items-center justify-center rounded-xl bg-secondary/10 text-secondary">
+                <Sparkles aria-hidden="true" className="size-5" />
+              </span>
+              <h2 className="mt-4 text-base font-semibold text-on-surface">
+                Inizia dal nodo Start
+              </h2>
+              <p className="mt-2 text-xs leading-5 text-on-surface-muted">
+                Aggiungi i blocchi dalla libreria e collegali per costruire il
+                workflow da zero.
+              </p>
+              <button
+                className="mt-4 rounded-lg border border-white/10 px-3 py-2 font-label text-xs text-on-surface-muted transition-colors hover:border-primary/35 hover:text-primary"
+                onClick={loadExampleWorkflow}
+                type="button"
+              >
+                Carica workflow di esempio
+              </button>
+            </div>
+          </Panel>
+        ) : null}
       </ReactFlow>
       <CanvasActionBar />
     </section>

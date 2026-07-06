@@ -19,7 +19,9 @@ test('completes save error, retry and refresh recovery', async ({ page }) => {
   })
 
   await page.goto('/')
+  await page.getByLabel('Nome workflow').fill('Workflow E2E')
   await page.getByRole('button', { name: 'Apri workflow' }).press('Enter')
+  await page.getByRole('button', { name: 'Carica workflow di esempio' }).click()
 
   await page.getByText('Training di base', { exact: true }).click()
   await page.getByLabel('Target campagna Q3').check()
@@ -67,7 +69,16 @@ test('completes save error, retry and refresh recovery', async ({ page }) => {
 
 test('supports keyboard block creation and warns about unsaved changes', async ({ page }) => {
   await page.goto('/')
+  await expect(page.getByLabel('Nome workflow')).toHaveValue('')
+  await page.getByLabel('Nome workflow').fill('Workflow da zero')
   await page.getByRole('button', { name: 'Apri workflow' }).press('Enter')
+  await expect(page.getByText('Inizia dal nodo Start')).toBeVisible()
+
+  const addStart = page.getByRole('button', {
+    name: 'Aggiungi Target selezionati al canvas',
+  })
+  await addStart.focus()
+  await addStart.press('Enter')
 
   const addOsint = page.getByRole('button', {
     name: 'Aggiungi Analisi OSINT al canvas',
@@ -89,6 +100,13 @@ test('supports keyboard block creation and warns about unsaved changes', async (
       return event.defaultPrevented
     }),
   ).toBe(true)
+
+  page.once('dialog', async (dialog) => {
+    expect(dialog.message()).toContain('modifiche non salvate')
+    await dialog.accept()
+  })
+  await page.getByRole('button', { name: 'Nuovo workflow' }).click()
+  await expect(page.getByLabel('Nome workflow')).toHaveValue('')
 })
 
 test('has no detectable accessibility violations in details and review', async ({ page }) => {
@@ -97,7 +115,9 @@ test('has no detectable accessibility violations in details and review', async (
   const detailsAudit = await new AxeBuilder({ page }).analyze()
   expect(detailsAudit.violations).toEqual([])
 
+  await page.getByLabel('Nome workflow').fill('Workflow accessibile')
   await page.getByRole('button', { name: 'Apri workflow' }).click()
+  await page.getByRole('button', { name: 'Carica workflow di esempio' }).click()
   await page.getByText('Training di base', { exact: true }).click()
   await page.getByLabel('Target campagna Q3').check()
   await page.getByRole('button', { name: 'Vai alla revisione' }).click()

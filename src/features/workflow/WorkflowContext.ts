@@ -41,6 +41,8 @@ export interface WorkflowContextValue {
   applyEdgesChange: (changes: EdgeChange<WorkflowEdge>[]) => void
   selectNode: (nodeId: string | null) => void
   markWorkflowSaved: (request: CreateWorkflowRequest) => void
+  startNewWorkflow: () => void
+  loadExampleWorkflow: () => void
 }
 
 export const WorkflowContext = createContext<WorkflowContextValue | null>(null)

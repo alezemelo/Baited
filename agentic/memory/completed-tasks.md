@@ -119,3 +119,12 @@ Registro append-only. Non modificare o rimuovere le voci esistenti; eventuali co
 - Verifiche: `npm run test:domain` — superato con 15 test; `npm run test:unit` — superato con 7 test; `npm run test:e2e` — superato con 3 test Chromium; `npm run build`, `npm run lint` e `git diff --check` — superati.
 - Decisioni: D-015.
 - Follow-up: Nessuno; le tre rifiniture finali richieste sono completate.
+
+## TASK-014 — Creazione workflow da zero
+
+- Completata: 2026-07-06
+- Risultato: separati draft vuoto ed esempio, resi Start/End disponibili nella libreria, aggiunto empty state con esempio opzionale e introdotto reset esplicito con conferma e pulizia dello storage.
+- File principali: `src/features/workflow/initialWorkflow.ts`, `src/features/workflow/catalog.ts`, `src/components/workflow/WorkflowProvider.tsx`, `src/features/workflow/WorkflowContext.ts`, `src/components/workflow/WorkflowCanvas.tsx`, `src/components/layout/AppHeader.tsx`, `src/pages/WorkflowStudioPage.tsx`, `e2e/workflow.spec.ts`, `README.md`.
+- Verifiche: `npm run test` — superato con 15 test dominio e 9 componenti; `npm run test:e2e` — superato con 3 test Chromium; `npm run build`, `npm run lint` e `git diff --check` — superati.
+- Decisioni: D-016.
+- Follow-up: Nessuno.

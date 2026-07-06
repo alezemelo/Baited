@@ -42,6 +42,7 @@ Realizzare una demo desktop-first in cui l'utente definisce i dati generali, com
 | TASK-011 | Terminazione di tutti i percorsi | TASK-008 | Completata |
 | TASK-012 | Timeout esplicito delle condizioni | TASK-011 | Completata |
 | TASK-013 | Generazione scenario da risultati OSINT | TASK-012 | Completata |
+| TASK-014 | Creazione workflow da zero | TASK-013 | Completata |
 
 ## Definizione di completamento
 
@@ -55,3 +56,4 @@ Realizzare una demo desktop-first in cui l'utente definisce i dati generali, com
 - Ogni percorso raggiungibile termina in un nodo end.
 - Le condizioni rappresentano esplicitamente il tempo massimo di attesa.
 - La generazione di uno scenario dai risultati OSINT è disponibile come azione tipizzata.
+- Con storage vuoto l'editor parte senza nodi o archi e consente di aggiungere anche start ed end dalla libreria.

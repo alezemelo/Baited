@@ -1,5 +1,6 @@
 import {
   Activity,
+  Plus,
   Workflow,
 } from 'lucide-react'
 
@@ -13,6 +14,7 @@ interface AppHeaderProps {
   status: string
   activeTab: AppTab
   hasUnsavedChanges: boolean
+  onNewWorkflow: () => void
 }
 
 export function AppHeader({
@@ -21,6 +23,7 @@ export function AppHeader({
   status,
   activeTab,
   hasUnsavedChanges,
+  onNewWorkflow,
 }: AppHeaderProps) {
   return (
     <header className="z-40 flex h-14 shrink-0 items-center justify-between border-b border-white/10 bg-surface/90 px-4 backdrop-blur-xl">
@@ -64,6 +67,14 @@ export function AppHeader({
       </nav>
 
       <div className="flex shrink-0 items-center gap-3">
+        <button
+          className="hidden items-center gap-2 rounded-lg border border-white/10 bg-surface-container px-3 py-2 font-label text-xs font-medium text-on-surface transition-colors hover:border-secondary/35 hover:text-secondary sm:flex"
+          onClick={onNewWorkflow}
+          type="button"
+        >
+          <Plus aria-hidden="true" className="size-3.5" />
+          Nuovo workflow
+        </button>
         <div
           aria-live="polite"
           className={`hidden items-center gap-2 text-xs md:flex ${

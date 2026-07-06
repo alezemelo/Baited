@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { AppHeader } from '../components/layout/AppHeader'
 import { SideNavigation } from '../components/layout/SideNavigation'
 import { WorkflowProvider } from '../components/workflow/WorkflowProvider'
@@ -13,8 +14,19 @@ export function WorkflowStudioPage() {
 }
 
 function WorkflowStudioContent() {
-  const { draft, hasUnsavedChanges } = useWorkflow()
+  const { draft, hasUnsavedChanges, startNewWorkflow } = useWorkflow()
   const workflowTitle = draft.metadata.name.trim() || 'Nuovo workflow'
+
+  const handleNewWorkflow = () => {
+    if (
+      hasUnsavedChanges &&
+      !window.confirm('Creare un nuovo workflow? Le modifiche non salvate andranno perse.')
+    ) {
+      return
+    }
+
+    startNewWorkflow()
+  }
 
   useEffect(() => {
     if (!hasUnsavedChanges) {
@@ -39,15 +51,15 @@ function WorkflowStudioContent() {
         activeTab="Editor"
         category={draft.metadata.category}
         hasUnsavedChanges={hasUnsavedChanges}
+        onNewWorkflow={handleNewWorkflow}
         status={hasUnsavedChanges ? 'Modifiche non salvate' : 'Draft allineato'}
         title={workflowTitle}
       />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <SideNavigation />
-        <WorkflowWizard />
+        <WorkflowWizard key={draft.id} />
       </div>
     </main>
   )
 }
-import { useEffect } from 'react'
