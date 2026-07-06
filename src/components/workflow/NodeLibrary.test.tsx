@@ -15,9 +15,13 @@ describe('NodeLibrary', () => {
         onBlockAdd={onBlockAdd}
         onBlockDragEnd={vi.fn()}
         onBlockDragStart={vi.fn()}
+        workflowTitle="Workflow Q3"
       />,
     )
 
+    expect(
+      screen.getByRole('heading', { name: 'Workflow Q3', level: 2 }),
+    ).toBeInTheDocument()
     expect(
       screen.getByRole('button', {
         name: 'Aggiungi Target selezionati al canvas',

@@ -27,6 +27,8 @@ export interface WorkflowContextValue {
   edges: WorkflowEdge[]
   selectedNodeId: string | null
   selectedNode: WorkflowNode | null
+  selectedEdgeId: string | null
+  selectedEdge: WorkflowEdge | null
   hasUnsavedChanges: boolean
   updateMetadata: (patch: Partial<WorkflowMetadata>) => void
   addNode: (templateId: string, position: XYPosition) => string | null
@@ -35,11 +37,14 @@ export interface WorkflowContextValue {
     updater: (currentData: WorkflowNodeData) => WorkflowNodeData,
   ) => void
   removeNode: (nodeId: string) => void
+  removeEdge: (edgeId: string) => void
+  reconnectEdge: (edge: WorkflowEdge, connection: Connection) => void
   duplicateNode: (nodeId: string) => string | null
   connectNodes: (connection: Connection) => void
   applyNodesChange: (changes: NodeChange<WorkflowNode>[]) => void
   applyEdgesChange: (changes: EdgeChange<WorkflowEdge>[]) => void
   selectNode: (nodeId: string | null) => void
+  selectEdge: (edgeId: string | null) => void
   markWorkflowSaved: (request: CreateWorkflowRequest) => void
   startNewWorkflow: () => void
   loadExampleWorkflow: () => void

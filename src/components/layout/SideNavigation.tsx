@@ -9,16 +9,18 @@ import {
   Workflow,
   type LucideIcon,
 } from 'lucide-react'
+import { NavLink } from 'react-router-dom'
 
 interface NavigationItem {
   label: string
   icon: LucideIcon
-  active?: boolean
+  to?: string
+  end?: boolean
 }
 
 const navigationItems: NavigationItem[] = [
-  { label: 'Home', icon: Home },
-  { label: 'Workflow', icon: Workflow, active: true },
+  { label: 'Home', icon: Home, to: '/', end: true },
+  { label: 'Workflow', icon: Workflow, to: '/workflow' },
   { label: 'Target', icon: Users },
   { label: 'Training', icon: BookOpenCheck },
   { label: 'Report', icon: FileBarChart },
@@ -33,21 +35,34 @@ export function SideNavigation() {
       </div>
 
       <nav aria-label="Navigazione principale" className="flex flex-col gap-1">
-        {navigationItems.map(({ active, icon: Icon, label }) => (
-          <button
-            aria-current={active ? 'page' : undefined}
-            aria-label={label}
-            className={`flex size-10 items-center justify-center rounded-lg transition-colors ${
-              active
-                ? 'bg-secondary/10 text-secondary'
-                : 'text-on-surface-muted hover:bg-white/5 hover:text-on-surface'
-            }`}
-            key={label}
-            type="button"
-          >
-            <Icon aria-hidden="true" className="size-5" />
-          </button>
-        ))}
+        {navigationItems.map(({ end, icon: Icon, label, to }) => {
+          if (to) {
+            return (
+              <NavLink
+                aria-label={label}
+                className={({ isActive }) => navigationItemClass(isActive)}
+                end={end}
+                key={label}
+                to={to}
+              >
+                <Icon aria-hidden="true" className="size-5" />
+              </NavLink>
+            )
+          }
+
+          return (
+            <button
+              aria-label={label}
+              className={`${navigationItemClass(false)} cursor-not-allowed opacity-45`}
+              disabled
+              key={label}
+              title="Disponibile in una versione futura"
+              type="button"
+            >
+              <Icon aria-hidden="true" className="size-5" />
+            </button>
+          )
+        })}
       </nav>
 
       <button
@@ -66,4 +81,12 @@ export function SideNavigation() {
       </div>
     </aside>
   )
+}
+
+function navigationItemClass(isActive: boolean) {
+  return `flex size-10 items-center justify-center rounded-lg transition-colors ${
+    isActive
+      ? 'bg-secondary/10 text-secondary'
+      : 'text-on-surface-muted hover:bg-white/5 hover:text-on-surface'
+  }`
 }

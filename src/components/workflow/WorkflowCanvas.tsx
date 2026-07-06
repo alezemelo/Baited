@@ -66,7 +66,10 @@ export function WorkflowCanvas({
     draft,
     edges,
     nodes,
+    reconnectEdge,
+    selectEdge,
     selectNode,
+    selectedEdgeId,
     selectedNodeId,
     validation,
     loadExampleWorkflow,
@@ -139,6 +142,34 @@ export function WorkflowCanvas({
       },
     )
   }, [nodes, reactFlowInstance, selectedNodeId])
+
+  useEffect(() => {
+    if (!reactFlowInstance || !selectedEdgeId) {
+      return
+    }
+
+    const selectedEdge = edges.find((edge) => edge.id === selectedEdgeId)
+
+    if (!selectedEdge) {
+      return
+    }
+
+    const sourceNode = nodes.find((node) => node.id === selectedEdge.source)
+    const targetNode = nodes.find((node) => node.id === selectedEdge.target)
+
+    if (!sourceNode || !targetNode) {
+      return
+    }
+
+    void reactFlowInstance.setCenter(
+      (sourceNode.position.x + targetNode.position.x) / 2 + 105,
+      (sourceNode.position.y + targetNode.position.y) / 2 + 64,
+      {
+        duration: 420,
+        zoom: 1,
+      },
+    )
+  }, [edges, nodes, reactFlowInstance, selectedEdgeId])
 
   const handleDragOver = useCallback((event: DragEvent) => {
     event.preventDefault()
@@ -228,6 +259,7 @@ export function WorkflowCanvas({
       <ReactFlow<WorkflowNode, WorkflowEdge>
         defaultEdgeOptions={defaultEdgeOptions}
         edges={visibleEdges}
+        edgesReconnectable
         fitView
         fitViewOptions={{ padding: 0.2 }}
         maxZoom={1.5}
@@ -238,10 +270,16 @@ export function WorkflowCanvas({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         onEdgesChange={applyEdgesChange}
+        onEdgeClick={(_, edge) => selectEdge(edge.id)}
         onInit={setReactFlowInstance}
         onNodeClick={(_, node) => selectNode(node.id)}
         onNodesChange={applyNodesChange}
-        onPaneClick={() => selectNode(null)}
+        onPaneClick={() => {
+          selectNode(null)
+          selectEdge(null)
+        }}
+        onReconnect={reconnectEdge}
+        reconnectRadius={14}
       >
         <Background
           color="rgba(255, 255, 255, 0.18)"

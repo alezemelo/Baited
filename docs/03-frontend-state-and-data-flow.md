@@ -8,13 +8,17 @@
 | --- | --- | --- |
 | Metadata, nodes, and edges | `WorkflowProvider` | Combined into a memoized `WorkflowDraft` |
 | Draft ID, version, and status | `WorkflowProvider` | Replaced when a new or restored draft is loaded |
-| Selected node | `WorkflowProvider` | Mirrored into each React Flow node's `selected` flag |
+| Selected node | `WorkflowProvider` | Mirrored into each React Flow node's `selected` flag; mutually exclusive with selected edge |
+| Selected edge | `WorkflowProvider` | Mirrored into each React Flow edge's `selected` flag; shown in the properties panel for inspection and deletion |
 | Validation result | Derived in `WorkflowProvider` | Recomputed by the pure validator whenever the draft changes |
 | Dirty state | Derived in `WorkflowProvider` | Serialized draft compared with the last saved snapshot |
 | Current wizard step | `WorkflowWizard` | UI-only state, not serialized |
 | Highest visited step | `WorkflowWizard` | Prevents jumping to unvisited future steps |
+| Validation issue navigation | `WorkflowWizard` | Review actions switch back to the workflow step and select the referenced node or edge |
 | React Flow instance and viewport | `WorkflowCanvas` | UI-only and omitted from the API payload |
 | Save loading/error/success state | `WorkflowReviewStep` | Reducer state, separate from the draft |
+| Current route/history blocker | React Router and `WorkflowStudioContent` | Home/editor navigation and dirty-draft confirmation |
+| Latest-save Home summary | `HomePage` | Read-only projection from guarded localStorage parsing |
 
 ## Data flow
 
@@ -23,15 +27,17 @@ flowchart TD
   Library["Node library"] -->|template ID| Wizard["WorkflowWizard"]
   Wizard -->|addNode| Provider["WorkflowProvider"]
   Canvas["React Flow canvas"] -->|move, connect, select| Provider
-  Inspector["NodeInspector"] -->|typed data updater| Provider
+  Inspector["Properties panel"] -->|node data updater or edge delete| Provider
   Provider --> Draft["WorkflowDraft"]
   Draft --> Validator["validateWorkflow"]
   Validator --> Canvas
   Validator --> Review["WorkflowReviewStep"]
+  Review -->|issue nodeId/edgeId| Provider
   Draft --> Serializer["serializeWorkflow"]
   Serializer --> API["POST /api/workflows"]
   API --> Local["localStorage record"]
   Local -->|next mount| Provider
+  Local --> Home["Home saved-workflow summary"]
 ```
 
 ## Editor operations
@@ -40,12 +46,15 @@ The context exposes explicit operations rather than a general state setter:
 
 - update metadata;
 - add, select, update, duplicate, or remove a node;
-- connect nodes subject to immediate connection guards;
+- select or remove an edge;
+- connect nodes and reconnect existing edge endpoints subject to immediate connection guards;
 - apply React Flow node and edge changes;
 - mark a serialized request as saved;
 - start an empty workflow or load the example.
 
-Removing a node also removes all incident edges. Duplicating a node copies its data and offsets its position by 40 pixels, but does not copy its connections.
+Selecting a node clears edge selection, and selecting an edge clears node selection. Removing a node also removes all incident edges and clears any selected incident edge. Duplicating a node copies its data and offsets its position by 40 pixels, but does not copy its connections.
+
+From the review step, validation issues with a `nodeId` or `edgeId` expose a navigation action. The wizard marks the workflow step as visited, switches back to the canvas, and selects the referenced node or edge so the properties panel opens on the problematic element. Workflow-level issues without a concrete reference remain informational.
 
 ## Adding and moving blocks
 
@@ -68,6 +77,8 @@ Before accepting a connection, the provider rejects:
 - a second outgoing edge from the same condition branch.
 
 Condition edges copy the branch label and store `branchId` plus `branchType`. Editing a branch label synchronizes existing edge labels and metadata. Removing a condition rule can leave an old edge dangling; the validator reports that state instead of silently deleting the edge.
+
+Existing connections can be selected from the canvas and inspected in the properties panel. Users can edit an existing connection by dragging either endpoint to another valid node/handle. The provider validates reconnects with the same rules as new connections while temporarily excluding the edge being moved from cardinality, duplicate, and cycle checks. Valid reconnects preserve the edge ID and selection; invalid reconnects leave the draft unchanged. Direct branch/label editing is intentionally not implemented because condition edge labels and metadata stay derived from the source branch.
 
 ## IDs
 
@@ -96,5 +107,11 @@ After a successful save:
 
 On reload, the stored request rebuilds the editable draft and the response ID becomes its ID. The JSON Server database and localStorage serve different purposes: the database provides mock HTTP persistence, while localStorage restores the browser editor without a GET-on-mount flow.
 
-See [Graph model and validation](05-graph-model-and-validation.md) for derived validation and [API and persistence](06-api-and-persistence.md) for the save contract.
+While the editor is dirty, two guards apply:
 
+- `beforeunload` protects refresh, tab close, and document-level navigation;
+- React Router's blocker protects Home links and browser back/forward navigation inside the SPA.
+
+The user can cancel and remain on `/workflow`, or confirm and allow the route transition. Once Home is mounted, the editor provider is unmounted; returning to the editor follows the normal localStorage restoration order. A valid saved workflow is therefore restored, while unsaved edits intentionally disappear only after confirmation.
+
+See [Graph model and validation](05-graph-model-and-validation.md) for derived validation and [API and persistence](06-api-and-persistence.md) for the save contract.

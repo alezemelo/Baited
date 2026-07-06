@@ -23,7 +23,7 @@ test('completes save error, retry and refresh recovery', async ({
     }
   })
 
-  await page.goto('/')
+  await page.goto('/workflow')
   await page.getByLabel('Nome workflow').fill('Workflow E2E')
   await page.getByRole('button', { name: 'Apri workflow' }).press('Enter')
   await page.getByRole('button', { name: 'Carica workflow di esempio' }).click()
@@ -85,11 +85,21 @@ test('completes save error, retry and refresh recovery', async ({
   await page.getByRole('button', { name: 'Apri workflow' }).click()
   await page.getByRole('button', { name: 'Vai alla revisione' }).click()
   await expect(page.getByText(savedId!)).toBeVisible()
+  await expect(page.getByText('Draft allineato')).toBeVisible()
+
+  await page.getByRole('link', { name: 'Home' }).click()
+  await expect(page).toHaveURL('/')
+  const recentWorkflow = page.getByRole('region', { name: 'Ultimo workflow' })
+  await expect(
+    recentWorkflow.getByText('Campagna Q3 — Sicurezza email', { exact: true }),
+  ).toBeVisible()
+  await expect(page.getByText('9 nodi')).toBeVisible()
+  await expect(page.getByText('9 connessioni')).toBeVisible()
   expect(consoleErrors).toEqual([])
 })
 
 test('supports keyboard block creation and warns about unsaved changes', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/workflow')
   await expect(page.getByLabel('Nome workflow')).toHaveValue('')
   await page.getByLabel('Nome workflow').fill('Workflow da zero')
   await page.getByRole('button', { name: 'Apri workflow' }).press('Enter')
@@ -130,19 +140,174 @@ test('supports keyboard block creation and warns about unsaved changes', async (
   await expect(page.getByLabel('Nome workflow')).toHaveValue('')
 })
 
+test('selects and deletes an existing workflow connection', async ({ page }) => {
+  await page.goto('/workflow')
+  await page.getByLabel('Nome workflow').fill('Workflow connessioni')
+  await page.getByRole('button', { name: 'Apri workflow' }).click()
+  await page.getByRole('button', { name: 'Carica workflow di esempio' }).click()
+
+  await page
+    .locator('.react-flow__edge[data-id="targets-osint"] .react-flow__edge-path')
+    .click({ force: true })
+  await expect(
+    page.getByRole('heading', {
+      name: 'Target selezionati → Analisi OSINT',
+    }),
+  ).toBeVisible()
+
+  await page.getByRole('button', { name: 'Elimina connessione' }).click()
+  const confirmation = page.getByRole('alertdialog', {
+    name: 'Conferma eliminazione connessione',
+  })
+  await expect(confirmation).toBeVisible()
+  await confirmation
+    .getByRole('button', { name: 'Elimina connessione' })
+    .click()
+
+  await page.getByRole('button', { name: 'Vai alla revisione' }).click()
+  await expect(page.getByText('8 connessioni')).toBeVisible()
+  await expect(page.getByText(/errori strutturali/)).toBeVisible()
+
+  await page
+    .getByRole('button', {
+      name: /Vai a nodo osint: Analisi OSINT non ha connessioni in ingresso\./,
+    })
+    .click()
+  await expect(
+    page.getByLabel('Proprietà del nodo').getByRole('heading', {
+      name: 'Analisi OSINT',
+    }),
+  ).toBeVisible()
+})
+
+test('reconnects an existing workflow connection endpoint', async ({ page }) => {
+  await page.goto('/workflow')
+  await page.getByLabel('Nome workflow').fill('Workflow reconnect')
+  await page.getByRole('button', { name: 'Apri workflow' }).click()
+  await page.getByRole('button', { name: 'Carica workflow di esempio' }).click()
+
+  const edge = page.locator('.react-flow__edge[data-id="risk-training"]')
+  await edge.locator('.react-flow__edge-path').click({ force: true })
+  await expect(
+    page.getByRole('heading', {
+      name: 'Gruppo alto rischio → Training di base',
+    }),
+  ).toBeVisible()
+  await page.waitForTimeout(500)
+
+  const updaterBox = await edge
+    .locator('.react-flow__edgeupdater-target')
+    .boundingBox()
+  const targetBox = await page
+    .locator('.react-flow__node[data-id="end"] .react-flow__handle.target')
+    .boundingBox()
+
+  expect(updaterBox).not.toBeNull()
+  expect(targetBox).not.toBeNull()
+
+  await page.mouse.move(
+    updaterBox!.x + updaterBox!.width / 2,
+    updaterBox!.y + updaterBox!.height / 2,
+  )
+  await page.mouse.down()
+  await page.mouse.move(
+    targetBox!.x + targetBox!.width / 2,
+    targetBox!.y + targetBox!.height / 2,
+    { steps: 12 },
+  )
+  await page.mouse.up()
+
+  await expect(
+    page.getByRole('heading', {
+      name: 'Gruppo alto rischio → Campagna completata',
+    }),
+  ).toBeVisible()
+
+  await page.getByRole('button', { name: 'Vai alla revisione' }).click()
+  await expect(page.getByText('9 connessioni')).toBeVisible()
+  await expect(page.getByText(/errori strutturali/)).toBeVisible()
+})
+
 test('has no detectable accessibility violations in details and review', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/route-inesistente')
+  await expect(page).toHaveURL('/')
+  await expect(
+    page.getByRole('heading', {
+      name: 'Progetta ogni risposta, dal primo segnale alla formazione.',
+    }),
+  ).toBeVisible()
+
+  const homeAudit = await new AxeBuilder({ page }).analyze()
+  expect(homeAudit.violations).toEqual([])
+
+  const workflowLink = page.getByRole('link', {
+    name: 'Workflow',
+    exact: true,
+  })
+  await workflowLink.focus()
+  await workflowLink.press('Enter')
+  await expect(page).toHaveURL('/workflow')
+  await expect(page.locator('header img[alt="Baited"]')).toBeVisible()
+
+  const wizardProgress = page.getByRole('navigation', {
+    name: 'Avanzamento creazione workflow',
+  })
+  await expect(
+    wizardProgress.getByRole('heading', { name: 'Workflow accessibile' }),
+  ).toHaveCount(0)
 
   const detailsAudit = await new AxeBuilder({ page }).analyze()
   expect(detailsAudit.violations).toEqual([])
 
   await page.getByLabel('Nome workflow').fill('Workflow accessibile')
   await page.getByRole('button', { name: 'Apri workflow' }).click()
+  await expect(
+    wizardProgress.getByRole('heading', { name: 'Workflow accessibile' }),
+  ).toHaveCount(0)
+  await expect(
+    page.getByRole('heading', { name: 'Workflow accessibile', level: 2 }),
+  ).toBeVisible()
   await page.getByRole('button', { name: 'Carica workflow di esempio' }).click()
   await page.getByText('Training di base', { exact: true }).click()
   await page.getByLabel('Target campagna Q3').check()
   await page.getByRole('button', { name: 'Vai alla revisione' }).click()
+  await expect(
+    wizardProgress.getByRole('heading', {
+      name: 'Campagna Q3 — Sicurezza email',
+    }),
+  ).toHaveCount(0)
 
   const reviewAudit = await new AxeBuilder({ page }).analyze()
   expect(reviewAudit.violations).toEqual([])
+})
+
+test('protects a dirty workflow during SPA and history navigation', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await page.getByRole('link', { name: 'Workflow', exact: true }).click()
+  await page.getByLabel('Nome workflow').fill('Workflow protetto')
+  await page.getByRole('button', { name: 'Apri workflow' }).click()
+  await page.getByRole('button', {
+    name: 'Aggiungi Target selezionati al canvas',
+  }).click()
+
+  const rejectedDialogPromise = page.waitForEvent('dialog')
+  const rejectedNavigation = page.getByRole('link', { name: 'Home' }).click()
+  const rejectedDialog = await rejectedDialogPromise
+  expect(rejectedDialog.message()).toContain('modifiche non salvate')
+  await rejectedDialog.dismiss()
+  await rejectedNavigation
+  await expect(page).toHaveURL('/workflow')
+
+  const acceptedDialogPromise = page.waitForEvent('dialog')
+  const acceptedNavigation = page.goBack()
+  const acceptedDialog = await acceptedDialogPromise
+  expect(acceptedDialog.message()).toContain('modifiche non salvate')
+  await acceptedDialog.accept()
+  await acceptedNavigation
+  await expect(page).toHaveURL('/')
+
+  await page.goForward()
+  await expect(page).toHaveURL('/workflow')
 })

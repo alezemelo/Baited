@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useBlocker } from 'react-router-dom'
 import { AppHeader } from '../components/layout/AppHeader'
 import { SideNavigation } from '../components/layout/SideNavigation'
 import { WorkflowProvider } from '../components/workflow/WorkflowProvider'
@@ -15,7 +16,11 @@ export function WorkflowStudioPage() {
 
 function WorkflowStudioContent() {
   const { draft, hasUnsavedChanges, startNewWorkflow } = useWorkflow()
-  const workflowTitle = draft.metadata.name.trim() || 'Nuovo workflow'
+  const navigationBlocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      hasUnsavedChanges &&
+      currentLocation.pathname !== nextLocation.pathname,
+  )
 
   const handleNewWorkflow = () => {
     if (
@@ -45,6 +50,22 @@ function WorkflowStudioContent() {
     }
   }, [hasUnsavedChanges])
 
+  useEffect(() => {
+    if (navigationBlocker.state !== 'blocked') {
+      return
+    }
+
+    if (
+      window.confirm(
+        'Uscire dal workflow? Le modifiche non salvate andranno perse.',
+      )
+    ) {
+      navigationBlocker.proceed()
+    } else {
+      navigationBlocker.reset()
+    }
+  }, [navigationBlocker])
+
   return (
     <main className="flex h-dvh min-h-[640px] flex-col overflow-hidden bg-surface text-on-surface">
       <AppHeader
@@ -53,7 +74,6 @@ function WorkflowStudioContent() {
         hasUnsavedChanges={hasUnsavedChanges}
         onNewWorkflow={handleNewWorkflow}
         status={hasUnsavedChanges ? 'Modifiche non salvate' : 'Draft allineato'}
-        title={workflowTitle}
       />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">

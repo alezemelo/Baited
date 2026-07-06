@@ -13,7 +13,7 @@ npm install
 npm run dev
 ```
 
-Il comando avvia insieme Vite e il mock API su `http://127.0.0.1:3001`; Vite espone l'app all'indirizzo indicato nel terminale e inoltra `/api` al mock. Con storage vuoto il wizard parte da un draft senza nodi né archi; l'ultimo workflow salvato viene invece recuperato automaticamente al refresh.
+Il comando avvia insieme Vite e il mock API su `http://127.0.0.1:3001`; Vite espone l'app all'indirizzo indicato nel terminale e inoltra `/api` al mock. La Home è disponibile su `/`, mentre l'editor è su `/workflow`. La Home riepiloga l'ultimo salvataggio valido; nell'editor, con storage vuoto il wizard parte da un draft senza nodi né archi.
 
 ## Comandi
 
@@ -38,9 +38,10 @@ npx playwright install chromium
 
 ## Percorso utente
 
-1. **Dettagli:** nome, descrizione e gruppo target.
-2. **Workflow:** composizione del grafo, collegamenti e configurazione degli otto kind di nodo.
-3. **Revisione:** riepilogo di nodi, archi e branch, errori strutturati e salvataggio mock.
+1. **Home:** accesso al Workflow Studio, capability e riepilogo dell'ultimo workflow salvato.
+2. **Dettagli:** nome, descrizione e gruppo target.
+3. **Workflow:** composizione del grafo, collegamenti e configurazione degli otto kind di nodo.
+4. **Revisione:** riepilogo di nodi, archi e branch, errori strutturati e salvataggio mock.
 
 Il salvataggio è disabilitato finché `validation.isValid` è falso. Lo stato del draft segnala le modifiche non salvate e attiva la conferma nativa quando si tenta di chiudere o ricaricare la pagina.
 
@@ -112,7 +113,7 @@ Per collegare il frontend di sviluppo a un backend diverso, avviare Vite con `VI
 
 ```text
 src/
-├── App.tsx                       # entrypoint sottile
+├── App.tsx                       # router Home/Workflow e lazy loading
 ├── pages/                        # schermate raggiungibili
 ├── components/
 │   ├── layout/                   # shell applicativa
@@ -134,6 +135,7 @@ mocks/
 ## Stack
 
 - React 19, TypeScript e Vite
+- React Router per route, link e guardia del draft dirty
 - Tailwind CSS
 - React Flow (`@xyflow/react`)
 - JSON Server 0.17.4

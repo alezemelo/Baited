@@ -85,9 +85,12 @@ export function WorkflowProvider({
   const [savedRequestSnapshot, setSavedRequestSnapshot] = useState(() =>
     JSON.stringify(serializeWorkflow(clonedInitialDraft)),
   )
+  const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null)
 
   const selectedNode =
     nodes.find((node) => node.id === selectedNodeId) ?? null
+  const selectedEdge =
+    edges.find((edge) => edge.id === selectedEdgeId) ?? null
 
   const updateMetadata = (patch: Partial<WorkflowMetadata>) => {
     setMetadata((currentMetadata) => ({ ...currentMetadata, ...patch }))
@@ -96,6 +99,15 @@ export function WorkflowProvider({
   const selectNode = (nodeId: string | null) => {
     setSelectedNodeId(nodeId)
     setNodes((currentNodes) => markSelectedNode(currentNodes, nodeId))
+    setSelectedEdgeId(null)
+    setEdges((currentEdges) => markSelectedEdge(currentEdges, null))
+  }
+
+  const selectEdge = (edgeId: string | null) => {
+    setSelectedEdgeId(edgeId)
+    setEdges((currentEdges) => markSelectedEdge(currentEdges, edgeId))
+    setSelectedNodeId(null)
+    setNodes((currentNodes) => markSelectedNode(currentNodes, null))
   }
 
   const addNode = (templateId: string, position: XYPosition) => {
@@ -106,9 +118,11 @@ export function WorkflowProvider({
     }
 
     setSelectedNodeId(node.id)
+    setSelectedEdgeId(null)
     setNodes((currentNodes) =>
       markSelectedNode([...currentNodes, node], node.id),
     )
+    setEdges((currentEdges) => markSelectedEdge(currentEdges, null))
     return node.id
   }
 
@@ -146,6 +160,70 @@ export function WorkflowProvider({
     setSelectedNodeId((currentSelection) =>
       currentSelection === nodeId ? null : currentSelection,
     )
+    setSelectedEdgeId((currentSelection) => {
+      const selectedEdge = edges.find((edge) => edge.id === currentSelection)
+
+      if (
+        selectedEdge &&
+        (selectedEdge.source === nodeId || selectedEdge.target === nodeId)
+      ) {
+        return null
+      }
+
+      return currentSelection
+    })
+  }
+
+  const removeEdge = (edgeId: string) => {
+    setEdges((currentEdges) => currentEdges.filter((edge) => edge.id !== edgeId))
+    setSelectedEdgeId((currentSelection) =>
+      currentSelection === edgeId ? null : currentSelection,
+    )
+  }
+
+  const reconnectEdge = (edge: WorkflowEdge, connection: Connection) => {
+    if (!connection.source || !connection.target) {
+      return
+    }
+
+    const currentEdge = edges.find((candidate) => candidate.id === edge.id)
+
+    if (!currentEdge) {
+      return
+    }
+
+    const candidateEdges = edges.filter(
+      (candidate) => candidate.id !== currentEdge.id,
+    )
+
+    if (!canConnectNodes(connection, nodes, candidateEdges)) {
+      return
+    }
+
+    const sourceNode = nodes.find((node) => node.id === connection.source)
+    const branch = getConnectionBranch(sourceNode, connection.sourceHandle)
+
+    setEdges((currentEdges) =>
+      currentEdges.map((candidate) =>
+        candidate.id === currentEdge.id
+          ? {
+              ...candidate,
+              selected: true,
+              source: connection.source,
+              target: connection.target,
+              sourceHandle: connection.sourceHandle,
+              targetHandle: connection.targetHandle,
+              label: branch?.label,
+              data: branch
+                ? { branchId: branch.id, branchType: branch.type }
+                : undefined,
+            }
+          : candidate,
+      ),
+    )
+    setSelectedEdgeId(edge.id)
+    setSelectedNodeId(null)
+    setNodes((currentNodes) => markSelectedNode(currentNodes, null))
   }
 
   const duplicateNode = (nodeId: string) => {
@@ -157,9 +235,11 @@ export function WorkflowProvider({
 
     const duplicate = createWorkflowNodeFromExisting(sourceNode)
     setSelectedNodeId(duplicate.id)
+    setSelectedEdgeId(null)
     setNodes((currentNodes) =>
       markSelectedNode([...currentNodes, duplicate], duplicate.id),
     )
+    setEdges((currentEdges) => markSelectedEdge(currentEdges, null))
     return duplicate.id
   }
 
@@ -196,7 +276,18 @@ export function WorkflowProvider({
   }
 
   const applyEdgesChange = (changes: EdgeChange<WorkflowEdge>[]) => {
+    const removedEdgeIds = new Set(
+      changes
+        .filter((change) => change.type === 'remove')
+        .map((change) => change.id),
+    )
+
     setEdges((currentEdges) => applyEdgeChanges(changes, currentEdges))
+    setSelectedEdgeId((currentSelection) =>
+      currentSelection && removedEdgeIds.has(currentSelection)
+        ? null
+        : currentSelection,
+    )
   }
 
   const draft = useMemo<WorkflowDraft>(
@@ -229,6 +320,7 @@ export function WorkflowProvider({
     setNodes(clonedDraft.nodes)
     setEdges(clonedDraft.edges)
     setSelectedNodeId(null)
+    setSelectedEdgeId(null)
 
     return clonedDraft
   }
@@ -252,16 +344,21 @@ export function WorkflowProvider({
     edges,
     selectedNodeId,
     selectedNode,
+    selectedEdgeId,
+    selectedEdge,
     hasUnsavedChanges,
     updateMetadata,
     addNode,
     updateNodeData,
     removeNode,
+    removeEdge,
+    reconnectEdge,
     duplicateNode,
     connectNodes,
     applyNodesChange,
     applyEdgesChange,
     selectNode,
+    selectEdge,
     markWorkflowSaved,
     startNewWorkflow,
     loadExampleWorkflow,
@@ -332,6 +429,16 @@ function markSelectedNode(
   return nodes.map((node) => ({
     ...node,
     selected: node.id === selectedNodeId,
+  }))
+}
+
+function markSelectedEdge(
+  edges: WorkflowEdge[],
+  selectedEdgeId: string | null,
+): WorkflowEdge[] {
+  return edges.map((edge) => ({
+    ...edge,
+    selected: edge.id === selectedEdgeId,
   }))
 }
 

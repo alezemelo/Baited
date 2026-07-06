@@ -28,11 +28,15 @@ import type {
 } from '../../features/workflow/validation/validateWorkflow'
 
 interface WorkflowReviewStepProps {
-  onFocusNode?: (nodeId: string) => void
+  onNavigateToIssue?: (target: ValidationIssueNavigationTarget) => void
 }
 
+export type ValidationIssueNavigationTarget =
+  | { id: string; type: 'edge' }
+  | { id: string; type: 'node' }
+
 export function WorkflowReviewStep({
-  onFocusNode,
+  onNavigateToIssue,
 }: WorkflowReviewStepProps) {
   const { draft, markWorkflowSaved, validation } = useWorkflow()
   const [simulateError, setSimulateError] = useState(false)
@@ -231,7 +235,10 @@ export function WorkflowReviewStep({
           ) : (
             <div className="mt-4 space-y-2">
               {validation.issues.map((issue, index) => {
-                const focusNodeId = getIssueFocusNodeId(issue, draft.edges)
+                const navigationTarget = getIssueNavigationTarget(
+                  issue,
+                  draft.edges,
+                )
 
                 return (
                   <div
@@ -253,10 +260,11 @@ export function WorkflowReviewStep({
                         </p>
                       </div>
 
-                      {focusNodeId && onFocusNode ? (
+                      {navigationTarget && onNavigateToIssue ? (
                         <button
-                          className="flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-2 font-label text-[10px] font-medium text-on-surface-muted transition-colors hover:border-secondary/35 hover:text-secondary"
-                          onClick={() => onFocusNode(focusNodeId)}
+                          aria-label={`Vai a ${formatNavigationTarget(navigationTarget)}: ${issue.message}`}
+                          className="flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-2 font-label text-[10px] font-medium text-on-surface-muted transition-colors hover:border-secondary/35 hover:text-secondary focus-visible:border-secondary focus-visible:text-secondary focus-visible:outline-none"
+                          onClick={() => onNavigateToIssue(navigationTarget)}
                           type="button"
                         >
                           <LocateFixed aria-hidden="true" className="size-3" />
@@ -426,17 +434,25 @@ function formatSavedAt(createdAt: string) {
   }).format(new Date(createdAt))
 }
 
-function getIssueFocusNodeId(
+function getIssueNavigationTarget(
   issue: WorkflowValidationIssue,
   edges: WorkflowEdge[],
 ) {
-  if (issue.nodeId) {
-    return issue.nodeId
+  if (issue.edgeId && edges.some((edge) => edge.id === issue.edgeId)) {
+    return { id: issue.edgeId, type: 'edge' } as const
   }
 
-  const edge = edges.find((candidate) => candidate.id === issue.edgeId)
+  if (issue.nodeId) {
+    return { id: issue.nodeId, type: 'node' } as const
+  }
 
-  return edge?.source ?? edge?.target ?? null
+  return null
+}
+
+function formatNavigationTarget(target: ValidationIssueNavigationTarget) {
+  return target.type === 'edge'
+    ? `connessione ${target.id}`
+    : `nodo ${target.id}`
 }
 
 function formatIssueReference(issue: WorkflowValidationIssue) {

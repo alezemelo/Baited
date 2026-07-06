@@ -5,8 +5,8 @@
 | Layer | Tooling | Coverage |
 | --- | --- | --- |
 | Domain and API integration | TypeScript compilation plus Node test runner | Serialization, real JSON Server process, storage restoration, DAG algorithms, configuration, and OSINT rules |
-| Component | Vitest, Testing Library, user-event, jsdom | Details focus, node inspector fields, keyboard library use, provider dirty/reset behavior, and delete confirmation |
-| End to end | Playwright Chromium and axe | Save error/retry/persistence/reload, keyboard creation, unsaved-change warning, and accessibility audits |
+| Component | Vitest, Testing Library, user-event, jsdom | Home empty/saved states, route-aware rail, details focus, node inspector fields, keyboard library use, provider dirty/reset behavior, and delete confirmation |
+| End to end | Playwright Chromium and axe | Home/editor navigation, dirty SPA/history blocking, save error/retry/persistence/reload, keyboard creation, unsaved-change warning, and accessibility audits |
 
 Primary test sources are [`tests/`](../tests), component `*.test.tsx` files under [`src/`](../src), and [`e2e/workflow.spec.ts`](../e2e/workflow.spec.ts).
 
@@ -37,7 +37,7 @@ Development data on port 3001 is therefore not read or modified by automated tes
 
 ## Accessibility coverage
 
-The E2E suite runs axe on the Details and Review screens. Component and browser tests also cover accessible labels, error announcements, focus movement, keyboard block creation, and destructive-action confirmation.
+The E2E suite runs axe on Home, Details, and Review. Component and browser tests also cover route links, accessible labels, error announcements, focus movement, keyboard block creation, and destructive-action confirmation.
 
 The documented MVP exception is React Flow's visual pan, zoom, and edge-creation interaction, which requires a pointing device. Adding blocks, configuring them, reviewing errors, and saving remain keyboard accessible.
 
@@ -64,6 +64,6 @@ The repository's agentic workflow also requires reading [`agentic/START-SESSION.
 | Playwright cannot launch | Run `npx playwright install chromium` |
 | Workflow cannot save | Inspect structured validation issues in Review and focus the associated node |
 | A changed branch shows an invalid edge | Reconnect edges whose `sourceHandle` refers to a removed condition rule |
+| Refreshing `/workflow` returns a server 404 | Configure the production host with an SPA fallback to `index.html` |
 
 For implementation touchpoints, continue with [Extending the app](08-extending-the-app.md).
-

@@ -33,7 +33,10 @@ export function WizardProgress({
           const isReachable = index <= highestVisitedIndex
 
           return (
-            <li className="flex flex-1 items-center last:flex-none" key={step.id}>
+            <li
+              className="flex flex-1 items-center last:flex-none"
+              key={step.id}
+            >
               <button
                 aria-current={isCurrent ? 'step' : undefined}
                 aria-label={`Vai allo step ${step.label}`}
@@ -75,7 +78,9 @@ export function WizardProgress({
                 <span
                   aria-hidden="true"
                   className={`mx-3 h-px min-w-6 flex-1 ${
-                    index < highestVisitedIndex ? 'bg-secondary/50' : 'bg-white/10'
+                    index < highestVisitedIndex
+                      ? 'bg-secondary/50'
+                      : 'bg-white/10'
                   }`}
                 />
               ) : null}

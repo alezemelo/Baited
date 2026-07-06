@@ -1,15 +1,10 @@
-import {
-  Activity,
-  Plus,
-  Workflow,
-} from 'lucide-react'
+import { Activity, Plus } from 'lucide-react'
 
 const tabs = ['Editor', 'Esecuzioni', 'Test'] as const
 
 type AppTab = (typeof tabs)[number]
 
 interface AppHeaderProps {
-  title: string
   category: string
   status: string
   activeTab: AppTab
@@ -18,7 +13,6 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({
-  title,
   category,
   status,
   activeTab,
@@ -28,12 +22,15 @@ export function AppHeader({
   return (
     <header className="z-40 flex h-14 shrink-0 items-center justify-between border-b border-white/10 bg-surface/90 px-4 backdrop-blur-xl">
       <div className="flex min-w-0 items-center gap-4">
-        <div className="flex min-w-0 items-center gap-2">
-          <Workflow aria-hidden="true" className="size-5 shrink-0 text-primary" />
-          <h1 className="truncate text-lg font-semibold tracking-[-0.01em] text-on-surface">
-            {title}
-          </h1>
-        </div>
+        <h1 className="flex shrink-0">
+          <img
+            alt="Baited"
+            className="h-[34px] w-[118px]"
+            height="34"
+            src="/baited-logo.svg"
+            width="118"
+          />
+        </h1>
         <span className="hidden rounded bg-surface-container px-2 py-1 font-label text-[10px] font-medium uppercase tracking-[0.08em] text-on-surface-muted sm:inline-flex">
           {category}
         </span>

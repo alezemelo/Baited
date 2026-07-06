@@ -6,7 +6,10 @@ import { NodeLibrary } from '../workflow/NodeLibrary'
 import { WorkflowCanvas } from '../workflow/WorkflowCanvas'
 import { WorkflowPropertiesPanel } from '../workflow/WorkflowPropertiesPanel'
 import { WorkflowDetailsStep } from './WorkflowDetailsStep'
-import { WorkflowReviewStep } from './WorkflowReviewStep'
+import {
+  WorkflowReviewStep,
+  type ValidationIssueNavigationTarget,
+} from './WorkflowReviewStep'
 import {
   WizardProgress,
   type WorkflowWizardStep,
@@ -32,7 +35,7 @@ const steps: readonly WorkflowWizardStep[] = [
 ]
 
 export function WorkflowWizard() {
-  const { addNode, draft, selectNode, validation } = useWorkflow()
+  const { addNode, draft, selectEdge, selectNode, validation } = useWorkflow()
   const [currentStep, setCurrentStep] =
     useState<WorkflowWizardStepId>('details')
   const [highestVisitedIndex, setHighestVisitedIndex] = useState(0)
@@ -77,14 +80,20 @@ export function WorkflowWizard() {
     setCurrentStep(steps[previousIndex].id)
   }
 
-  const focusWorkflowNode = (nodeId: string) => {
+  const navigateToValidationIssue = (target: ValidationIssueNavigationTarget) => {
     const workflowStepIndex = steps.findIndex((step) => step.id === 'workflow')
 
     setHighestVisitedIndex((visitedIndex) =>
       Math.max(visitedIndex, workflowStepIndex),
     )
     setCurrentStep('workflow')
-    window.requestAnimationFrame(() => selectNode(nodeId))
+    window.requestAnimationFrame(() => {
+      if (target.type === 'edge') {
+        selectEdge(target.id)
+      } else {
+        selectNode(target.id)
+      }
+    })
   }
 
   const addNodeFromLibrary = (templateId: string) => {
@@ -124,6 +133,7 @@ export function WorkflowWizard() {
               onBlockAdd={addNodeFromLibrary}
               onBlockDragEnd={() => setPendingLibraryBlockId(null)}
               onBlockDragStart={setPendingLibraryBlockId}
+              workflowTitle={draft.metadata.name.trim() || 'Nuovo workflow'}
             />
             <WorkflowCanvas
               onPendingNodeDrop={() => setPendingLibraryBlockId(null)}
@@ -134,7 +144,7 @@ export function WorkflowWizard() {
         ) : null}
 
         {currentStep === 'review' ? (
-          <WorkflowReviewStep onFocusNode={focusWorkflowNode} />
+          <WorkflowReviewStep onNavigateToIssue={navigateToValidationIssue} />
         ) : null}
       </div>
 

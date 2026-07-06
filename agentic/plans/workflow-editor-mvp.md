@@ -44,7 +44,17 @@ Realizzare una demo desktop-first in cui l'utente definisce i dati generali, com
 | TASK-013 | Generazione scenario da risultati OSINT | TASK-012 | Completata |
 | TASK-014 | Creazione workflow da zero | TASK-013 | Completata |
 | TASK-015 | Sostituzione MSW con JSON Server | TASK-014 | Completata |
-| TASK-016 | Documentazione composizione applicazione | TASK-015 | In corso |
+| TASK-016 | Documentazione composizione applicazione | TASK-015 | Completata |
+| TASK-017 | Home page e navigazione applicativa | TASK-016 | Completata |
+| TASK-018 | Wordmark Baited nella Home | TASK-017 | Completata |
+| TASK-019 | Wordmark workflow e titolo nello step editor | TASK-018 | Completata |
+| TASK-020 | Titolo workflow nella libreria blocchi | TASK-019 | Completata |
+| TASK-021 | Inventario dipendenze e librerie | TASK-020 | Completata |
+| TASK-022 | Selezione ed eliminazione connessioni | TASK-021 | Completata |
+| TASK-023 | Fit testo nei bottoni di conferma eliminazione | TASK-022 | Completata |
+| TASK-024 | Bottoni conferma eliminazione in colonna | TASK-023 | Completata |
+| TASK-025 | Riconnessione endpoint degli edge | TASK-024 | Completata |
+| TASK-026 | Navigazione dagli errori di validazione | TASK-025 | Completata |
 
 ## Definizione di completamento
 
@@ -61,3 +71,4 @@ Realizzare una demo desktop-first in cui l'utente definisce i dati generali, com
 - Con storage vuoto l'editor parte senza nodi o archi e consente di aggiungere anche start ed end dalla libreria.
 - Il mock API usa un server HTTP JSON Server interrogabile anche fuori dal browser e conserva il contratto di salvataggio esistente.
 - Un hub Markdown developer-first descrive composizione, runtime, blocchi, validazione, API, test ed estensione dell'applicazione.
+- Una Home page coerente con il design system è raggiungibile dalla rail e collega esplicitamente l'editor workflow.

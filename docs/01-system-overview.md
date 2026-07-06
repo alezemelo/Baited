@@ -2,19 +2,22 @@
 
 ## Purpose
 
-Baited Workflow Studio is a single-page React application for composing campaign workflows as directed acyclic graphs. The implemented user journey has three steps:
+Baited Workflow Studio is a routed React application for composing campaign workflows as directed acyclic graphs. The Home route presents the product capabilities and the latest valid browser save. The editor journey then has three steps:
 
 1. enter workflow metadata;
 2. build and configure the graph;
 3. review validation results and save the serialized workflow.
 
-The editor starts empty when no valid saved record exists. A complete example can be loaded from the empty canvas.
+The editor starts empty when no valid saved record exists. A complete example can be loaded from the empty canvas. Home and Workflow are separate lazy-loaded routes.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  User["User"] --> Wizard["React wizard and workflow editor"]
+  User["User"] --> Router["React Router"]
+  Router --> Home["Home page"]
+  Router --> Wizard["React wizard and workflow editor"]
+  Home --> Storage
   Wizard --> Provider["WorkflowProvider"]
   Provider --> Catalog["Typed node catalog"]
   Provider --> Validator["Pure DAG validator"]
@@ -32,21 +35,24 @@ The browser owns the editable draft and performs all graph validation. The mock 
 ```text
 main.tsx
 └── App
-    └── WorkflowStudioPage
-        └── WorkflowProvider
-            └── WorkflowStudioContent
-                ├── AppHeader
-                ├── SideNavigation
-                └── WorkflowWizard
-                    ├── WorkflowDetailsStep
-                    ├── NodeLibrary
-                    ├── WorkflowCanvas
-                    ├── WorkflowPropertiesPanel
-                    │   └── NodeInspector
-                    └── WorkflowReviewStep
+    └── RouterProvider
+        ├── HomePage (/)
+        │   └── SideNavigation
+        └── WorkflowStudioPage (/workflow)
+            └── WorkflowProvider
+                └── WorkflowStudioContent
+                    ├── AppHeader
+                    ├── SideNavigation
+                    └── WorkflowWizard
+                        ├── WorkflowDetailsStep
+                        ├── NodeLibrary
+                        ├── WorkflowCanvas
+                        ├── WorkflowPropertiesPanel
+                        │   └── NodeInspector
+                        └── WorkflowReviewStep
 ```
 
-[`WorkflowStudioPage`](../src/pages/WorkflowStudioPage.tsx) establishes the shared provider boundary. The wizard and editor components consume the same context through `useWorkflow`; React Flow does not own a separate canonical graph.
+[`App`](../src/App.tsx) defines `/` and `/workflow`, redirects unknown routes to Home, and lazy-loads both page modules. [`WorkflowStudioPage`](../src/pages/WorkflowStudioPage.tsx) establishes the shared provider boundary only for the editor route. The wizard and editor components consume the same context through `useWorkflow`; React Flow does not own a separate canonical graph.
 
 ## Repository map
 
@@ -65,6 +71,7 @@ main.tsx
 ## Technology choices
 
 - React 19 and TypeScript for the SPA and typed domain model.
+- React Router for route-aware links, browser history, lazy page boundaries, and dirty-draft blocking.
 - Vite for development, proxying, and production builds.
 - React Flow (`@xyflow/react`) for nodes, edges, viewport controls, and drag positioning.
 - Tailwind CSS for UI styling and Lucide React for icons.
@@ -76,10 +83,10 @@ main.tsx
 | Implemented | Simulated or descriptive |
 | --- | --- |
 | Graph editing, selection, branching, and deletion | Sending email, SMS, or IM messages |
+| Home navigation and latest-save summary | Live dashboard metrics or backend aggregation |
 | Typed configuration forms | Running awareness campaigns |
 | DAG and configuration validation | Collecting OSINT evidence |
 | Serialization and HTTP persistence | Generating real campaign content |
 | Local reload recovery | Updating production target groups |
 
 Continue with [Bootstrap and runtime](02-bootstrap-and-runtime.md) for the startup path or [Workflow blocks](04-workflow-blocks.md) for the node inventory.
-

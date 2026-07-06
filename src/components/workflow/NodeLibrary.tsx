@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react'
+import { Plus, Workflow } from 'lucide-react'
 import {
   useMemo,
   type DragEvent,
@@ -14,6 +14,7 @@ interface NodeLibraryProps {
   onBlockDragEnd: () => void
   onBlockDragStart: (templateId: string) => void
   onBlockAdd: (templateId: string) => void
+  workflowTitle: string
 }
 
 export function NodeLibrary({
@@ -21,6 +22,7 @@ export function NodeLibrary({
   onBlockDragEnd,
   onBlockDragStart,
   onBlockAdd,
+  workflowTitle,
 }: NodeLibraryProps) {
   const categoryGroups = useMemo(() => groupBlocksByCategory(blocks), [blocks])
 
@@ -45,6 +47,13 @@ export function NodeLibrary({
 
   return (
     <aside className="stealth-scroll hidden w-[280px] shrink-0 flex-col overflow-y-auto border-r border-white/10 bg-surface-low p-4 lg:flex">
+      <div className="mb-5 flex w-[clamp(10rem,22vw,15rem)] min-w-0 shrink-0 items-center gap-2">
+        <Workflow aria-hidden="true" className="size-5 shrink-0 text-primary" />
+        <h2 className="truncate text-sm font-semibold tracking-[-0.01em] text-on-surface">
+          {workflowTitle}
+        </h2>
+      </div>
+
       <div className="mb-5 flex items-start justify-between gap-3">
         <div>
           <p className="font-label text-[10px] font-medium uppercase tracking-[0.12em] text-primary">

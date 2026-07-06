@@ -2,6 +2,15 @@
 
 This guide follows the current typed architecture. The disabled “custom block” button is not a runtime plugin system; new supported blocks are code changes.
 
+## Add a routed page
+
+1. Create a `Page`-suffixed component under `src/pages/` and preserve the existing shell tokens and landmarks.
+2. Add a lazy import and route in `App.tsx`; choose an explicit path and fallback behavior.
+3. Convert the matching disabled rail item into a `NavLink`. Active state must come from the route, not a static flag.
+4. If leaving the page can discard state, add a React Router blocker as well as any required `beforeunload` protection.
+5. Cover direct URL loading, rail navigation, back/forward, keyboard use, unknown-route behavior, and an axe audit.
+6. Update system overview, bootstrap/runtime, state flow, and testing documentation in the same session.
+
 ## Add a template that reuses an existing kind
 
 Use this path when only defaults, label, icon, or category differ—for example, the existing email and SMS campaign presets.
@@ -79,4 +88,3 @@ An extension is complete when:
 - the documentation inventory, validation rules, and API examples match the code.
 
 Use [Testing and development](07-testing-and-development.md) for commands and isolation behavior.
-

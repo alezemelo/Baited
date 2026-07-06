@@ -45,9 +45,13 @@ The handle, edge label, and edge metadata are kept aligned when a condition bran
 
 The provider also prevents many invalid connections at interaction time. Full validation remains necessary because imported, restored, or previously connected data can still become invalid after configuration changes.
 
+Deleting a selected edge is allowed from the properties panel. The provider removes only that edge and lets validation recompute the resulting graph issues, such as missing condition branches, orphan nodes, unreachable nodes, or unterminated paths.
+
+Existing edge endpoints can also be reconnected with the mouse. A reconnect attempt is accepted only if the resulting connection satisfies the same source/target, cardinality, duplicate, branch-handle, and cycle rules used for new edges. During that check, the edge being moved is excluded from the graph so reconnecting its own endpoint does not falsely consume its previous slot. Invalid reconnect attempts leave the draft unchanged.
+
 ## Validation issues
 
-Every issue has `severity: "error"` and may identify a node, edge, branch, or field. The UI uses those IDs to highlight graph elements and return focus from review to the relevant node.
+Every issue has `severity: "error"` and may identify a node, edge, branch, or field. The UI uses those IDs to highlight graph elements and return from review to the relevant canvas element. Issues with an `edgeId` select the connection and open the connection inspector; issues with a `nodeId` select the block and open the node inspector. Workflow-level issues without a concrete ID remain informational.
 
 | Code | Meaning |
 | --- | --- |
@@ -100,4 +104,3 @@ The reachability and termination passes are O(V + E). Validation does not mutate
 The review step disables saving whenever `validation.isValid` is false. Validation is client-side; the mock server performs only shallow request-shape checks. A production backend must not rely on the browser and would need authoritative schema and graph validation.
 
 See [Workflow blocks](04-workflow-blocks.md) for per-template defaults and [API and persistence](06-api-and-persistence.md) for the serialized wire format.
-

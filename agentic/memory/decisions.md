@@ -128,3 +128,37 @@
 - Persistenza: inizializzare i database runtime ignorati da Git da `mocks/db.seed.json`; sviluppo e test E2E usano database separati e i test dominio usano una directory temporanea.
 - Routing: Vite inoltra `/api` al server locale su porta 3001; il target è configurabile con `VITE_MOCK_API_TARGET` e Playwright usa la porta isolata 3002.
 - Motivo versione: la linea 1.x di JSON Server è ancora beta; la 0.17.4 espone l'API middleware stabile necessaria all'adapter senza cambiare il contratto frontend.
+
+## D-018 — Hub documentale developer-first
+
+- Data: 2026-07-06
+- Stato: accettata
+- Decisione: mantenere sotto `docs/` un hub tecnico in inglese composto da indice e otto guide su overview, runtime, stato, blocchi, validazione, API, test ed estensione.
+- Fonte di verità: la documentazione descrive soltanto il codice corrente, distingue comportamento implementato e simulato e collega i file sorgente rilevanti con link relativi.
+- Convenzioni: il README root resta il quick start; diagrammi Mermaid sono riservati ad architettura e flussi dati; l'inventario blocchi deve restare allineato al catalogo.
+
+## D-019 — Sincronizzazione documentazione a fine sessione
+
+- Data: 2026-07-06
+- Stato: accettata
+- Decisione: ogni chiusura sessione deve riesaminare le modifiche rispetto all'indice `docs/` e aggiornare nello stesso turno tutte le guide interessate.
+- Task incomplete: handoff e scheda attiva devono elencare gli aggiornamenti documentali ancora necessari.
+- Task completate: non possono essere archiviate con divergenze note tra comportamento implementato e documentazione; in assenza di impatto va registrata esplicitamente la verifica.
+
+## D-020 — Home e routing applicativo
+
+- Data: 2026-07-06
+- Stato: accettata
+- Decisione: usare `react-router-dom` 7.18.1 con data router; `/` ospita la Home, `/workflow` l'editor e le route sconosciute tornano alla Home.
+- Caricamento: Home ed editor sono lazy-loaded separatamente per non includere React Flow nel chunk iniziale della Home.
+- Navigazione: Home e Workflow sono `NavLink` nella rail; le altre voci restano disabilitate finché non esiste una pagina reale.
+- Protezione dati: `beforeunload` protegge refresh/chiusura e il router blocker protegge link SPA e back/forward quando il draft è dirty.
+- Home: mostra soltanto capability descrittive e dati reali dell'ultimo record localStorage valido; non introduce metriche simulate o nuove chiamate backend.
+
+## D-021 — Inventario dipendenze nel hub documentale
+
+- Data: 2026-07-06
+- Stato: accettata
+- Decisione: estendere il hub `docs/` con una nona guida, `09-dependencies-and-libraries.md`, dedicata alle dipendenze dirette runtime, build, test e mock-server.
+- Fonte di verita: `package.json` resta la fonte per versioni e presenza delle dipendenze; la guida documenta scopo e punti d'uso principali.
+- Manutenzione: ogni aggiunta o rimozione di pacchetti diretti deve aggiornare la guida nello stesso cambio.
