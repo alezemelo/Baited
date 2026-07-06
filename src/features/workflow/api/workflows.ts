@@ -44,6 +44,9 @@ export interface SavedWorkflowRecord {
   response: CreateWorkflowResponse
 }
 
+export type SavedWorkflowResource = CreateWorkflowRequest &
+  CreateWorkflowResponse
+
 export interface WorkflowStorage {
   getItem: (key: string) => string | null
   setItem: (key: string, value: string) => void
@@ -67,6 +70,11 @@ export type WorkflowSaveAction =
 interface SaveWorkflowOptions {
   endpoint?: string
   simulateError?: boolean
+}
+
+interface ListWorkflowsOptions {
+  endpoint?: string
+  signal?: AbortSignal
 }
 
 export class WorkflowApiError extends Error {
@@ -133,6 +141,44 @@ export async function saveWorkflow(
   }
 
   return body
+}
+
+export async function listSavedWorkflows(
+  options: ListWorkflowsOptions = {},
+): Promise<SavedWorkflowResource[]> {
+  const response = await fetch(options.endpoint ?? '/api/workflows', {
+    signal: options.signal,
+  })
+  const body: unknown = await response.json().catch(() => null)
+
+  if (!response.ok) {
+    throw new WorkflowApiError(getApiErrorMessage(body), response.status)
+  }
+
+  if (!Array.isArray(body) || !body.every(isSavedWorkflowResource)) {
+    throw new WorkflowApiError('La risposta API non è valida.', response.status)
+  }
+
+  return [...body].sort(
+    (first, second) =>
+      Date.parse(second.createdAt) - Date.parse(first.createdAt),
+  )
+}
+
+export function getWorkflowResourceRecord(
+  workflow: SavedWorkflowResource,
+): SavedWorkflowRecord {
+  const { createdAt, id, status, version, ...request } = workflow
+
+  return {
+    request: {
+      version,
+      metadata: structuredClone(request.metadata),
+      nodes: structuredClone(request.nodes),
+      edges: structuredClone(request.edges),
+    },
+    response: { createdAt, id, status, version },
+  }
 }
 
 export function persistLastSavedWorkflow(
@@ -260,4 +306,10 @@ function isCreateWorkflowResponse(
     typeof response.createdAt === 'string' &&
     !Number.isNaN(Date.parse(response.createdAt))
   )
+}
+
+function isSavedWorkflowResource(
+  value: unknown,
+): value is SavedWorkflowResource {
+  return isCreateWorkflowRequest(value) && isCreateWorkflowResponse(value)
 }

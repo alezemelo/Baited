@@ -17,6 +17,7 @@
 | Validation issue navigation | `WorkflowWizard` | Review actions switch back to the workflow step and select the referenced node or edge |
 | React Flow instance and viewport | `WorkflowCanvas` | UI-only and omitted from the API payload |
 | Save loading/error/success state | `WorkflowReviewStep` | Reducer state, separate from the draft |
+| Saved-workflow archive state | `WorkflowsPage` | Loaded from `GET /api/workflows`; not owned by the editor provider |
 | Current route/history blocker | React Router and `WorkflowStudioContent` | Home/editor navigation and dirty-draft confirmation |
 | Latest-save Home summary | `HomePage` | Read-only projection from guarded localStorage parsing |
 
@@ -35,6 +36,8 @@ flowchart TD
   Review -->|issue nodeId/edgeId| Provider
   Draft --> Serializer["serializeWorkflow"]
   Serializer --> API["POST /api/workflows"]
+  API --> Archive["WorkflowsPage"]
+  Archive -->|open saved record| Local
   API --> Local["localStorage record"]
   Local -->|next mount| Provider
   Local --> Home["Home saved-workflow summary"]
@@ -55,6 +58,8 @@ The context exposes explicit operations rather than a general state setter:
 Selecting a node clears edge selection, and selecting an edge clears node selection. Removing a node also removes all incident edges and clears any selected incident edge. Duplicating a node copies its data and offsets its position by 40 pixels, but does not copy its connections.
 
 From the review step, validation issues with a `nodeId` or `edgeId` expose a navigation action. The wizard marks the workflow step as visited, switches back to the canvas, and selects the referenced node or edge so the properties panel opens on the problematic element. Workflow-level issues without a concrete reference remain informational.
+
+The saved-workflows archive is intentionally outside `WorkflowProvider`: it reads complete persisted mock records through the API and summarizes them. Selecting "Apri nello studio" converts the stored record into the same `SavedWorkflowRecord` shape used by localStorage restoration, then the provider loads it on `/workflow`.
 
 ## Adding and moving blocks
 

@@ -245,3 +245,13 @@ Registro append-only. Non modificare o rimuovere le voci esistenti; eventuali co
 - Decisioni: Nessuna.
 - Follow-up: Nessuno.
 - Impatto documentazione: aggiornate le guide state/data flow e graph model/validation; nessun cambio API o dipendenze.
+
+## TASK-028 — Pagina workflow salvati
+
+- Completata: 2026-07-06
+- Risultato: aggiunta la route `/workflows` raggiungibile dalla sidebar con lista dei workflow salvati via `GET /api/workflows`, stati loading/empty/error, metriche aggregate e azione per aprire un workflow nello studio usando il ripristino localStorage esistente.
+- File principali: `src/App.tsx`, `src/components/layout/SideNavigation.tsx`, `src/features/workflow/api/workflows.ts`, `src/pages/WorkflowsPage.tsx`, `src/pages/WorkflowsPage.test.tsx`, `e2e/workflow.spec.ts`, `docs/02-bootstrap-and-runtime.md`, `docs/03-frontend-state-and-data-flow.md`, `docs/06-api-and-persistence.md`.
+- Verifiche: `npm run test` — 15 test dominio e 29 componenti superati; `npm run test:e2e` — 6 test Chromium superati; `npm run build`, `npm run lint` e `git diff --check` — superati.
+- Decisioni: Nessuna.
+- Follow-up: quando serve gestione completa, aggiungere caricamento per ID senza passare dal localStorage e azioni di duplicazione/eliminazione.
+- Impatto documentazione: aggiornate bootstrap/runtime, state/data flow e API/persistenza; nessun cambio API payload o dipendenze.

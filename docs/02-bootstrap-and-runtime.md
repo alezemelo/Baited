@@ -30,6 +30,7 @@ sequenceDiagram
   Router->>Browser: Lazy-load selected page
   Router->>Provider: Mount provider on /workflow
   Provider->>Browser: Read baited:last-saved-workflow
+  Browser->>Vite: GET /api/workflows on /workflows
   Browser->>Vite: POST /api/workflows when saving
   Vite->>API: Proxy /api request
 ```
@@ -41,6 +42,7 @@ sequenceDiagram
 | Route | Page | Behavior |
 | --- | --- | --- |
 | `/` | `HomePage` | Shows product capability copy and the latest valid local save |
+| `/workflows` | `WorkflowsPage` | Lists all mock API workflow records and can stage one for the editor |
 | `/workflow` | `WorkflowStudioPage` | Mounts provider, wizard, editor, review, and save behavior |
 | Any other path | Redirect | Replaces the location with `/` |
 
@@ -100,12 +102,15 @@ Malformed or missing localStorage data is ignored. Loading the example replaces 
 
 The Home route calls the same guarded localStorage reader but does not mount a provider. Its CTA and latest-workflow card navigate to `/workflow` without clearing or rewriting saved data.
 
+The Workflows route reads persisted records from `GET /api/workflows`. Opening an archive item writes that record into `baited:last-saved-workflow` and then navigates to `/workflow`, letting the existing provider restoration path load it as the current draft.
+
 ## Runtime failure modes
 
 - If Vite runs without the API, the editor still loads, but saving fails at `POST /api/workflows`.
 - If port 3001 is occupied, the API process exits with a bind error; change `PORT` or stop the conflicting process.
 - If the runtime database is invalid JSON, JSON Server cannot provide reliable persistence; reset it with `npm run mock:api:reset`.
 - A production host must serve `index.html` for `/workflow` so browser refreshes reach the client router.
+- A production host must also serve `index.html` for `/workflows`, because the archive is a client route.
 - The API has no authentication and is intended only for local development and demonstration.
 
 See [API and persistence](06-api-and-persistence.md) for server details and [Frontend state and data flow](03-frontend-state-and-data-flow.md) for the in-browser lifecycle.

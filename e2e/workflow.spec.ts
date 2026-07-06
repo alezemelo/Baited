@@ -81,6 +81,16 @@ test('completes save error, retry and refresh recovery', async ({
     ),
   ).toContain('"kind":"generate_scenario_from_osint"')
 
+  await page.getByRole('link', { name: 'Workflow salvati' }).click()
+  await expect(page).toHaveURL('/workflows')
+  await expect(
+    page.getByRole('heading', { name: 'Workflow salvati' }),
+  ).toBeVisible()
+  await expect(page.getByText('Campagna Q3 — Sicurezza email')).toBeVisible()
+  await expect(page.getByText(workflowId)).toBeVisible()
+  await expect(page.getByText('9 nodi')).toBeVisible()
+  await page.getByRole('link', { name: 'Workflow', exact: true }).click()
+
   await page.reload()
   await page.getByRole('button', { name: 'Apri workflow' }).click()
   await page.getByRole('button', { name: 'Vai alla revisione' }).click()

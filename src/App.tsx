@@ -8,6 +8,11 @@ import {
 const HomePage = lazy(() =>
   import('./pages/HomePage').then((module) => ({ default: module.HomePage })),
 )
+const WorkflowsPage = lazy(() =>
+  import('./pages/WorkflowsPage').then((module) => ({
+    default: module.WorkflowsPage,
+  })),
+)
 const WorkflowStudioPage = lazy(() =>
   import('./pages/WorkflowStudioPage').then((module) => ({
     default: module.WorkflowStudioPage,
@@ -22,6 +27,10 @@ const router = createBrowserRouter([
   {
     path: '/workflow',
     element: <LazyPage><WorkflowStudioPage /></LazyPage>,
+  },
+  {
+    path: '/workflows',
+    element: <LazyPage><WorkflowsPage /></LazyPage>,
   },
   {
     path: '*',

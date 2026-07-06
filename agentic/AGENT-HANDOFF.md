@@ -10,7 +10,7 @@ Costruire un MVP desktop-first per comporre, validare e salvare workflow di camp
 
 ## Stato sintetico
 
-TASK-026 completata: gli errori di validazione in Revisione navigano verso il nodo o la connessione corrispondente sul canvas.
+TASK-028 completata: la sidebar espone una pagina archivio che visualizza tutti i workflow salvati dal mock API.
 
 ## Task attiva
 
@@ -48,6 +48,7 @@ Nessuna.
 - Disposti in colonna i bottoni dei dialog di conferma eliminazione e archiviata `TASK-024`.
 - Implementata la riconnessione degli endpoint degli edge e archiviata `TASK-025`.
 - Aggiunta la navigazione dagli errori di validazione al canvas e archiviata `TASK-026`.
+- Aggiunta la pagina dei workflow salvati in sidebar e archiviata `TASK-028`.
 
 ## Verifiche effettuate
 
@@ -59,6 +60,7 @@ Nessuna.
 - TASK-024 — `npm run test:unit` superato: 8 file e 19 test componenti; `npm run build`, `npm run lint` e `git diff --check` superati.
 - TASK-025 — `npm run test` superato: 15 test dominio e 22 componenti; `npm run test:e2e` superato: 6 test Chromium; `npm run build`, `npm run lint` e `git diff --check` superati.
 - TASK-026 — `npm run test` superato: 15 test dominio e 25 componenti; `npm run test:e2e` superato: 6 test Chromium; `npm run build`, `npm run lint` e `git diff --check` superati.
+- TASK-028 — `npm run test` superato: 15 test dominio e 29 componenti; `npm run test:e2e` superato: 6 test Chromium; `npm run build`, `npm run lint` e `git diff --check` superati.
 - TASK-018 — 12 test componenti, build, lint e diff check superati; asset SVG incluso nel bundle e contenuto verificato.
 - TASK-017 — 15 test dominio, 12 componenti e 4 E2E Chromium superati; build, lint, audit e diff check superati; browser Home/editor verificato a 1024×768 e 1440×900 senza overflow o errori console.
 - TASK-016 — 9 documenti Markdown, link locali e inventario 9 template/8 kind verificati; build, lint e diff check superati.
@@ -98,6 +100,7 @@ Nessun blocco noto. Eccezione di accessibilità documentata: pan, zoom e creazio
 - TASK-024: nessun aggiornamento alle guide necessario; correzione visuale locale della disposizione bottoni.
 - TASK-025: aggiornati `docs/03-frontend-state-and-data-flow.md` e `docs/05-graph-model-and-validation.md`; nessun cambio API o dipendenza.
 - TASK-026: aggiornati `docs/03-frontend-state-and-data-flow.md` e `docs/05-graph-model-and-validation.md`; nessun cambio API o dipendenza.
+- TASK-028: aggiornati `docs/02-bootstrap-and-runtime.md`, `docs/03-frontend-state-and-data-flow.md` e `docs/06-api-and-persistence.md`; nessun cambio API payload o dipendenza.
 - TASK-018: nessun aggiornamento alle guide necessario; la sostituzione del lockup non cambia struttura, comportamento, API o flussi documentati.
 
 ## Terminazione percorsi

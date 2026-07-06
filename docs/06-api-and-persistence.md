@@ -75,6 +75,8 @@ A successful request returns HTTP `201`:
 
 The database record contains the complete request plus those four response fields. IDs use `crypto.randomUUID()` with a `workflow-` prefix.
 
+`GET /api/workflows` returns an array of those complete database records. [`WorkflowsPage`](../src/pages/WorkflowsPage.tsx) sorts them newest-first in the browser and displays workflow name, category, target, ID, saved date, node count, and edge count.
+
 ## Error responses
 
 | Status | Trigger | Body |
@@ -98,6 +100,8 @@ interface SavedWorkflowRecord {
 ```
 
 This localStorage record restores the editor on reload. It does not replace the mock database: the two copies exist for different demo behaviors, as explained in [Frontend state and data flow](03-frontend-state-and-data-flow.md).
+
+The saved-workflows page can also write one API record into this localStorage shape before navigating to `/workflow`. That is a client-side "open in studio" bridge, not a new backend endpoint.
 
 ## curl and Postman
 
@@ -124,4 +128,3 @@ In Postman, use the same URL, select a raw JSON body, and set `Content-Type: app
 ## Production boundary
 
 This API is a local mock with permissive CORS, no authentication, shallow validation, and file-based storage. It must not be exposed as a production backend. A real service should preserve or explicitly version the client contract, provide authoritative validation, and route `/api` appropriately.
-

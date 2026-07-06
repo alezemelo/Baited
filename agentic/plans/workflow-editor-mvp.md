@@ -55,6 +55,7 @@ Realizzare una demo desktop-first in cui l'utente definisce i dati generali, com
 | TASK-024 | Bottoni conferma eliminazione in colonna | TASK-023 | Completata |
 | TASK-025 | Riconnessione endpoint degli edge | TASK-024 | Completata |
 | TASK-026 | Navigazione dagli errori di validazione | TASK-025 | Completata |
+| TASK-028 | Pagina workflow salvati | TASK-026 | Completata |
 
 ## Definizione di completamento
 

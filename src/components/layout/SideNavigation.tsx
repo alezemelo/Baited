@@ -21,9 +21,9 @@ interface NavigationItem {
 const navigationItems: NavigationItem[] = [
   { label: 'Home', icon: Home, to: '/', end: true },
   { label: 'Workflow', icon: Workflow, to: '/workflow' },
+  { label: 'Workflow salvati', icon: FileBarChart, to: '/workflows' },
   { label: 'Target', icon: Users },
   { label: 'Training', icon: BookOpenCheck },
-  { label: 'Report', icon: FileBarChart },
   { label: 'Impostazioni', icon: Settings },
 ]
 
