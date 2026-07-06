@@ -32,17 +32,12 @@ describe('WorkflowsPage', () => {
     )
   })
 
-  it('stores the selected workflow before opening it in the studio', async () => {
-    const user = userEvent.setup()
-
+  it('links the selected workflow directly to the studio route', async () => {
     stubWorkflowsResponse([createSavedWorkflowResource()])
     renderWorkflowsPage()
 
-    await user.click(await screen.findByRole('link', { name: 'Apri nello studio' }))
-
-    expect(window.localStorage.getItem(LAST_SAVED_WORKFLOW_KEY)).toContain(
-      'workflow-list-test',
-    )
+    expect(await screen.findByRole('link', { name: 'Apri nello studio' }))
+      .toHaveAttribute('href', '/workflow/workflow-list-test')
   })
 
   it('deletes a saved workflow after confirmation and clears matching local restore state', async () => {

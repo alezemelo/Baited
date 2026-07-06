@@ -1,9 +1,7 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
-  LAST_SAVED_WORKFLOW_KEY,
   serializeWorkflow,
   type SavedWorkflowResource,
 } from '../features/workflow/api/workflows'
@@ -63,26 +61,13 @@ describe('HomePage', () => {
     expect(screen.getByText('9 connessioni')).toBeVisible()
     expect(screen.getByRole('link', { name: 'Apri workflow' })).toHaveAttribute(
       'href',
-      '/workflow',
+      '/workflow/workflow-home-latest',
     )
-  })
-
-  it('stages the latest database workflow before opening the studio', async () => {
-    const user = userEvent.setup()
-
-    stubWorkflowsResponse([
-      createSavedWorkflowResource({
-        createdAt: '2026-07-06T12:00:00.000Z',
-        id: 'workflow-home-open',
-        name: 'Workflow da aprire',
-      }),
-    ])
-    renderHome()
-
-    await user.click(await screen.findByRole('link', { name: 'Apri workflow' }))
-
-    expect(window.localStorage.getItem(LAST_SAVED_WORKFLOW_KEY)).toContain(
-      'workflow-home-open',
+    expect(
+      screen.getByRole('link', { name: 'Continua nel Workflow Studio' }),
+    ).toHaveAttribute(
+      'href',
+      '/workflow/workflow-home-latest',
     )
   })
 

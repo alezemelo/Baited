@@ -13,9 +13,7 @@ import { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { SideNavigation } from '../components/layout/SideNavigation'
 import {
-  getWorkflowResourceRecord,
   listSavedWorkflows,
-  persistLastSavedWorkflow,
   type SavedWorkflowResource,
 } from '../features/workflow/api/workflows'
 
@@ -65,16 +63,9 @@ export function HomePage() {
   const actionLabel = latestWorkflow
     ? 'Continua nel Workflow Studio'
     : 'Apri il Workflow Studio'
-  const stageLatestWorkflow = () => {
-    if (!latestWorkflow) {
-      return
-    }
-
-    persistLastSavedWorkflow(
-      getWorkflowResourceRecord(latestWorkflow),
-      window.localStorage,
-    )
-  }
+  const workflowStudioPath = latestWorkflow
+    ? `/workflow/${latestWorkflow.id}`
+    : '/workflow'
 
   useEffect(() => {
     const controller = new AbortController()
@@ -149,8 +140,7 @@ export function HomePage() {
                   </p>
                   <NavLink
                     className="mt-7 inline-flex items-center gap-2 rounded-xl bg-primary-container px-5 py-3 font-label text-sm font-semibold text-on-primary transition-transform hover:-translate-y-0.5"
-                    onClick={stageLatestWorkflow}
-                    to="/workflow"
+                    to={workflowStudioPath}
                   >
                     {actionLabel}
                     <ArrowRight aria-hidden="true" className="size-4" />
@@ -263,8 +253,7 @@ export function HomePage() {
                   </div>
                   <NavLink
                     className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-secondary/25 bg-secondary/10 px-4 py-2.5 font-label text-xs font-semibold text-secondary transition-colors hover:border-secondary/50 hover:bg-secondary/15"
-                    onClick={stageLatestWorkflow}
-                    to="/workflow"
+                    to={`/workflow/${latestWorkflow.id}`}
                   >
                     Apri workflow
                     <ArrowRight aria-hidden="true" className="size-3.5" />

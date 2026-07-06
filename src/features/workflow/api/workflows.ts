@@ -78,6 +78,11 @@ interface ListWorkflowsOptions {
   signal?: AbortSignal
 }
 
+interface GetWorkflowOptions {
+  endpoint?: string
+  signal?: AbortSignal
+}
+
 interface DeleteWorkflowOptions {
   endpoint?: string
 }
@@ -168,6 +173,26 @@ export async function listSavedWorkflows(
     (first, second) =>
       Date.parse(second.createdAt) - Date.parse(first.createdAt),
   )
+}
+
+export async function getSavedWorkflow(
+  workflowId: string,
+  options: GetWorkflowOptions = {},
+): Promise<SavedWorkflowResource> {
+  const endpoint =
+    options.endpoint ?? `/api/workflows/${encodeURIComponent(workflowId)}`
+  const response = await fetch(endpoint, { signal: options.signal })
+  const body: unknown = await response.json().catch(() => null)
+
+  if (!response.ok) {
+    throw new WorkflowApiError(getApiErrorMessage(body), response.status)
+  }
+
+  if (!isSavedWorkflowResource(body)) {
+    throw new WorkflowApiError('La risposta API non è valida.', response.status)
+  }
+
+  return body
 }
 
 export async function deleteSavedWorkflow(

@@ -275,3 +275,13 @@ Registro append-only. Non modificare o rimuovere le voci esistenti; eventuali co
 - Decisioni: Nessuna.
 - Follow-up: valutare caricamento editor diretto per ID dal database per rimuovere il bridge localStorage.
 - Impatto documentazione: aggiornate bootstrap/runtime, state/data flow e API/persistenza; nessun cambio API payload o dipendenze.
+
+## TASK-031 — Apertura workflow per ID database
+
+- Completata: 2026-07-06
+- Risultato: aggiunta la rotta `/workflow/:workflowId` che carica `GET /api/workflows/:id` e apre il record DB come draft iniziale; Home e Archivio linkano direttamente a quella rotta senza scrivere localStorage, mentre `/workflow` senza ID conserva il restore locale esistente.
+- File principali: `src/App.tsx`, `src/pages/WorkflowStudioPage.tsx`, `src/pages/HomePage.tsx`, `src/pages/HomePage.test.tsx`, `src/pages/WorkflowsPage.tsx`, `src/pages/WorkflowsPage.test.tsx`, `src/features/workflow/api/workflows.ts`, `e2e/workflow.spec.ts`, `docs/02-bootstrap-and-runtime.md`, `docs/03-frontend-state-and-data-flow.md`, `docs/06-api-and-persistence.md`.
+- Verifiche: `npm run test` — 15 test dominio e 31 componenti superati; `npm run test:e2e` — 6 test Chromium superati; `npm run build`, `npm run lint` e `git diff --check` — superati.
+- Decisioni: Nessuna.
+- Follow-up: valutare `PATCH /api/workflows/:id` per aggiornare record esistenti invece di creare nuove versioni solo via `POST`.
+- Impatto documentazione: aggiornate bootstrap/runtime, state/data flow e API/persistenza; nessun cambio payload `POST` o dipendenze.

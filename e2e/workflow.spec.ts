@@ -89,12 +89,17 @@ test('completes save error, retry and refresh recovery', async ({
   await expect(page.getByText('Campagna Q3 — Sicurezza email')).toBeVisible()
   await expect(page.getByText(workflowId)).toBeVisible()
   await expect(page.getByText('9 nodi')).toBeVisible()
-  await page.getByRole('link', { name: 'Workflow', exact: true }).click()
+  await page.evaluate(() =>
+    window.localStorage.removeItem('baited:last-saved-workflow'),
+  )
+  await page.getByRole('link', { name: 'Apri nello studio' }).click()
+  await expect(page).toHaveURL(`/workflow/${workflowId}`)
 
   await page.reload()
+  await expect(page).toHaveURL(`/workflow/${workflowId}`)
   await page.getByRole('button', { name: 'Apri workflow' }).click()
   await page.getByRole('button', { name: 'Vai alla revisione' }).click()
-  await expect(page.getByText(savedId!)).toBeVisible()
+  await expect(page.getByText('9 connessioni')).toBeVisible()
   await expect(page.getByText('Draft allineato')).toBeVisible()
 
   await page.getByRole('link', { name: 'Home' }).click()

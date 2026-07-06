@@ -18,10 +18,8 @@ import { SideNavigation } from '../components/layout/SideNavigation'
 import {
   clearLastSavedWorkflow,
   deleteSavedWorkflow,
-  getWorkflowResourceRecord,
   listSavedWorkflows,
   loadLastSavedWorkflow,
-  persistLastSavedWorkflow,
   type SavedWorkflowResource,
 } from '../features/workflow/api/workflows'
 
@@ -332,12 +330,6 @@ function WorkflowArchiveCard({
   const isConfirmingDelete = confirmDeleteWorkflowId === workflow.id
   const isDeleting = deletingWorkflowId === workflow.id
   const workflowName = workflow.metadata.name || 'Workflow senza nome'
-  const openWorkflow = () => {
-    persistLastSavedWorkflow(
-      getWorkflowResourceRecord(workflow),
-      window.localStorage,
-    )
-  }
 
   return (
     <article className="rounded-xl border border-white/[0.08] bg-surface-container p-5">
@@ -400,8 +392,7 @@ function WorkflowArchiveCard({
             className={`inline-flex items-center gap-2 rounded-lg border border-secondary/25 bg-secondary/10 px-3 py-2 font-label text-xs font-semibold text-secondary transition-colors hover:border-secondary/50 hover:bg-secondary/15 ${
               isDeleting ? 'pointer-events-none opacity-45' : ''
             }`}
-            onClick={openWorkflow}
-            to="/workflow"
+            to={`/workflow/${workflow.id}`}
           >
             Apri nello studio
             <ArrowRight aria-hidden="true" className="size-3.5" />

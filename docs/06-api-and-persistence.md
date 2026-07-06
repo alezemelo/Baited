@@ -18,7 +18,7 @@ To clear all saved mock workflows, stop any running API process and run:
 npm run mock:api:reset
 ```
 
-After reset, `/workflows` and the Home "Ultimo workflow" card are empty because both read from `GET /api/workflows`. The reset does not clear browser localStorage. If `/workflow` still restores an old draft, clear the editor bridge in the browser console:
+After reset, `/workflows` and the Home "Ultimo workflow" card are empty because both read from `GET /api/workflows`. The reset does not clear browser localStorage. If `/workflow` without an ID still restores an old local draft, clear the editor restore record in the browser console:
 
 ```js
 localStorage.removeItem('baited:last-saved-workflow')
@@ -90,6 +90,8 @@ The database record contains the complete request plus those four response field
 
 `GET /api/workflows` returns an array of those complete database records. [`WorkflowsPage`](../src/pages/WorkflowsPage.tsx) sorts them newest-first in the browser and displays workflow name, category, target, ID, saved date, node count, and edge count. [`HomePage`](../src/pages/HomePage.tsx) uses the same list endpoint to show the newest workflow under "Ultimo workflow".
 
+`GET /api/workflows/:id` is used by `/workflow/:workflowId` to open a saved workflow directly from the mock database. The fetched record is converted into the editable draft passed to `WorkflowProvider`.
+
 `DELETE /api/workflows/:id` removes a record from the mock database. The archive page requires confirmation before calling it, keeps the record visible if deletion fails, and updates the in-memory list after success.
 
 ## Error responses
@@ -116,7 +118,7 @@ interface SavedWorkflowRecord {
 
 This localStorage record restores the editor on reload. It does not replace the mock database: the two copies exist for different demo behaviors, as explained in [Frontend state and data flow](03-frontend-state-and-data-flow.md).
 
-The saved-workflows page and Home latest-workflow card can also write one API record into this localStorage shape before navigating to `/workflow`. That is a client-side "open in studio" bridge, not a new backend endpoint. If that same workflow is deleted from the archive, the page removes the localStorage record so `/workflow` does not restore a workflow that no longer exists in the mock database.
+The saved-workflows page and Home latest-workflow card no longer write API records into localStorage before opening the editor; they link to `/workflow/:id`, which fetches by ID. If a workflow matching `baited:last-saved-workflow` is deleted from the archive, the page still removes the localStorage record so `/workflow` without an ID does not restore a workflow that no longer exists in the mock database.
 
 ## curl and Postman
 

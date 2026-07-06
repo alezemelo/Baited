@@ -29,6 +29,10 @@ const router = createBrowserRouter([
     element: <LazyPage><WorkflowStudioPage /></LazyPage>,
   },
   {
+    path: '/workflow/:workflowId',
+    element: <LazyPage><WorkflowStudioPage /></LazyPage>,
+  },
+  {
     path: '/workflows',
     element: <LazyPage><WorkflowsPage /></LazyPage>,
   },
