@@ -1,15 +1,23 @@
 import {
   ArrowRight,
+  AlertTriangle,
   BookOpenCheck,
   GitBranch,
+  LoaderCircle,
   MailCheck,
   SearchCheck,
   Workflow,
   type LucideIcon,
 } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { SideNavigation } from '../components/layout/SideNavigation'
-import { loadLastSavedWorkflow } from '../features/workflow/api/workflows'
+import {
+  getWorkflowResourceRecord,
+  listSavedWorkflows,
+  persistLastSavedWorkflow,
+  type SavedWorkflowResource,
+} from '../features/workflow/api/workflows'
 
 const capabilities: Array<{
   title: string
@@ -42,11 +50,59 @@ const capabilities: Array<{
   },
 ]
 
+type LatestWorkflowState =
+  | { status: 'loading'; workflow: null }
+  | { status: 'success'; workflow: SavedWorkflowResource | null }
+  | { message: string; status: 'error'; workflow: null }
+
 export function HomePage() {
-  const savedWorkflow = loadLastSavedWorkflow(window.localStorage)
-  const actionLabel = savedWorkflow
+  const [latestWorkflowState, setLatestWorkflowState] =
+    useState<LatestWorkflowState>({
+      status: 'loading',
+      workflow: null,
+    })
+  const latestWorkflow = latestWorkflowState.workflow
+  const actionLabel = latestWorkflow
     ? 'Continua nel Workflow Studio'
     : 'Apri il Workflow Studio'
+  const stageLatestWorkflow = () => {
+    if (!latestWorkflow) {
+      return
+    }
+
+    persistLastSavedWorkflow(
+      getWorkflowResourceRecord(latestWorkflow),
+      window.localStorage,
+    )
+  }
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    void listSavedWorkflows({ signal: controller.signal })
+      .then((workflows) => {
+        setLatestWorkflowState({
+          status: 'success',
+          workflow: workflows[0] ?? null,
+        })
+      })
+      .catch((error) => {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          return
+        }
+
+        setLatestWorkflowState({
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Non è stato possibile leggere i workflow salvati.',
+          status: 'error',
+          workflow: null,
+        })
+      })
+
+    return () => controller.abort()
+  }, [])
 
   return (
     <div className="flex h-dvh min-h-[640px] flex-col overflow-hidden bg-surface text-on-surface">
@@ -93,6 +149,7 @@ export function HomePage() {
                   </p>
                   <NavLink
                     className="mt-7 inline-flex items-center gap-2 rounded-xl bg-primary-container px-5 py-3 font-label text-sm font-semibold text-on-primary transition-transform hover:-translate-y-0.5"
+                    onClick={stageLatestWorkflow}
                     to="/workflow"
                   >
                     {actionLabel}
@@ -148,35 +205,74 @@ export function HomePage() {
                 </div>
               </div>
 
-              {savedWorkflow ? (
+              {latestWorkflowState.status === 'loading' ? (
+                <div className="rounded-2xl border border-white/[0.08] bg-surface-container p-6">
+                  <div className="flex items-center gap-3 text-on-surface-muted">
+                    <LoaderCircle
+                      aria-hidden="true"
+                      className="size-4 animate-spin"
+                    />
+                    <p className="font-label text-xs">
+                      Caricamento ultimo workflow…
+                    </p>
+                  </div>
+                </div>
+              ) : null}
+
+              {latestWorkflowState.status === 'error' ? (
+                <div
+                  className="rounded-2xl border border-primary/20 bg-primary/10 p-6"
+                  role="alert"
+                >
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle
+                      aria-hidden="true"
+                      className="mt-0.5 size-4 shrink-0 text-primary"
+                    />
+                    <div>
+                      <p className="text-sm font-semibold text-primary">
+                        Ultimo workflow non disponibile
+                      </p>
+                      <p className="mt-2 max-w-2xl text-xs leading-5 text-on-surface-muted">
+                        {latestWorkflowState.message}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {latestWorkflowState.status === 'success' && latestWorkflow ? (
                 <article className="flex flex-col gap-5 rounded-2xl border border-white/[0.08] bg-surface-container p-6 md:flex-row md:items-center md:justify-between">
                   <div className="min-w-0">
                     <p className="truncate text-lg font-semibold text-on-surface">
-                      {savedWorkflow.request.metadata.name}
+                      {latestWorkflow.metadata.name}
                     </p>
                     <p className="mt-1 text-xs text-on-surface-muted">
-                      {savedWorkflow.request.metadata.category || 'Senza categoria'} · Salvato{' '}
-                      {formatSavedAt(savedWorkflow.response.createdAt)}
+                      {latestWorkflow.metadata.category || 'Senza categoria'} ·
+                      Salvato {formatSavedAt(latestWorkflow.createdAt)}
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
                       <WorkflowFact
-                        label={`${savedWorkflow.request.nodes.length} nodi`}
+                        label={`${latestWorkflow.nodes.length} nodi`}
                       />
                       <WorkflowFact
-                        label={`${savedWorkflow.request.edges.length} connessioni`}
+                        label={`${latestWorkflow.edges.length} connessioni`}
                       />
                       <WorkflowFact label="Versione 1" />
                     </div>
                   </div>
                   <NavLink
                     className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-secondary/25 bg-secondary/10 px-4 py-2.5 font-label text-xs font-semibold text-secondary transition-colors hover:border-secondary/50 hover:bg-secondary/15"
+                    onClick={stageLatestWorkflow}
                     to="/workflow"
                   >
                     Apri workflow
                     <ArrowRight aria-hidden="true" className="size-3.5" />
                   </NavLink>
                 </article>
-              ) : (
+              ) : null}
+
+              {latestWorkflowState.status === 'success' && !latestWorkflow ? (
                 <div className="rounded-2xl border border-dashed border-white/12 bg-surface-container/60 p-6">
                   <p className="text-sm font-semibold text-on-surface">
                     Nessun workflow salvato
@@ -186,7 +282,7 @@ export function HomePage() {
                     caricare il workflow di esempio.
                   </p>
                 </div>
-              )}
+              ) : null}
             </section>
 
             <section aria-labelledby="capabilities-title" className="mt-8 pb-4">

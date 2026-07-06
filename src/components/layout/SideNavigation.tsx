@@ -4,7 +4,6 @@ import {
   FileBarChart,
   Home,
   Settings,
-  ShieldCheck,
   Users,
   Workflow,
   type LucideIcon,
@@ -30,10 +29,6 @@ const navigationItems: NavigationItem[] = [
 export function SideNavigation() {
   return (
     <aside className="z-30 flex w-16 shrink-0 flex-col items-center border-r border-white/10 bg-surface-low py-4">
-      <div className="mb-6 flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-        <ShieldCheck aria-label="Baited" className="size-5" />
-      </div>
-
       <nav aria-label="Navigazione principale" className="flex flex-col gap-1">
         {navigationItems.map(({ end, icon: Icon, label, to }) => {
           if (to) {

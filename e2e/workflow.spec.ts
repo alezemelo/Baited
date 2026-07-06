@@ -125,6 +125,9 @@ test('completes save error, retry and refresh recovery', async ({
       window.localStorage.getItem('baited:last-saved-workflow'),
     ),
   ).toBeNull()
+  await page.getByRole('link', { name: 'Home' }).click()
+  await expect(page).toHaveURL('/')
+  await expect(page.getByText('Nessun workflow salvato')).toBeVisible()
   expect(consoleErrors).toEqual([])
 })
 

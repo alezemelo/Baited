@@ -57,6 +57,7 @@ Realizzare una demo desktop-first in cui l'utente definisce i dati generali, com
 | TASK-026 | Navigazione dagli errori di validazione | TASK-025 | Completata |
 | TASK-028 | Pagina workflow salvati | TASK-026 | Completata |
 | TASK-029 | Eliminazione workflow salvati | TASK-028 | Completata |
+| TASK-030 | Ultimo workflow Home da database | TASK-029 | Completata |
 
 ## Definizione di completamento
 

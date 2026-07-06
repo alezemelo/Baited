@@ -26,11 +26,11 @@ sequenceDiagram
   CLI->>Vite: Start development server
   Browser->>Vite: Load index.html and main.tsx
   Vite-->>Browser: React bundle
-  Browser->>Router: Resolve / or /workflow
+  Browser->>Router: Resolve /, /workflows, or /workflow
   Router->>Browser: Lazy-load selected page
+  Browser->>Vite: GET /api/workflows on / and /workflows
   Router->>Provider: Mount provider on /workflow
   Provider->>Browser: Read baited:last-saved-workflow
-  Browser->>Vite: GET /api/workflows on /workflows
   Browser->>Vite: POST /api/workflows when saving
   Vite->>API: Proxy /api request
 ```
@@ -41,7 +41,7 @@ sequenceDiagram
 
 | Route | Page | Behavior |
 | --- | --- | --- |
-| `/` | `HomePage` | Shows product capability copy and the latest valid local save |
+| `/` | `HomePage` | Shows product capability copy and the latest workflow from the mock DB |
 | `/workflows` | `WorkflowsPage` | Lists all mock API workflow records and can stage one for the editor |
 | `/workflow` | `WorkflowStudioPage` | Mounts provider, wizard, editor, review, and save behavior |
 | Any other path | Redirect | Replaces the location with `/` |
@@ -100,7 +100,7 @@ On `/workflow`, provider state is selected in this order:
 
 Malformed or missing localStorage data is ignored. Loading the example replaces graph and metadata content but preserves the current draft identity. Starting a new workflow creates a new draft identity and clears the local saved record.
 
-The Home route calls the same guarded localStorage reader but does not mount a provider. Its CTA and latest-workflow card navigate to `/workflow` without clearing or rewriting saved data.
+The Home route does not mount a provider. It reads `GET /api/workflows`, shows the newest mock database record, and writes that record into `baited:last-saved-workflow` only when the user opens it in `/workflow`.
 
 The Workflows route reads persisted records from `GET /api/workflows`. Opening an archive item writes that record into `baited:last-saved-workflow` and then navigates to `/workflow`, letting the existing provider restoration path load it as the current draft.
 

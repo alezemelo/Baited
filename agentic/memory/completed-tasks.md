@@ -265,3 +265,13 @@ Registro append-only. Non modificare o rimuovere le voci esistenti; eventuali co
 - Decisioni: Nessuna.
 - Follow-up: quando serve gestione completa, aggiungere eliminazione batch e caricamento editor per ID senza passare dal localStorage.
 - Impatto documentazione: aggiornate state/data flow e API/persistenza; nessun cambio API payload o dipendenze.
+
+## TASK-030 — Ultimo workflow Home da database
+
+- Completata: 2026-07-06
+- Risultato: aggiornata la Home per leggere il workflow più recente da `GET /api/workflows` invece di basarsi solo su localStorage; aggiunti stati loading/empty/error e staging del record DB in `baited:last-saved-workflow` solo quando l'utente apre il workflow nello studio.
+- File principali: `src/pages/HomePage.tsx`, `src/pages/HomePage.test.tsx`, `e2e/workflow.spec.ts`, `docs/02-bootstrap-and-runtime.md`, `docs/03-frontend-state-and-data-flow.md`, `docs/06-api-and-persistence.md`.
+- Verifiche: `npm run test` — 15 test dominio e 32 componenti superati; `npm run test:e2e` — 6 test Chromium superati; `npm run build`, `npm run lint` e `git diff --check` — superati.
+- Decisioni: Nessuna.
+- Follow-up: valutare caricamento editor diretto per ID dal database per rimuovere il bridge localStorage.
+- Impatto documentazione: aggiornate bootstrap/runtime, state/data flow e API/persistenza; nessun cambio API payload o dipendenze.
